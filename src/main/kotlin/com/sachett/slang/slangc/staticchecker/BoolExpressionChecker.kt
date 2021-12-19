@@ -20,9 +20,7 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
      * @param   ctx The <code>BooleanExprContext</code> to check.
      * @return  <code>true</code> if all OK else <code>false</code>.
      */
-    fun checkExpr(ctx: SlangGrammarParser.BooleanExprContext): Boolean {
-        return visit(ctx)
-    }
+    fun checkExpr(ctx: SlangGrammarParser.BooleanExprContext): Boolean = visit(ctx)
 
     /* -----------------  Visitor methods -------------------- */
 
@@ -47,21 +45,13 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         return (visit(booleanExprRetObjLHS) && visit(booleanExprRetObjRHS))
     }
 
-    override fun visitBooleanExprNot(ctx: SlangGrammarParser.BooleanExprNotContext?): Boolean {
-        return checkUnaryOp(ctx!!)
-    }
+    override fun visitBooleanExprNot(ctx: SlangGrammarParser.BooleanExprNotContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean {
-        return checkUnaryOp(ctx!!)
-    }
+    override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean {
-        return checkUnaryOp(ctx!!)
-    }
+    override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean {
-        return checkUnaryOp(ctx!!)
-    }
+    override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean = checkUnaryOp(ctx!!)
 
     override fun visitBooleanExprRelOp(ctx: SlangGrammarParser.BooleanExprRelOpContext?): Boolean {
         val lhs = ctx!!.expr(0)
@@ -199,22 +189,15 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         return true
     }
 
-    override fun visitBooleanExprParen(ctx: SlangGrammarParser.BooleanExprParenContext?): Boolean {
-        return checkUnaryOp(ctx!!)
-    }
+    override fun visitBooleanExprParen(ctx: SlangGrammarParser.BooleanExprParenContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprIdentifier(ctx: SlangGrammarParser.BooleanExprIdentifierContext?): Boolean {
-        return checkIdentifierTypeInExpr(ctx!!, SymbolType.BOOL)
-    }
+    override fun visitBooleanExprIdentifier(ctx: SlangGrammarParser.BooleanExprIdentifierContext?): Boolean =
+        checkIdentifierTypeInExpr(ctx!!, SymbolType.BOOL)
 
-    override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?): Boolean {
-        return true
-    }
+    override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?): Boolean = true
 
-    override fun visitBooleanFalse(ctx: SlangGrammarParser.BooleanFalseContext?): Boolean {
-        // since we are just checking types, it returns true
-        return true
-    }
+    // since we are just checking types, it returns true:
+    override fun visitBooleanFalse(ctx: SlangGrammarParser.BooleanFalseContext?): Boolean = true
 
     override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?): Boolean {
         // check if the function call returns a boolean value
