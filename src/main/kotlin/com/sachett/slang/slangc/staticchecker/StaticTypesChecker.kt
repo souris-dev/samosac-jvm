@@ -1,5 +1,6 @@
 package com.sachett.slang.slangc.staticchecker
 
+import com.sachett.slang.logging.err
 import com.sachett.slang.parser.SlangGrammarBaseVisitor
 import com.sachett.slang.parser.SlangGrammarParser
 import com.sachett.slang.slangc.symbol.BoolSymbol
@@ -43,7 +44,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
             symbolTable.insert(idName, boolSymbol)
             symbol = boolSymbol
         } else if (typeNameCtx.VOIDTYPE() != null) {
-            error("[Error, Line ${definedOnLineNum}] Void type variables are not supported. " +
+            err("[Error, Line ${definedOnLineNum}] Void type variables are not supported. " +
                     "What did you expect though...?")
         }
 
@@ -75,7 +76,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return paramList
     }
 
-    /* -----------------  Visitor overrides -------------------- */
+    /* -----------------  Visitor methods -------------------- */
 
     override fun visitProgram(ctx: SlangGrammarParser.ProgramContext?): Void {
         println("Visiting program...")

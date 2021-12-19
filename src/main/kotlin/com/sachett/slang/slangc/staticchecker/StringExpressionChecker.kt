@@ -1,4 +1,6 @@
 package com.sachett.slang.slangc.staticchecker
 
-class StringExpressionChecker {
+import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
+
+class StringExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbolTable) {
 }

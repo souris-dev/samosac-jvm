@@ -1,5 +1,6 @@
 package com.sachett.slang.slangc.compiler
 
+import com.sachett.slang.logging.err
 import com.sachett.slang.parser.SlangGrammarLexer
 import com.sachett.slang.parser.SlangGrammarParser
 import com.sachett.slang.slangc.staticchecker.StaticTypesChecker
@@ -9,7 +10,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        error("slangc: No input files!")
+        err("slangc: No input files!")
     }
 
     val inputStream = CharStreams.fromFileName(args[0])
