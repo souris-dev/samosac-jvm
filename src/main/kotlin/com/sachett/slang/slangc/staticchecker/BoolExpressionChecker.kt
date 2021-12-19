@@ -48,19 +48,19 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
     }
 
     override fun visitBooleanExprNot(ctx: SlangGrammarParser.BooleanExprNotContext?): Boolean {
-        return checkUnaryOp<SlangGrammarParser.BooleanExprNotContext>(ctx!!)
+        return checkUnaryOp(ctx!!)
     }
 
     override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean {
-        return checkUnaryOp<SlangGrammarParser.BooleanExprOrContext>(ctx!!)
+        return checkUnaryOp(ctx!!)
     }
 
     override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean {
-        return checkUnaryOp<SlangGrammarParser.BooleanExprAndContext>(ctx!!)
+        return checkUnaryOp(ctx!!)
     }
 
     override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean {
-        return checkUnaryOp<SlangGrammarParser.BooleanExprXorContext>(ctx!!)
+        return checkUnaryOp(ctx!!)
     }
 
     override fun visitBooleanExprRelOp(ctx: SlangGrammarParser.BooleanExprRelOpContext?): Boolean {
@@ -200,11 +200,11 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
     }
 
     override fun visitBooleanExprParen(ctx: SlangGrammarParser.BooleanExprParenContext?): Boolean {
-        return checkUnaryOp<SlangGrammarParser.BooleanExprParenContext>(ctx!!)
+        return checkUnaryOp(ctx!!)
     }
 
     override fun visitBooleanExprIdentifier(ctx: SlangGrammarParser.BooleanExprIdentifierContext?): Boolean {
-        return checkIdentifierTypeInExpr<SlangGrammarParser.BooleanExprIdentifierContext>(ctx!!, SymbolType.BOOL)
+        return checkIdentifierTypeInExpr(ctx!!, SymbolType.BOOL)
     }
 
     override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?): Boolean {
