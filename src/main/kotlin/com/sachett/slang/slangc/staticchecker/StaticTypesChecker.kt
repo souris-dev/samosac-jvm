@@ -1,6 +1,7 @@
 package com.sachett.slang.slangc.staticchecker
 
 import com.sachett.slang.logging.err
+import com.sachett.slang.logging.fmtfatalerr
 import com.sachett.slang.parser.SlangGrammarBaseVisitor
 import com.sachett.slang.parser.SlangGrammarParser
 import com.sachett.slang.slangc.symbol.BoolSymbol
@@ -44,8 +45,10 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
             symbolTable.insert(idName, boolSymbol)
             symbol = boolSymbol
         } else if (typeNameCtx.VOIDTYPE() != null) {
-            err("[Error, Line ${definedOnLineNum}] Void type variables are not supported. " +
-                    "What did you expect though...?")
+            err(
+                "[Error, Line ${definedOnLineNum}] Void type variables are not supported. " +
+                        "What did you expect though...?"
+            )
         }
 
         symbolTable.decrementScope(false)
@@ -60,7 +63,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
         }
-        
+
         return paramList
     }
 
@@ -92,6 +95,37 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
     }
 
     override fun visitDeclStmt(ctx: SlangGrammarParser.DeclStmtContext?): Void {
+        println("Visiting DeclStmt...") // debug
+        val idName = ctx!!.IDENTIFIER().symbol.text
+        val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
+        val typeNameCtx = ctx.typeName()
+
+        val existingSymbol = symbolTable.lookup(idName)
+
+        if (existingSymbol != null) {
+            fmtfatalerr(
+                "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        if (typeNameCtx.BOOLTYPE() != null) {
+            println("Found boolie type id $idName")
+            val boolSymbol = BoolSymbol(idName, firstAppearedLineNum)
+            symbolTable.insert(idName, boolSymbol)
+        } else if (typeNameCtx.INTTYPE() != null) {
+            println("Found int type for id $idName")
+            val intSymbol = IntSymbol(idName, firstAppearedLineNum)
+            symbolTable.insert(idName, intSymbol)
+        } else if (typeNameCtx.STRINGTYPE() != null) {
+            println("Found string type for id $idName")
+            val stringSymbol = StringSymbol(idName, firstAppearedLineNum)
+            symbolTable.insert(idName, stringSymbol)
+        } else if (typeNameCtx.VOIDTYPE() != null) {
+            // We do not have void variables
+            fmtfatalerr("Void types for variable declarations are not allowed.", firstAppearedLineNum)
+        }
+
         return super.visitDeclStmt(ctx)
     }
 
