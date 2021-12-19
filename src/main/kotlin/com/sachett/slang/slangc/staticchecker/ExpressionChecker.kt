@@ -1,6 +1,7 @@
 package com.sachett.slang.slangc.staticchecker
 
-import SlangGrammarBaseVisitor
+import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.parser.SlangGrammarBaseVisitor
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 

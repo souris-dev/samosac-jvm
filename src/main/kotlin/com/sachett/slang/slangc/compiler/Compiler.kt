@@ -1,7 +1,7 @@
 package com.sachett.slang.slangc.compiler
 
-import SlangGrammarLexer
-import SlangGrammarParser
+import com.sachett.slang.parser.SlangGrammarLexer
+import com.sachett.slang.parser.SlangGrammarParser
 import com.sachett.slang.slangc.staticchecker.StaticTypesChecker
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.CharStreams
