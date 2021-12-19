@@ -9,6 +9,6 @@ enum class SymbolType(
     FUNCTION("function", false, false),
     INT("int", true, true, 0xDEAD),
     STRING("string", false, true, "lawl"),
-    BOOL("bool", false, true, true),
+    BOOL("boolie", false, true, true),
     VOID("void", false, false)
 }

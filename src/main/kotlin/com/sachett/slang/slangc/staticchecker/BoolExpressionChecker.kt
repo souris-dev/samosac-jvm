@@ -185,7 +185,7 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         }
 
         // check if relational operators can be used with the given types
-        if (!lhsType.second.canBeUsedWithRelOp) {
+        if (!lhsType.second.canBeUsedWithCompOp) {
             fmterror(
                 "The operator '${op}' cannot be used for the type returned by these expressions " +
                         "(cannot compare two ${lhsType.second.asString} values).",
