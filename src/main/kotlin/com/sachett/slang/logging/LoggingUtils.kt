@@ -14,6 +14,11 @@ fun err(message: String): Nothing {
     exitProcess(-1)
 }
 
+fun fmtfatalerr(message: String, lineNumber: Int): Nothing {
+    System.err.println("[Error, Line $lineNumber] $message")
+    exitProcess(-1)
+}
+
 fun fmterror(message: String, lineNumber: Int, severity: Severity = Severity.FATAL) {
     when (severity) {
         Severity.WARNING -> {

@@ -1,8 +1,12 @@
 package com.sachett.slang.slangc.staticchecker
 
+import com.sachett.slang.logging.Severity
 import com.sachett.slang.logging.err
+import com.sachett.slang.logging.fmterror
+import com.sachett.slang.logging.fmtfatalerr
 import com.sachett.slang.parser.SlangGrammarBaseVisitor
 import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.slangc.symbol.FunctionSymbol
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
@@ -72,6 +76,16 @@ class ExpressionTypeDetector(
 
     override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?) {
         val retType: SymbolType = FunctionCallExprChecker.getRetTypeOfFunctionCallWithArgs(ctx, symbolTable)
+
+        val lineNum = ctx!!.IDENTIFIER().symbol.line
+        if (retType !in FunctionSymbol.allowedReturnTypes.minus(SymbolType.VOID)) {
+            fmtfatalerr(
+                "Illegal return type of function call in expression, in call to ${ctx.IDENTIFIER().text}. " +
+                        if (retType == SymbolType.VOID) "The function call returns no value." else "",
+                lineNum,
+            )
+        }
+
         symbolTypesInExpr[retType] = symbolTypesInExpr.getOrDefault(retType, 0) + 1
 
         /* Do not go into the function call expression here (hence super's method isn't called) */
@@ -79,8 +93,17 @@ class ExpressionTypeDetector(
 
     override fun visitFunctionCallNoArgs(ctx: SlangGrammarParser.FunctionCallNoArgsContext?) {
         val retType: SymbolType = FunctionCallExprChecker.getRetTypeOfFunctionCallNoArgs(ctx, symbolTable)
-        symbolTypesInExpr[retType] = symbolTypesInExpr.getOrDefault(retType, 0) + 1
 
+        val lineNum = ctx!!.IDENTIFIER().symbol.line
+        if (retType !in FunctionSymbol.allowedReturnTypes.minus(SymbolType.VOID)) {
+            fmtfatalerr(
+                "Illegal return type of function call in expression, in call to ${ctx.IDENTIFIER().text}. " +
+                        if (retType == SymbolType.VOID) "The function call returns no value." else "",
+                lineNum,
+            )
+        }
+
+        symbolTypesInExpr[retType] = symbolTypesInExpr.getOrDefault(retType, 0) + 1
         /* Do not go into the function call expression here (hence super's method isn't called) */
     }
 }

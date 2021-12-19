@@ -5,6 +5,11 @@ class FunctionSymbol(override val name: String, override val firstAppearedLine: 
     val returnType: SymbolType = SymbolType.VOID
     val paramList: ArrayList<ISymbol> = ArrayList()
 
+    companion object {
+        val allowedReturnTypes =
+            listOf(SymbolType.INT, SymbolType.BOOL, SymbolType.STRING, SymbolType.VOID)
+    }
+
     constructor(
         name: String,
         firstAppearedLine: Int,
