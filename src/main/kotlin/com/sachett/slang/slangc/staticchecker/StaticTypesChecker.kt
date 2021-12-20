@@ -4,10 +4,7 @@ import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmtfatalerr
 import com.sachett.slang.parser.SlangGrammarBaseVisitor
 import com.sachett.slang.parser.SlangGrammarParser
-import com.sachett.slang.slangc.symbol.BoolSymbol
-import com.sachett.slang.slangc.symbol.ISymbol
-import com.sachett.slang.slangc.symbol.IntSymbol
-import com.sachett.slang.slangc.symbol.StringSymbol
+import com.sachett.slang.slangc.symbol.*
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
 class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBaseVisitor<Void>() {
@@ -130,6 +127,62 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
     }
 
     override fun visitNormalDeclAssignStmt(ctx: SlangGrammarParser.NormalDeclAssignStmtContext?): Void {
+        println("Visiting NormalDeclAssignStmt...") // debug
+        val idName = ctx!!.IDENTIFIER().symbol.text
+        val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
+        val typeNameCtx = ctx.typeName()
+
+        val existingSymbol = symbolTable.lookup(idName)
+
+        if (existingSymbol != null) {
+            fmtfatalerr(
+                "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        if (typeNameCtx.BOOLTYPE() != null) {
+            // this should not happen here
+            // it's here just for the sake of completeness
+            fmtfatalerr("Illegal boolie declaration.", firstAppearedLineNum)
+        }
+
+        if (typeNameCtx.INTTYPE() != null) {
+            val intSymbol = IntSymbol(idName, firstAppearedLineNum)
+            val intExprChecker = IntExpressionChecker(symbolTable)
+
+            if (!intExprChecker.checkExpr(ctx.expr())) {
+                val typeDetector = ExpressionTypeDetector(symbolTable)
+                val detectedType = typeDetector.getType(ctx.expr())
+                fmtfatalerr(
+                    "Expected ${SymbolType.INT.asString} expression on RHS, " +
+                            "found ${if (detectedType.first) detectedType.second.asString else "mismatched types. "}. ",
+                    firstAppearedLineNum
+                )
+            }
+
+            symbolTable.insert(idName, intSymbol)
+        } else if (typeNameCtx.STRINGTYPE() != null) {
+            val boolSymbol = BoolSymbol(idName, firstAppearedLineNum)
+            val boolExprChecker = BoolExpressionChecker(symbolTable)
+
+            if (!boolExprChecker.checkExpr(ctx.expr())) {
+                val typeDetector = ExpressionTypeDetector(symbolTable)
+                val detectedType = typeDetector.getType(ctx.expr())
+                fmtfatalerr(
+                    "Expected ${SymbolType.BOOL.asString} expression on RHS, " +
+                            "found ${if (detectedType.first) detectedType.second.asString else "mismatched types. "}. ",
+                    firstAppearedLineNum
+                )
+            }
+
+            symbolTable.insert(idName, boolSymbol)
+        } else if (typeNameCtx.VOIDTYPE() != null) {
+            // no support for void variables
+            // TODO: wanna add type inference?
+            fmtfatalerr("Void types for variable declarations are not yet supported. ", firstAppearedLineNum)
+        }
+
         return super.visitNormalDeclAssignStmt(ctx)
     }
 
