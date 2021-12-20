@@ -112,7 +112,9 @@ declStmt: VARDEF IDENTIFIER COLON typeName;
 typeName: INTTYPE | STRINGTYPE | VOIDTYPE | BOOLTYPE;
 
 declAssignStmt: VARDEF IDENTIFIER COLON BOOLTYPE EQUAL booleanExpr #booleanDeclAssignStmt
-              | VARDEF IDENTIFIER COLON typeName EQUAL expr #normalDeclAssignStmt;
+              | VARDEF IDENTIFIER COLON typeName EQUAL expr #normalDeclAssignStmt
+              | VARDEF IDENTIFIER COLON EQUAL expr #typeInferredDeclAssignStmt
+              | VARDEF IDENTIFIER COLON EQUAL booleanExpr #typeInferredBooleanDeclAssignStmt;
 
 block: LCURLYBR RCURLYBR
      | LCURLYBR statements RCURLYBR;

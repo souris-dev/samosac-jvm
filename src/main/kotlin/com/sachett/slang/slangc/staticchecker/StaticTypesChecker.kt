@@ -91,6 +91,8 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return blockVisit
     }
 
+    // TODO: refactor out existing symbol checks in the following functions
+
     override fun visitDeclStmt(ctx: SlangGrammarParser.DeclStmtContext?): Void {
         println("Visiting DeclStmt...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
@@ -163,23 +165,22 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
 
             symbolTable.insert(idName, intSymbol)
         } else if (typeNameCtx.STRINGTYPE() != null) {
-            val boolSymbol = BoolSymbol(idName, firstAppearedLineNum)
-            val boolExprChecker = BoolExpressionChecker(symbolTable)
+            val stringSymbol = StringSymbol(idName, firstAppearedLineNum)
+            val stringExprChecker = StringExpressionChecker(symbolTable)
 
-            if (!boolExprChecker.checkExpr(ctx.expr())) {
+            if (!stringExprChecker.checkExpr(ctx.expr())) {
                 val typeDetector = ExpressionTypeDetector(symbolTable)
                 val detectedType = typeDetector.getType(ctx.expr())
                 fmtfatalerr(
-                    "Expected ${SymbolType.BOOL.asString} expression on RHS, " +
+                    "Expected ${SymbolType.STRING.asString} expression on RHS, " +
                             "found ${if (detectedType.first) detectedType.second.asString else "mismatched types. "}. ",
                     firstAppearedLineNum
                 )
             }
 
-            symbolTable.insert(idName, boolSymbol)
+            symbolTable.insert(idName, stringSymbol)
         } else if (typeNameCtx.VOIDTYPE() != null) {
             // no support for void variables
-            // TODO: wanna add type inference?
             fmtfatalerr("Void types for variable declarations are not yet supported. ", firstAppearedLineNum)
         }
 
@@ -187,7 +188,143 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
     }
 
     override fun visitBooleanDeclAssignStmt(ctx: SlangGrammarParser.BooleanDeclAssignStmtContext?): Void {
+        println("Visiting BooleanDeclAssign...") // debug
+        val idName = ctx!!.IDENTIFIER().symbol.text
+        val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
+
+        val existingSymbol = symbolTable.lookup(idName)
+
+        if (existingSymbol != null) {
+            fmtfatalerr(
+                "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        val boolSymbol = BoolSymbol(idName, firstAppearedLineNum)
+        val boolExprChecker = BoolExpressionChecker(symbolTable)
+
+        if (!boolExprChecker.checkExpr(ctx.booleanExpr())) {
+            fmtfatalerr(
+                "Expected ${SymbolType.BOOL.asString} expression on RHS, found mismatched types.",
+                firstAppearedLineNum
+            )
+        }
+
+        symbolTable.insert(idName, boolSymbol)
         return super.visitBooleanDeclAssignStmt(ctx)
+    }
+
+    override fun visitTypeInferredDeclAssignStmt(ctx: SlangGrammarParser.TypeInferredDeclAssignStmtContext?): Void {
+        println("Visiting TypeInferredDeclAssignStmt...") // debug
+        val idName = ctx!!.IDENTIFIER().symbol.text
+        val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
+
+        val existingSymbol = symbolTable.lookup(idName)
+
+        if (existingSymbol != null) {
+            fmtfatalerr(
+                "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val (homoTypes, expressionType) = expressionTypeDetector.getType(ctx.expr())
+
+        if (!homoTypes) {
+            fmtfatalerr(
+                "Incompatible types in expression on RHS. All terms should be on same type in the expression in the RHS.",
+                firstAppearedLineNum
+            )
+        }
+
+        when (expressionType) {
+            SymbolType.INT -> {
+                val intSymbol = IntSymbol(idName, firstAppearedLineNum, true)
+                val intExprChecker = IntExpressionChecker(symbolTable)
+
+                if (!intExprChecker.checkExpr(ctx.expr())) {
+                    val typeDetector = ExpressionTypeDetector(symbolTable)
+                    val detectedType = typeDetector.getType(ctx.expr())
+                    fmtfatalerr(
+                        "While inferring type, expected ${SymbolType.INT.asString} expression on RHS, " +
+                                "found ${if (detectedType.first) detectedType.second.asString else "mismatched types. "}. ",
+                        firstAppearedLineNum
+                    )
+                }
+
+                symbolTable.insert(idName, intSymbol)
+            }
+            SymbolType.STRING -> {
+                val stringSymbol = StringSymbol(idName, firstAppearedLineNum, true)
+                val stringExprChecker = StringExpressionChecker(symbolTable)
+
+                if (!stringExprChecker.checkExpr(ctx.expr())) {
+                    val typeDetector = ExpressionTypeDetector(symbolTable)
+                    val detectedType = typeDetector.getType(ctx.expr())
+                    fmtfatalerr(
+                        "While inferring type, expected ${SymbolType.STRING.asString} expression on RHS, " +
+                                "found ${if (detectedType.first) detectedType.second.asString else "mismatched types. "}. ",
+                        firstAppearedLineNum
+                    )
+                }
+
+                symbolTable.insert(idName, stringSymbol)
+            }
+            SymbolType.BOOL -> {
+                // We probably have one of these 2 cases here:
+                // id = id1; - both should be boolean type
+                // id = () -> functionCall; - functionCall should return bool
+                // Because this syntax is common for both expr and booleanExpr,
+                // they will be parsed as normal expression instead of booleanExpr
+
+                // Sadly, we cannot verify this here because BoolExpressionChecker
+                // takes a different kind (type) of ctx argument
+                // TODO: implement the original override for checkExpr that takes a normal expression context in BoolExpressionChecker
+
+                val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true)
+                symbolTable.insert(idName, boolSymbol)
+            }
+            else -> {
+                // invalid type
+                fmtfatalerr(
+                    "Invalid type (${expressionType.asString} on RHS for assignment to an identifier. ",
+                    firstAppearedLineNum
+                )
+            }
+        }
+
+        return super.visitTypeInferredDeclAssignStmt(ctx)
+    }
+
+    override fun visitTypeInferredBooleanDeclAssignStmt(ctx: SlangGrammarParser.TypeInferredBooleanDeclAssignStmtContext?): Void {
+        println("Visiting TypeInferredBooleanDeclAssign...") // debug
+        val idName = ctx!!.IDENTIFIER().symbol.text
+        val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
+
+        val existingSymbol = symbolTable.lookup(idName)
+
+        if (existingSymbol != null) {
+            fmtfatalerr(
+                "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true)
+        val boolExprChecker = BoolExpressionChecker(symbolTable)
+
+        if (!boolExprChecker.checkExpr(ctx.booleanExpr())) {
+            fmtfatalerr(
+                "While inferring type, expected ${SymbolType.BOOL.asString} expression on RHS, found mismatched types.",
+                firstAppearedLineNum
+            )
+        }
+
+        symbolTable.insert(idName, boolSymbol)
+
+        return super.visitTypeInferredBooleanDeclAssignStmt(ctx)
     }
 
     override fun visitExprAssign(ctx: SlangGrammarParser.ExprAssignContext?): Void {
@@ -219,10 +356,20 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
     }
 
     override fun visitIfStmt(ctx: SlangGrammarParser.IfStmtContext?): Void {
+        val boolExprChecker = BoolExpressionChecker(symbolTable)
+        if (!boolExprChecker.checkExpr(ctx!!.booleanExpr())) {
+            fmtfatalerr("Invalid boolean expression in condition required " +
+                    "for if statement.", ctx.IF().symbol.line)
+        }
         return super.visitIfStmt(ctx)
     }
 
     override fun visitWhileStmt(ctx: SlangGrammarParser.WhileStmtContext?): Void {
+        val boolExprChecker = BoolExpressionChecker(symbolTable)
+        if (!boolExprChecker.checkExpr(ctx!!.booleanExpr())) {
+            fmtfatalerr("Invalid boolean expression in condition required " +
+                    "for while statement.", ctx.WHILE().symbol.line)
+        }
         return super.visitWhileStmt(ctx)
     }
 }

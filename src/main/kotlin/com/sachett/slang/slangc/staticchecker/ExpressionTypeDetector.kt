@@ -55,6 +55,8 @@ class ExpressionTypeDetector(
 
     /* -----------------  Visitor methods -------------------- */
 
+    // check the terminals and retrieve their types
+
     override fun visitExprDecint(ctx: SlangGrammarParser.ExprDecintContext?) {
         symbolTypesInExpr[SymbolType.INT] = symbolTypesInExpr.getOrDefault(SymbolType.INT, 0) + 1
         return super.visitExprDecint(ctx)
@@ -65,6 +67,19 @@ class ExpressionTypeDetector(
         return super.visitExprString(ctx)
     }
 
+    override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?) {
+        symbolTypesInExpr[SymbolType.BOOL] = symbolTypesInExpr.getOrDefault(SymbolType.BOOL, 0) + 1
+        return super.visitBooleanTrue(ctx)
+    }
+
+    override fun visitBooleanFalse(ctx: SlangGrammarParser.BooleanFalseContext?) {
+        symbolTypesInExpr[SymbolType.BOOL] = symbolTypesInExpr.getOrDefault(SymbolType.BOOL, 0) + 1
+        return super.visitBooleanFalse(ctx)
+    }
+
+    /**
+     * Retrieves the type of identifier.
+     */
     override fun visitExprIdentifier(ctx: SlangGrammarParser.ExprIdentifierContext?) {
         val idName = ctx?.IDENTIFIER()?.text
         val lineNumber = ctx?.IDENTIFIER()?.symbol?.line
@@ -73,6 +88,8 @@ class ExpressionTypeDetector(
         symbolTypesInExpr[symbol.symbolType] = symbolTypesInExpr.getOrDefault(symbol.symbolType, 0) + 1
         return super.visitExprIdentifier(ctx)
     }
+
+    // The next two functions check the return types of any function calls in the expression
 
     override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?) {
         val retType: SymbolType = FunctionCallExprChecker.getRetTypeOfFunctionCallWithArgs(ctx, symbolTable)

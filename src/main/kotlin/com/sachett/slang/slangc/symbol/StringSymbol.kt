@@ -3,6 +3,7 @@ package com.sachett.slang.slangc.symbol
 class StringSymbol(
     override val name: String,
     override val firstAppearedLine: Int,
+    override val isInferredType: Boolean = false,
     var value: String = SymbolType.STRING.defaultValue as String
 ) : ISymbol {
     override val symbolType: SymbolType = SymbolType.STRING

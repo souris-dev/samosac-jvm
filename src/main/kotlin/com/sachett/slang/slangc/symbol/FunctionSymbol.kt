@@ -1,6 +1,10 @@
 package com.sachett.slang.slangc.symbol
 
-class FunctionSymbol(override val name: String, override val firstAppearedLine: Int) : ISymbol {
+class FunctionSymbol(
+    override val name: String,
+    override val firstAppearedLine: Int,
+    override val isInferredType: Boolean = false,
+) : ISymbol {
     override val symbolType: SymbolType = SymbolType.FUNCTION
     val returnType: SymbolType = SymbolType.VOID
     val paramList: ArrayList<ISymbol> = ArrayList()
