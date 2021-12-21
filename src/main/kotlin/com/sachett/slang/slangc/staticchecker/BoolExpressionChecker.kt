@@ -47,11 +47,11 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
 
     override fun visitBooleanExprNot(ctx: SlangGrammarParser.BooleanExprNotContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean = checkUnaryOp(ctx!!)
+    override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean = checkBinaryOp(ctx!!)
 
-    override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean = checkUnaryOp(ctx!!)
+    override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean = checkBinaryOp(ctx!!)
 
-    override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean = checkUnaryOp(ctx!!)
+    override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean = checkBinaryOp(ctx!!)
 
     override fun visitBooleanExprRelOp(ctx: SlangGrammarParser.BooleanExprRelOpContext?): Boolean {
         val lhs = ctx!!.expr(0)
