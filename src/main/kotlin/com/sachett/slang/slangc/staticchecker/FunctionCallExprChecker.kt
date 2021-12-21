@@ -162,7 +162,7 @@ class FunctionCallExprChecker {
                 }
             }
 
-            return false
+            return allParamTypesOk
         }
     }
 }

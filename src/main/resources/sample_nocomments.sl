@@ -12,7 +12,7 @@ introducing main(var1: int, var2: string) {
         sum = sum + 1;
     }
 
-    if (1 == "lol") {
+    if ("lol" == "lol") {
         sum = 0;
     }
 
