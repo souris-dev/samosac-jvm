@@ -47,7 +47,7 @@ FALSE: ('false' | 'nope' | 'False' | 'FALSE');
 
 IF: 'if';
 ELSE: 'else';
-FUNCDEF: 'introducing';
+FUNCDEF: 'action';
 VARDEF: ('bro,');
 
 BINAND: '&';
@@ -145,9 +145,9 @@ compoundStmt: (block | ifStmt | whileStmt);
 funcDef: (FUNCDEF IDENTIFIER block
        | FUNCDEF IDENTIFIER LPAREN RPAREN block
        | FUNCDEF IDENTIFIER LPAREN funcArgList RPAREN block) (STATEMENTEND)? #implicitRetTypeFuncDef
-       | (FUNCDEF IDENTIFIER block
-       | FUNCDEF IDENTIFIER LPAREN RPAREN block
-       | FUNCDEF IDENTIFIER LPAREN funcArgList RPAREN block) RIGHTARROW typeName (STATEMENTEND)? #explicitRetTypeFuncDef;
+       | (FUNCDEF IDENTIFIER COLON typeName block
+       | FUNCDEF IDENTIFIER LPAREN RPAREN COLON typeName block
+       | FUNCDEF IDENTIFIER LPAREN funcArgList RPAREN COLON typeName block) (STATEMENTEND)? #explicitRetTypeFuncDef;
 
 funcArgList: args+=argParam
            | (args+=argParam COMMA)+ args+=argParam;

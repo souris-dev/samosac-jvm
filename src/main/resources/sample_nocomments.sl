@@ -5,7 +5,7 @@ bro, lol: string = "Result is: ";
 bro, someBoolVal: boolie = false || true;
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal);
 
-introducing main(var1: int, var2: string) {
+action main(var1: int, var2: string): int {
     bro, sum: int = 1 + 3 * 6;
 
     while ((var1 < 4) and (var1 > 10 + 4)) {
@@ -17,7 +17,7 @@ introducing main(var1: int, var2: string) {
     }
 
     return sum;
-} -> int
+}
 
 bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main;
 

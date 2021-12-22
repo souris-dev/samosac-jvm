@@ -17,7 +17,7 @@ bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVa
   * sis, (a: int, b: int, c: int) = 0, d: int = 3; *\\
 
 \\* Function definition *\\
-introducing main(var1: int, var2: string) {
+action main(var1: int, var2: string): int {
     bro, sum: int = 1 + 3 * 6;
 
     \\* Loop *\\
@@ -26,12 +26,12 @@ introducing main(var1: int, var2: string) {
         sum = sum + 1;
     }
 
-    if ("lol" == "lol") {
+    if (var2 == "lol") {
         sum = 0;
     }
 
     return sum;
-} -> int \\* Return type - void by default, TODO: shift the return type to the beginning *\\
+}
 
 \\* Function call expression *\\
 bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main;
