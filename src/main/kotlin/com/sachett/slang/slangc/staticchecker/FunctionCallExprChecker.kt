@@ -3,7 +3,7 @@ package com.sachett.slang.slangc.staticchecker
 import com.sachett.slang.logging.Severity
 import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmterror
-import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
@@ -22,7 +22,7 @@ class FunctionCallExprChecker {
          * @return  SymbolType that corresponds to the return value of the function call
          */
         fun getRetTypeOfFunctionCallWithArgs(
-            ctx: SlangGrammarParser.FunctionCallWithArgsContext?,
+            ctx: SlangParser.FunctionCallWithArgsContext?,
             symbolTable: SymbolTable
         ): SymbolType {
             val funcIdName = ctx?.IDENTIFIER()?.text
@@ -60,7 +60,7 @@ class FunctionCallExprChecker {
          * @return  <code>SymbolType</code> that corresponds to the return value of the function call.
          */
         fun getRetTypeOfFunctionCallNoArgs(
-            ctx: SlangGrammarParser.FunctionCallNoArgsContext?,
+            ctx: SlangParser.FunctionCallNoArgsContext?,
             symbolTable: SymbolTable
         ): SymbolType {
             val funcIdName = ctx?.IDENTIFIER()?.text
@@ -88,7 +88,7 @@ class FunctionCallExprChecker {
          * @return <code>true</code> if types are valid else <code>false</code>.
          */
         private fun isCalledParamListHavingValidTypes(
-            ctx: SlangGrammarParser.FunctionCallWithArgsContext?,
+            ctx: SlangParser.FunctionCallWithArgsContext?,
             functionSymbol: FunctionSymbol,
             symbolTable: SymbolTable
         ): Boolean {

@@ -1,8 +1,8 @@
 package com.sachett.slang.slangc.compiler
 
 import com.sachett.slang.logging.err
-import com.sachett.slang.parser.SlangGrammarLexer
-import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.parser.SlangLexer
+import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.staticchecker.StaticTypesChecker
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.CharStreams
@@ -14,9 +14,9 @@ fun main(args: Array<String>) {
     }
 
     val inputStream = CharStreams.fromFileName(args[0])
-    val slangGrammarLexer = SlangGrammarLexer(inputStream)
+    val slangGrammarLexer = SlangLexer(inputStream)
     val commonTokenStream = CommonTokenStream(slangGrammarLexer)
-    val slangParser = SlangGrammarParser(commonTokenStream)
+    val slangParser = SlangParser(commonTokenStream)
 
     val programContext = slangParser.program()
 

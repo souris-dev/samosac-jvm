@@ -2,16 +2,16 @@ package com.sachett.slang.slangc.staticchecker
 
 import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmtfatalerr
-import com.sachett.slang.parser.SlangGrammarBaseVisitor
-import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.parser.SlangBaseVisitor
+import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.*
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
-class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBaseVisitor<Void?>() {
+class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisitor<Void?>() {
 
     /* --------------------- Utility functions ----------------------- */
 
-    private fun processArgList(argParamCtx: SlangGrammarParser.ArgParamContext): ISymbol {
+    private fun processArgList(argParamCtx: SlangParser.ArgParamContext): ISymbol {
         val idName = argParamCtx.IDENTIFIER().text
         val definedOnLineNum = argParamCtx.IDENTIFIER().symbol.line
         val typeNameCtx = argParamCtx.typeName()
@@ -57,7 +57,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
      * in which the return type is explicitly declared.
      */
     private fun parseAndAddFunctionParamsExplicitDef(
-        ctx: SlangGrammarParser.ExplicitRetTypeFuncDefContext
+        ctx: SlangParser.ExplicitRetTypeFuncDefContext
     ): ArrayList<ISymbol> {
         val paramList: ArrayList<ISymbol> = arrayListOf()
 
@@ -73,7 +73,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
      * in which the return type is implicitly void.
      */
     private fun parseAndAddFunctionParamsImplicitDef(
-        ctx: SlangGrammarParser.ImplicitRetTypeFuncDefContext
+        ctx: SlangParser.ImplicitRetTypeFuncDefContext
     ): ArrayList<ISymbol> {
         val paramList: ArrayList<ISymbol> = arrayListOf()
 
@@ -86,12 +86,12 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
 
     /* -----------------  Visitor methods -------------------- */
 
-    override fun visitProgram(ctx: SlangGrammarParser.ProgramContext?): Void? {
+    override fun visitProgram(ctx: SlangParser.ProgramContext?): Void? {
         println("Visiting program...")
         return super.visitProgram(ctx)
     }
 
-    override fun visitBlock(ctx: SlangGrammarParser.BlockContext?): Void? {
+    override fun visitBlock(ctx: SlangParser.BlockContext?): Void? {
         println("Visiting block...")
         symbolTable.incrementScope()
         val blockVisit = super.visitBlock(ctx)
@@ -101,7 +101,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
 
     // TODO: refactor out existing symbol checks in the following functions
 
-    override fun visitDeclStmt(ctx: SlangGrammarParser.DeclStmtContext?): Void? {
+    override fun visitDeclStmt(ctx: SlangParser.DeclStmtContext?): Void? {
         println("Visiting DeclStmt...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
@@ -136,7 +136,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitDeclStmt(ctx)
     }
 
-    override fun visitNormalDeclAssignStmt(ctx: SlangGrammarParser.NormalDeclAssignStmtContext?): Void? {
+    override fun visitNormalDeclAssignStmt(ctx: SlangParser.NormalDeclAssignStmtContext?): Void? {
         println("Visiting NormalDeclAssignStmt...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
@@ -195,7 +195,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitNormalDeclAssignStmt(ctx)
     }
 
-    override fun visitBooleanDeclAssignStmt(ctx: SlangGrammarParser.BooleanDeclAssignStmtContext?): Void? {
+    override fun visitBooleanDeclAssignStmt(ctx: SlangParser.BooleanDeclAssignStmtContext?): Void? {
         println("Visiting BooleanDeclAssign...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
@@ -223,7 +223,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitBooleanDeclAssignStmt(ctx)
     }
 
-    override fun visitTypeInferredDeclAssignStmt(ctx: SlangGrammarParser.TypeInferredDeclAssignStmtContext?): Void? {
+    override fun visitTypeInferredDeclAssignStmt(ctx: SlangParser.TypeInferredDeclAssignStmtContext?): Void? {
         println("Visiting TypeInferredDeclAssignStmt...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
@@ -306,7 +306,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitTypeInferredDeclAssignStmt(ctx)
     }
 
-    override fun visitTypeInferredBooleanDeclAssignStmt(ctx: SlangGrammarParser.TypeInferredBooleanDeclAssignStmtContext?): Void? {
+    override fun visitTypeInferredBooleanDeclAssignStmt(ctx: SlangParser.TypeInferredBooleanDeclAssignStmtContext?): Void? {
         println("Visiting TypeInferredBooleanDeclAssign...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
@@ -335,7 +335,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitTypeInferredBooleanDeclAssignStmt(ctx)
     }
 
-    override fun visitExprAssign(ctx: SlangGrammarParser.ExprAssignContext?): Void? {
+    override fun visitExprAssign(ctx: SlangParser.ExprAssignContext?): Void? {
         println("Visiting ExprAssignStmt...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val lineNum = ctx.IDENTIFIER().symbol.line
@@ -414,7 +414,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitExprAssign(ctx)
     }
 
-    override fun visitExprIdentifier(ctx: SlangGrammarParser.ExprIdentifierContext?): Void? {
+    override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?): Void? {
         println("Visiting ExprIdentifier...") // debug
         val idName = ctx!!.IDENTIFIER().symbol.text
         val lineNum = ctx.IDENTIFIER().symbol.line
@@ -428,21 +428,21 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitExprIdentifier(ctx)
     }
 
-    override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?): Void? {
+    override fun visitFunctionCallWithArgs(ctx: SlangParser.FunctionCallWithArgsContext?): Void? {
         // we don't have any use for the return type of the function call
         // we use this just for checking the function call
         FunctionCallExprChecker.getRetTypeOfFunctionCallWithArgs(ctx, symbolTable)
         return super.visitFunctionCallWithArgs(ctx)
     }
 
-    override fun visitFunctionCallNoArgs(ctx: SlangGrammarParser.FunctionCallNoArgsContext?): Void? {
+    override fun visitFunctionCallNoArgs(ctx: SlangParser.FunctionCallNoArgsContext?): Void? {
         // we don't have any use for the return type of the function call
         // we use this just for checking the function call
         FunctionCallExprChecker.getRetTypeOfFunctionCallNoArgs(ctx, symbolTable)
         return super.visitFunctionCallNoArgs(ctx)
     }
 
-    override fun visitBooleanExprAssign(ctx: SlangGrammarParser.BooleanExprAssignContext?): Void? {
+    override fun visitBooleanExprAssign(ctx: SlangParser.BooleanExprAssignContext?): Void? {
         // check both sides and see if they're boolean types
 
         // left side should have a boolean identifier
@@ -479,7 +479,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitBooleanExprAssign(ctx)
     }
 
-    override fun visitImplicitRetTypeFuncDef(ctx: SlangGrammarParser.ImplicitRetTypeFuncDefContext?): Void? {
+    override fun visitImplicitRetTypeFuncDef(ctx: SlangParser.ImplicitRetTypeFuncDefContext?): Void? {
         val idName = ctx!!.IDENTIFIER().symbol.text
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
@@ -499,7 +499,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitImplicitRetTypeFuncDef(ctx)
     }
 
-    override fun visitExplicitRetTypeFuncDef(ctx: SlangGrammarParser.ExplicitRetTypeFuncDefContext?): Void? {
+    override fun visitExplicitRetTypeFuncDef(ctx: SlangParser.ExplicitRetTypeFuncDefContext?): Void? {
         val idName = ctx!!.IDENTIFIER().symbol.text
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
@@ -530,7 +530,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitExplicitRetTypeFuncDef(ctx)
     }
 
-    override fun visitIfStmt(ctx: SlangGrammarParser.IfStmtContext?): Void? {
+    override fun visitIfStmt(ctx: SlangParser.IfStmtContext?): Void? {
         val boolExprChecker = BoolExpressionChecker(symbolTable)
         if (!boolExprChecker.checkExpr(ctx!!.booleanExpr())) {
             fmtfatalerr(
@@ -541,7 +541,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangGrammarBas
         return super.visitIfStmt(ctx)
     }
 
-    override fun visitWhileStmt(ctx: SlangGrammarParser.WhileStmtContext?): Void? {
+    override fun visitWhileStmt(ctx: SlangParser.WhileStmtContext?): Void? {
         val boolExprChecker = BoolExpressionChecker(symbolTable)
         if (!boolExprChecker.checkExpr(ctx!!.booleanExpr())) {
             fmtfatalerr(

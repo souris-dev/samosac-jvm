@@ -1,4 +1,4 @@
-grammar SlangGrammar;
+grammar Slang;
 
 // Use when separating lexer and parser grammars:
 //options {

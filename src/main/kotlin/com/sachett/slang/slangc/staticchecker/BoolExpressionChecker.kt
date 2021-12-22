@@ -3,7 +3,7 @@ package com.sachett.slang.slangc.staticchecker
 import com.sachett.slang.logging.Severity
 import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmterror
-import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
@@ -20,7 +20,7 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
      * @param   ctx The <code>BooleanExprContext</code> to check.
      * @return  <code>true</code> if all OK else <code>false</code>.
      */
-    fun checkExpr(ctx: SlangGrammarParser.BooleanExprContext): Boolean = visit(ctx)
+    fun checkExpr(ctx: SlangParser.BooleanExprContext): Boolean = visit(ctx)
 
     /* -----------------  Visitor methods -------------------- */
 
@@ -29,7 +29,7 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         // this would be: visit(ctx?.booleanExpr())
         val ctxClass = ctx!!::class.java
         val booleanExpr = ctxClass.getDeclaredMethod("booleanExpr")
-        val booleanExprRetObj = booleanExpr.invoke(ctx) as SlangGrammarParser.BooleanExprContext
+        val booleanExprRetObj = booleanExpr.invoke(ctx) as SlangParser.BooleanExprContext
 
         return visit(booleanExprRetObj)
     }
@@ -39,21 +39,21 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         // this would be: visit(ctx?.booleanExpr(0)) && visit(ctx?.booleanExpr(1))
         val ctxClass = ctx!!::class.java
         val booleanExpr = ctxClass.getDeclaredMethod("booleanExpr", Int::class.java)
-        val booleanExprRetObjLHS = booleanExpr.invoke(ctx, 0) as SlangGrammarParser.BooleanExprContext
-        val booleanExprRetObjRHS = booleanExpr.invoke(ctx, 1) as SlangGrammarParser.BooleanExprContext
+        val booleanExprRetObjLHS = booleanExpr.invoke(ctx, 0) as SlangParser.BooleanExprContext
+        val booleanExprRetObjRHS = booleanExpr.invoke(ctx, 1) as SlangParser.BooleanExprContext
 
         return (visit(booleanExprRetObjLHS) && visit(booleanExprRetObjRHS))
     }
 
-    override fun visitBooleanExprNot(ctx: SlangGrammarParser.BooleanExprNotContext?): Boolean = checkUnaryOp(ctx!!)
+    override fun visitBooleanExprNot(ctx: SlangParser.BooleanExprNotContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean = checkBinaryOp(ctx!!)
+    override fun visitBooleanExprOr(ctx: SlangParser.BooleanExprOrContext?): Boolean = checkBinaryOp(ctx!!)
 
-    override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean = checkBinaryOp(ctx!!)
+    override fun visitBooleanExprAnd(ctx: SlangParser.BooleanExprAndContext?): Boolean = checkBinaryOp(ctx!!)
 
-    override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean = checkBinaryOp(ctx!!)
+    override fun visitBooleanExprXor(ctx: SlangParser.BooleanExprXorContext?): Boolean = checkBinaryOp(ctx!!)
 
-    override fun visitBooleanExprRelOp(ctx: SlangGrammarParser.BooleanExprRelOpContext?): Boolean {
+    override fun visitBooleanExprRelOp(ctx: SlangParser.BooleanExprRelOpContext?): Boolean {
         val lhs = ctx!!.expr(0)
         val rhs = ctx.expr(1)
 
@@ -125,7 +125,7 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         return true
     }
 
-    override fun visitBooleanExprCompOp(ctx: SlangGrammarParser.BooleanExprCompOpContext?): Boolean {
+    override fun visitBooleanExprCompOp(ctx: SlangParser.BooleanExprCompOpContext?): Boolean {
         val lhs = ctx!!.expr(0)
         val rhs = ctx.expr(1)
 
@@ -189,17 +189,17 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         return true
     }
 
-    override fun visitBooleanExprParen(ctx: SlangGrammarParser.BooleanExprParenContext?): Boolean = checkUnaryOp(ctx!!)
+    override fun visitBooleanExprParen(ctx: SlangParser.BooleanExprParenContext?): Boolean = checkUnaryOp(ctx!!)
 
-    override fun visitBooleanExprIdentifier(ctx: SlangGrammarParser.BooleanExprIdentifierContext?): Boolean =
+    override fun visitBooleanExprIdentifier(ctx: SlangParser.BooleanExprIdentifierContext?): Boolean =
         checkIdentifierTypeInExpr(ctx!!, SymbolType.BOOL)
 
-    override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?): Boolean = true
+    override fun visitBooleanTrue(ctx: SlangParser.BooleanTrueContext?): Boolean = true
 
     // since we are just checking types, it returns true:
-    override fun visitBooleanFalse(ctx: SlangGrammarParser.BooleanFalseContext?): Boolean = true
+    override fun visitBooleanFalse(ctx: SlangParser.BooleanFalseContext?): Boolean = true
 
-    override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?): Boolean {
+    override fun visitFunctionCallWithArgs(ctx: SlangParser.FunctionCallWithArgsContext?): Boolean {
         // check if the function call returns a boolean value
         val returnType = FunctionCallExprChecker.getRetTypeOfFunctionCallWithArgs(ctx, symbolTable)
         if (returnType != SymbolType.BOOL) {
@@ -213,7 +213,7 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
         return true
     }
 
-    override fun visitFunctionCallNoArgs(ctx: SlangGrammarParser.FunctionCallNoArgsContext?): Boolean {
+    override fun visitFunctionCallNoArgs(ctx: SlangParser.FunctionCallNoArgsContext?): Boolean {
         val returnType = FunctionCallExprChecker.getRetTypeOfFunctionCallNoArgs(ctx, symbolTable)
         if (returnType != SymbolType.BOOL) {
             fmterror(

@@ -1,16 +1,16 @@
 package com.sachett.slang.slangc.staticchecker
 
-import com.sachett.slang.parser.SlangGrammarParser
-import com.sachett.slang.parser.SlangGrammarBaseVisitor
+import com.sachett.slang.parser.SlangParser
+import com.sachett.slang.parser.SlangBaseVisitor
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
 import com.sachett.slang.logging.err
 
-abstract class ExpressionChecker(protected val symbolTable: SymbolTable) : SlangGrammarBaseVisitor<Boolean>() {
+abstract class ExpressionChecker(protected val symbolTable: SymbolTable) : SlangBaseVisitor<Boolean>() {
 
     /* This is the function that should be called from outside */
-    open fun checkExpr(ctx: SlangGrammarParser.ExprContext): Boolean = false
+    open fun checkExpr(ctx: SlangParser.ExprContext): Boolean = false
 
     /* Check if the given unary operations and binary operations are valid in the expression. */
     protected open fun <T> checkUnaryOp(ctx: T) = false
@@ -57,26 +57,26 @@ abstract class ExpressionChecker(protected val symbolTable: SymbolTable) : Slang
 
     /* -----------------  Visitor methods -------------------- */
 
-    override fun visitUnaryMinus(ctx: SlangGrammarParser.UnaryMinusContext?): Boolean = false
-    override fun visitExprDivide(ctx: SlangGrammarParser.ExprDivideContext?): Boolean = false
-    override fun visitExprMultiply(ctx: SlangGrammarParser.ExprMultiplyContext?): Boolean = false
-    override fun visitExprModulo(ctx: SlangGrammarParser.ExprModuloContext?): Boolean = false
-    override fun visitExprPlus(ctx: SlangGrammarParser.ExprPlusContext?): Boolean = false
-    override fun visitExprMinus(ctx: SlangGrammarParser.ExprMinusContext?): Boolean = false
-    override fun visitExprParen(ctx: SlangGrammarParser.ExprParenContext?): Boolean = false
-    override fun visitExprIdentifier(ctx: SlangGrammarParser.ExprIdentifierContext?): Boolean = false
-    override fun visitExprDecint(ctx: SlangGrammarParser.ExprDecintContext?): Boolean = false
-    override fun visitExprString(ctx: SlangGrammarParser.ExprStringContext?): Boolean = false
-    override fun visitBooleanExprNot(ctx: SlangGrammarParser.BooleanExprNotContext?): Boolean = false
-    override fun visitBooleanExprOr(ctx: SlangGrammarParser.BooleanExprOrContext?): Boolean = false
-    override fun visitBooleanExprAnd(ctx: SlangGrammarParser.BooleanExprAndContext?): Boolean = false
-    override fun visitBooleanExprXor(ctx: SlangGrammarParser.BooleanExprXorContext?): Boolean = false
-    override fun visitBooleanExprRelOp(ctx: SlangGrammarParser.BooleanExprRelOpContext?): Boolean = false
-    override fun visitBooleanExprParen(ctx: SlangGrammarParser.BooleanExprParenContext?): Boolean = false
-    override fun visitBooleanExprIdentifier(ctx: SlangGrammarParser.BooleanExprIdentifierContext?): Boolean = false
-    override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?): Boolean = false
-    override fun visitBooleanFalse(ctx: SlangGrammarParser.BooleanFalseContext?): Boolean = false
-    override fun visitBooleanFunctionCall(ctx: SlangGrammarParser.BooleanFunctionCallContext?): Boolean = false
-    override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?): Boolean = false
-    override fun visitFunctionCallNoArgs(ctx: SlangGrammarParser.FunctionCallNoArgsContext?): Boolean = false
+    override fun visitUnaryMinus(ctx: SlangParser.UnaryMinusContext?): Boolean = false
+    override fun visitExprDivide(ctx: SlangParser.ExprDivideContext?): Boolean = false
+    override fun visitExprMultiply(ctx: SlangParser.ExprMultiplyContext?): Boolean = false
+    override fun visitExprModulo(ctx: SlangParser.ExprModuloContext?): Boolean = false
+    override fun visitExprPlus(ctx: SlangParser.ExprPlusContext?): Boolean = false
+    override fun visitExprMinus(ctx: SlangParser.ExprMinusContext?): Boolean = false
+    override fun visitExprParen(ctx: SlangParser.ExprParenContext?): Boolean = false
+    override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?): Boolean = false
+    override fun visitExprDecint(ctx: SlangParser.ExprDecintContext?): Boolean = false
+    override fun visitExprString(ctx: SlangParser.ExprStringContext?): Boolean = false
+    override fun visitBooleanExprNot(ctx: SlangParser.BooleanExprNotContext?): Boolean = false
+    override fun visitBooleanExprOr(ctx: SlangParser.BooleanExprOrContext?): Boolean = false
+    override fun visitBooleanExprAnd(ctx: SlangParser.BooleanExprAndContext?): Boolean = false
+    override fun visitBooleanExprXor(ctx: SlangParser.BooleanExprXorContext?): Boolean = false
+    override fun visitBooleanExprRelOp(ctx: SlangParser.BooleanExprRelOpContext?): Boolean = false
+    override fun visitBooleanExprParen(ctx: SlangParser.BooleanExprParenContext?): Boolean = false
+    override fun visitBooleanExprIdentifier(ctx: SlangParser.BooleanExprIdentifierContext?): Boolean = false
+    override fun visitBooleanTrue(ctx: SlangParser.BooleanTrueContext?): Boolean = false
+    override fun visitBooleanFalse(ctx: SlangParser.BooleanFalseContext?): Boolean = false
+    override fun visitBooleanFunctionCall(ctx: SlangParser.BooleanFunctionCallContext?): Boolean = false
+    override fun visitFunctionCallWithArgs(ctx: SlangParser.FunctionCallWithArgsContext?): Boolean = false
+    override fun visitFunctionCallNoArgs(ctx: SlangParser.FunctionCallNoArgsContext?): Boolean = false
 }

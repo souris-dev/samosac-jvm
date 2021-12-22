@@ -4,8 +4,8 @@ import com.sachett.slang.logging.Severity
 import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmterror
 import com.sachett.slang.logging.fmtfatalerr
-import com.sachett.slang.parser.SlangGrammarBaseVisitor
-import com.sachett.slang.parser.SlangGrammarParser
+import com.sachett.slang.parser.SlangBaseVisitor
+import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
@@ -16,7 +16,7 @@ import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
  */
 class ExpressionTypeDetector(
     private val symbolTable: SymbolTable
-) : SlangGrammarBaseVisitor<Unit>() {
+) : SlangBaseVisitor<Unit>() {
     private val symbolTypesInExpr: MutableMap<SymbolType, Int> = mutableMapOf(
         SymbolType.INT to 0,
         SymbolType.STRING to 0,
@@ -33,7 +33,7 @@ class ExpressionTypeDetector(
      *          all the terminals are of the same type in the expression and <code>false</code> if not.
      *          The second element is the <code>SymbolType</code> that appears the most times in the expression.
      */
-    fun getType(ctx: SlangGrammarParser.ExprContext): Pair<Boolean, SymbolType> {
+    fun getType(ctx: SlangParser.ExprContext): Pair<Boolean, SymbolType> {
         visit(ctx)
 
         var maxFreq = 0
@@ -57,22 +57,22 @@ class ExpressionTypeDetector(
 
     // check the terminals and retrieve their types
 
-    override fun visitExprDecint(ctx: SlangGrammarParser.ExprDecintContext?) {
+    override fun visitExprDecint(ctx: SlangParser.ExprDecintContext?) {
         symbolTypesInExpr[SymbolType.INT] = symbolTypesInExpr.getOrDefault(SymbolType.INT, 0) + 1
         return super.visitExprDecint(ctx)
     }
 
-    override fun visitExprString(ctx: SlangGrammarParser.ExprStringContext?) {
+    override fun visitExprString(ctx: SlangParser.ExprStringContext?) {
         symbolTypesInExpr[SymbolType.STRING] = symbolTypesInExpr.getOrDefault(SymbolType.STRING, 0) + 1
         return super.visitExprString(ctx)
     }
 
-    override fun visitBooleanTrue(ctx: SlangGrammarParser.BooleanTrueContext?) {
+    override fun visitBooleanTrue(ctx: SlangParser.BooleanTrueContext?) {
         symbolTypesInExpr[SymbolType.BOOL] = symbolTypesInExpr.getOrDefault(SymbolType.BOOL, 0) + 1
         return super.visitBooleanTrue(ctx)
     }
 
-    override fun visitBooleanFalse(ctx: SlangGrammarParser.BooleanFalseContext?) {
+    override fun visitBooleanFalse(ctx: SlangParser.BooleanFalseContext?) {
         symbolTypesInExpr[SymbolType.BOOL] = symbolTypesInExpr.getOrDefault(SymbolType.BOOL, 0) + 1
         return super.visitBooleanFalse(ctx)
     }
@@ -80,7 +80,7 @@ class ExpressionTypeDetector(
     /**
      * Retrieves the type of identifier.
      */
-    override fun visitExprIdentifier(ctx: SlangGrammarParser.ExprIdentifierContext?) {
+    override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?) {
         val idName = ctx?.IDENTIFIER()?.text
         val lineNumber = ctx?.IDENTIFIER()?.symbol?.line
         val symbol = symbolTable.lookup(idName!!) ?: err("[Error, Line ${lineNumber}] Unknown identifier ${idName}.")
@@ -91,7 +91,7 @@ class ExpressionTypeDetector(
 
     // The next two functions check the return types of any function calls in the expression
 
-    override fun visitFunctionCallWithArgs(ctx: SlangGrammarParser.FunctionCallWithArgsContext?) {
+    override fun visitFunctionCallWithArgs(ctx: SlangParser.FunctionCallWithArgsContext?) {
         val retType: SymbolType = FunctionCallExprChecker.getRetTypeOfFunctionCallWithArgs(ctx, symbolTable)
 
         val lineNum = ctx!!.IDENTIFIER().symbol.line
@@ -108,7 +108,7 @@ class ExpressionTypeDetector(
         /* Do not go into the function call expression here (hence super's method isn't called) */
     }
 
-    override fun visitFunctionCallNoArgs(ctx: SlangGrammarParser.FunctionCallNoArgsContext?) {
+    override fun visitFunctionCallNoArgs(ctx: SlangParser.FunctionCallNoArgsContext?) {
         val retType: SymbolType = FunctionCallExprChecker.getRetTypeOfFunctionCallNoArgs(ctx, symbolTable)
 
         val lineNum = ctx!!.IDENTIFIER().symbol.line
