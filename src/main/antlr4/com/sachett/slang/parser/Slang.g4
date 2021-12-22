@@ -91,7 +91,8 @@ statements: (statement | compoundStmt | funcDef | COMMENTSL | COMMENTML)+;
 
 statement: (declStmt | assignStmt | declAssignStmt | functionCall | returnStmt) STATEMENTEND;
 
-returnStmt: RETURN expr | RETURN;
+returnStmt: RETURN #returnStmtNoExpr
+          | RETURN expr #returnStmtWithExpr;
 
 assignStmt: IDENTIFIER EQUAL expr #exprAssign
           | IDENTIFIER EQUAL booleanExpr #booleanExprAssign;
