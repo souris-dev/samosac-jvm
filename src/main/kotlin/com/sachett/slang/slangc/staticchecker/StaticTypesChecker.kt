@@ -348,7 +348,6 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
 
         when (existingSymbol.symbolType) {
             SymbolType.INT -> {
-                val intSymbol = IntSymbol(idName, lineNum, true)
                 val intExprChecker = IntExpressionChecker(symbolTable)
 
                 if (!intExprChecker.checkExpr(ctx.expr())) {
@@ -362,7 +361,6 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                 }
             }
             SymbolType.STRING -> {
-                val stringSymbol = StringSymbol(idName, lineNum, true)
                 val stringExprChecker = StringExpressionChecker(symbolTable)
 
                 if (!stringExprChecker.checkExpr(ctx.expr())) {
@@ -419,7 +417,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val idName = ctx!!.IDENTIFIER().symbol.text
         val lineNum = ctx.IDENTIFIER().symbol.line
 
-        val existingSymbol = symbolTable.lookup(idName)
+        symbolTable.lookup(idName)
             ?: fmtfatalerr(
                 "Unknown identifier $idName.",
                 lineNum
@@ -494,12 +492,24 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
 
         val paramList = parseAndAddFunctionParamsImplicitDef(ctx)
         val functionSymbol = FunctionSymbol(idName, definedLineNum, paramList, SymbolType.VOID)
-        symbolTable.insert(idName, functionSymbol)
 
-        return super.visitImplicitRetTypeFuncDef(ctx)
+        val functionReturnsChecker = FunctionReturnsChecker(symbolTable, functionSymbol)
+        val visitFunctionInside = super.visitImplicitRetTypeFuncDef(ctx)
+        val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
+
+        if (!functionReturnsOk) {
+            fmtfatalerr(
+                "Function body contains errors. (There might be additional information above.)",
+                definedLineNum
+            )
+        }
+
+        symbolTable.insert(idName, functionSymbol)
+        return visitFunctionInside
     }
 
     override fun visitExplicitRetTypeFuncDef(ctx: SlangParser.ExplicitRetTypeFuncDefContext?): Void? {
+        println("Visiting ExplicitRetTypeFuncDef")
         val idName = ctx!!.IDENTIFIER().symbol.text
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
@@ -525,9 +535,20 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         }
 
         val functionSymbol = FunctionSymbol(idName, definedLineNum, paramList, funcRetType)
+        val visitFunctionInside = super.visitExplicitRetTypeFuncDef(ctx)
+        val functionReturnsChecker = FunctionReturnsChecker(symbolTable, functionSymbol)
+        val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
+
+        if (!functionReturnsOk) {
+            fmtfatalerr(
+                "Function body contains errors. (There might be additional information above.)",
+                definedLineNum
+            )
+        }
+
         symbolTable.insert(idName, functionSymbol)
 
-        return super.visitExplicitRetTypeFuncDef(ctx)
+        return visitFunctionInside
     }
 
     override fun visitIfStmt(ctx: SlangParser.IfStmtContext?): Void? {

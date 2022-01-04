@@ -21,7 +21,6 @@ action main(var1: int, var2: string): int {
     bro, sum: int = 1 + 3 * 6;
 
     \\* Loop *\\
-    \\* @blockname while1 *\\
     while ((var1 < 4) and (var1 > 10 + 4)) {
         sum = sum + 1;
     }
@@ -30,7 +29,7 @@ action main(var1: int, var2: string): int {
         sum = 0;
     }
 
-    return sum;
+    return (var1 + sum);
 }
 
 \\* Function call expression *\\

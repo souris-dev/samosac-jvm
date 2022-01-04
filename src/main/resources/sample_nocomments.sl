@@ -16,7 +16,7 @@ action main(var1: int, var2: string): int {
         sum = 0;
     }
 
-    return sum;
+    return (var1 + sum);
 }
 
 bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main;

@@ -58,7 +58,7 @@ BINNOT: '!';
 RIGHTARROW: '->';
 
 COLON: ':';
-STATEMENTEND: ';';
+STATEMENTEND: '.';
 WHILE: 'while';
 RETURN: 'return';
 
