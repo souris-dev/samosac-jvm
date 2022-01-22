@@ -121,6 +121,8 @@ block: LCURLYBR RCURLYBR
      | LCURLYBR statements RCURLYBR;
 
 ifStmt: IF LPAREN booleanExpr RPAREN block
+      | IF LPAREN booleanExpr RPAREN block (elseifblocks+=ELSE IF block)+
+      | IF LPAREN booleanExpr RPAREN block (elseifblocks+=ELSE IF block)+ ELSE block
       | IF LPAREN booleanExpr RPAREN block ELSE block;
 
 whileStmt: WHILE LPAREN booleanExpr RPAREN block;
@@ -141,7 +143,7 @@ compOp: (COMP | COMPNOTEQ);
 
 relOp: (LT | GT | LTEQ | GTEQ);
 
-compoundStmt: (block | ifStmt | whileStmt);
+compoundStmt: (ifStmt | whileStmt);
 
 funcDef: (FUNCDEF IDENTIFIER block
        | FUNCDEF IDENTIFIER LPAREN RPAREN block
