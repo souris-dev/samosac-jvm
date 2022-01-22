@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker
  */
 class CodeBlock(
     override val parentFnSymbol: FunctionSymbol,
+    override val parent: IFunctionInnerBlock,
     private val symbolTable: SymbolTable,
     private val blockCtx: SlangParser.BlockContext
 ) :
@@ -31,7 +32,10 @@ class CodeBlock(
             doesReturnComputed = true
             return field
         }
-        private set
+        set(value) {
+            doesReturnComputed = true
+            field = value
+        }
 
     override fun enterReturnStmtNoExpr(ctx: SlangParser.ReturnStmtNoExprContext?) {
         doesReturnProperly = parentFnSymbol.returnType == SymbolType.VOID

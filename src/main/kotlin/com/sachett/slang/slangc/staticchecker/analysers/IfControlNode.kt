@@ -1,28 +1,41 @@
 package com.sachett.slang.slangc.staticchecker.analysers
 
+import com.sachett.slang.parser.SlangBaseListener
+import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 
-class IfControlNode(override val parentFnSymbol: FunctionSymbol) : IFunctionInnerBlock {
+class IfControlNode(
+    override val parentFnSymbol: FunctionSymbol,
+    override val parent: IFunctionInnerBlock,
+    ifCtx: SlangParser.IfStmtContext
+) :
+    IFunctionInnerBlock, SlangBaseListener() {
     private var doesReturnComputed = false
     override val children: ArrayList<IFunctionInnerBlock> = arrayListOf()
-
-    private var hasElseBlockComputed = false
     var hasElseBlock: Boolean = false
-        get() {
-            if (hasElseBlockComputed) {
-                return field
-            }
 
-            for (child in children) {
-                if (child is ControlBlock && child.type == ControlBlockType.ELSE) {
-                    field = true
-                }
-            }
+    init {
+        // Partially build the IfControlNode using the ifCtx.
+        // This part builds the children of this node (if, else if and else control blocks)
+        // Note that a stray block is added to each of these control blocks
+        // by default (in init method of ControlBlock).
 
-            hasElseBlockComputed = true
-            return field
+        if (ifCtx.IF() != null) {
+            val ifCtrlBlock = ControlBlock(parentFnSymbol, parent = this, type = ControlBlockType.IF)
+            children.add(ifCtrlBlock)
         }
-    private set
+
+        for (elseIfBlockParse in ifCtx.elseifblocks) {
+            val elseIfCtrlBlock = ControlBlock(parentFnSymbol, parent = this, type = ControlBlockType.ELSEIF)
+            children.add(elseIfCtrlBlock)
+        }
+
+        if (ifCtx.ELSE() != null) {
+            hasElseBlock = true
+            val elseCtrlBlock = ControlBlock(parentFnSymbol, parent = this, type = ControlBlockType.ELSE)
+            children.add(elseCtrlBlock)
+        }
+    }
 
     /**
      * For an if-control-node, all the children blocks must return a value for the node to return a value.
@@ -43,5 +56,8 @@ class IfControlNode(override val parentFnSymbol: FunctionSymbol) : IFunctionInne
             doesReturnComputed = true
             return field
         }
-        private set
+        set(value) {
+            doesReturnComputed = true
+            field = value
+        }
 }

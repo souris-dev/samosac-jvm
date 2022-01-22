@@ -7,6 +7,7 @@ import com.sachett.slang.slangc.symbol.FunctionSymbol
  */
 data class StrayBlock(
     override val parentFnSymbol: FunctionSymbol,
-    override val doesReturnProperly: Boolean,
-    override val children: ArrayList<IFunctionInnerBlock> = arrayListOf()
+    override var doesReturnProperly: Boolean,
+    override val children: ArrayList<IFunctionInnerBlock> = arrayListOf(),
+    override val parent: IFunctionInnerBlock?
 ) : IFunctionInnerBlock

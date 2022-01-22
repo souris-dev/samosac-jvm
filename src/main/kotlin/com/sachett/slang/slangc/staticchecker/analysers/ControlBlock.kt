@@ -4,12 +4,18 @@ import com.sachett.slang.slangc.symbol.FunctionSymbol
 
 class ControlBlock(
     override val parentFnSymbol: FunctionSymbol,
+    override val parent: IFunctionInnerBlock?,
     val type: ControlBlockType = ControlBlockType.IF
 ) :
     IFunctionInnerBlock {
     private var doesReturnComputed = false
 
     override val children: ArrayList<IFunctionInnerBlock> = arrayListOf()
+
+    init {
+        // Every ControlBlock has at least one child block that is initially considered an empty block
+        children.add(StrayBlock(parentFnSymbol, doesReturnProperly = false, parent = this))
+    }
 
     override var doesReturnProperly: Boolean = false
         get() {
@@ -21,7 +27,10 @@ class ControlBlock(
             doesReturnComputed = true
             return field
         }
-        private set
+        set(value) {
+            doesReturnComputed = true
+            field = value
+        }
 
     private fun calculateReturn() {
         if (children.size == 0) {
