@@ -46,6 +46,8 @@ action main(var1: int, var2: string): int {
     else {
         sum = 10.
     }
+
+    return sum.
 }
 
 \\* Function call expression *\\

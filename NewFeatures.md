@@ -35,3 +35,4 @@ For example:
 10. Lambdas would be so good.
 11. Import statements. Freaking required.
 12. Deferred blocks would be quite cool. Shouldn't be too tough to implement too.
+13. Escaped characters in strings.

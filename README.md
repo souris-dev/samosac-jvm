@@ -1,3 +1,8 @@
+# slang
+#### A statically-typed JVM-based language.
+
+Sample program (this is just an arbitrary program):
+```
 <SLANG>
 
 \\* This is a comment *\\
@@ -38,7 +43,7 @@ action main(var1: int, var2: string): int {
     else {
         sum = 10.
     }
-
+    
     return sum.
 }
 
@@ -49,3 +54,4 @@ bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main.
 (res, lol) -> main.
 
 </SLANG>
+```
