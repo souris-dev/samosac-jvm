@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.staticchecker.analysers
+package com.sachett.slang.slangc.staticchecker.analyzers
 
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 

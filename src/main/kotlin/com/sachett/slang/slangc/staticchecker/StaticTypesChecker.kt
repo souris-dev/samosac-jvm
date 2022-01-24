@@ -4,6 +4,7 @@ import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmtfatalerr
 import com.sachett.slang.parser.SlangBaseVisitor
 import com.sachett.slang.parser.SlangParser
+import com.sachett.slang.slangc.staticchecker.analyzers.FunctionControlPathAnalyzer
 import com.sachett.slang.slangc.symbol.*
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
@@ -497,6 +498,16 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val visitFunctionInside = super.visitImplicitRetTypeFuncDef(ctx)
         val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
 
+        val functionControlPathsChecker = FunctionControlPathAnalyzer(symbolTable, functionSymbol)
+        val functionReturnPathsOk = functionControlPathsChecker.checkAllControlPathsForReturns(ctx)
+
+        if (!functionReturnPathsOk) {
+            fmtfatalerr(
+                "Not all possible execution paths in the function return a value of type ${functionSymbol.returnType.asString}.",
+                definedLineNum
+            )
+        }
+
         if (!functionReturnsOk) {
             fmtfatalerr(
                 "Function body contains errors. (There might be additional information above.)",
@@ -539,6 +550,16 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val functionReturnsChecker = FunctionReturnsChecker(symbolTable, functionSymbol)
         val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
 
+        val functionControlPathsChecker = FunctionControlPathAnalyzer(symbolTable, functionSymbol)
+        val functionReturnPathsOk = functionControlPathsChecker.checkAllControlPathsForReturns(ctx)
+
+        if (!functionReturnPathsOk) {
+            fmtfatalerr(
+                "Not all possible execution paths in the function return a value of type ${functionSymbol.returnType.asString}.",
+                definedLineNum
+            )
+        }
+
         if (!functionReturnsOk) {
             fmtfatalerr(
                 "Function body contains errors. (There might be additional information above.)",
@@ -553,12 +574,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
 
     override fun visitIfStmt(ctx: SlangParser.IfStmtContext?): Void? {
         val boolExprChecker = BoolExpressionChecker(symbolTable)
-        if (!boolExprChecker.checkExpr(ctx!!.booleanExpr())) {
-            fmtfatalerr(
-                "Invalid boolean expression in condition " +
-                        "for if statement.", ctx.IF().symbol.line
-            )
+        val boolExprsInIfStmt = ctx!!.booleanExpr()
+
+        // Check all the if conditions and else if conditions
+        repeat (boolExprsInIfStmt.size) {
+            if (!boolExprChecker.checkExpr(boolExprsInIfStmt[it])) {
+                fmtfatalerr(
+                    "Invalid boolean expression in condition " +
+                            "for if statement.", ctx.IF(it).symbol.line
+                )
+            }
         }
+
         return super.visitIfStmt(ctx)
     }
 

@@ -30,7 +30,6 @@ class FunctionCallExprChecker {
             val symbol = symbolTable.lookup(funcIdName!!) ?:
                 err("[Error, Line ${lineNumber}] Unknown identifier ${funcIdName}.")
 
-
             if (!symbol.isSymbolType(SymbolType.FUNCTION)) {
                 err("[Error, Line ${lineNumber}] Cannot call $funcIdName as a function. " +
                         "It is not a function but rather an identifier of " +

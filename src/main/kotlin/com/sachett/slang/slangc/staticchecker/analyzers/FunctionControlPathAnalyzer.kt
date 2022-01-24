@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.staticchecker.analysers
+package com.sachett.slang.slangc.staticchecker.analyzers
 
 import com.sachett.slang.parser.SlangBaseListener
 import com.sachett.slang.parser.SlangParser
@@ -6,6 +6,7 @@ import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 import com.sachett.slang.slangc.symbol.SymbolType
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
+import org.antlr.v4.runtime.tree.ErrorNode
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import java.util.ArrayDeque
 
@@ -22,7 +23,7 @@ class FunctionControlPathAnalyzer(
 
         ParseTreeWalker.DEFAULT.walk(this, ctx)
 
-        return false
+        return functionRootBlock.doesReturnProperly
     }
 
     fun checkAllControlPathsForReturns(ctx: SlangParser.ExplicitRetTypeFuncDefContext): Boolean {
@@ -33,7 +34,7 @@ class FunctionControlPathAnalyzer(
 
         ParseTreeWalker.DEFAULT.walk(this, ctx)
 
-        return false
+        return functionRootBlock.doesReturnProperly
     }
 
     /**
@@ -43,7 +44,8 @@ class FunctionControlPathAnalyzer(
     private var currentStrayBlock: StrayBlock = functionRootBlock.children[0] as StrayBlock
     private var isInsideIfControlNode = false
     private var currentIfControlNode: IfControlNode? = null
-    private var strayBlockQueue = ArrayDeque<StrayBlock>()
+    private var strayBlockQueue = ArrayDeque<StrayBlock>(arrayListOf(currentStrayBlock))
+    private var ifControlNodeStack = ArrayDeque<IfControlNode>()
 
     override fun enterReturnStmtWithExpr(ctx: SlangParser.ReturnStmtWithExprContext?) {
         val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
@@ -61,6 +63,10 @@ class FunctionControlPathAnalyzer(
     }
 
     override fun enterIfStmt(ctx: SlangParser.IfStmtContext?) {
+        if (isInsideIfControlNode && currentIfControlNode != null) {
+            ifControlNodeStack.addLast(currentIfControlNode!!)
+        }
+
         val ifControlNode = IfControlNode(fnSymbol, currentStrayBlock.parent!!, ctx!!)
 
         isInsideIfControlNode = true
@@ -77,10 +83,34 @@ class FunctionControlPathAnalyzer(
     }
 
     override fun exitIfStmt(ctx: SlangParser.IfStmtContext?) {
+        // Even if this StrayBlock is extraneous
+        // (that is, this if statement was the last statement inside the block),
+        // it won't matter.
+        val strayStrayBlock = StrayBlock(fnSymbol, doesReturnProperly = false, parent = currentIfControlNode?.parent)
+        currentIfControlNode?.parent?.children?.add(strayStrayBlock)
+        currentStrayBlock = strayStrayBlock
+
+        if (!ifControlNodeStack.isEmpty()) {
+            isInsideIfControlNode = true
+            currentIfControlNode = ifControlNodeStack.removeFirst()
+        } else {
+            isInsideIfControlNode = false
+        }
+
         super.exitIfStmt(ctx)
     }
 
     override fun enterBlock(ctx: SlangParser.BlockContext?) {
-        currentStrayBlock = strayBlockQueue.removeFirst()
+        if (ctx!!.parent is SlangParser.IfStmtContext
+            || ctx.parent is SlangParser.ImplicitRetTypeFuncDefContext?
+            || ctx.parent is SlangParser.ExplicitRetTypeFuncDefContext?
+        ) {
+            currentStrayBlock = strayBlockQueue.removeFirst()
+        }
+    }
+
+    override fun visitErrorNode(node: ErrorNode?) {
+        // TODO: Handle this
+        super.visitErrorNode(node)
     }
 }

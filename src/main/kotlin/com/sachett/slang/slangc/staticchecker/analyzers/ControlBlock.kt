@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.staticchecker.analysers
+package com.sachett.slang.slangc.staticchecker.analyzers
 
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 
@@ -42,12 +42,16 @@ class ControlBlock(
             return
         }
 
+        // Compute doesReturnProperly for this node recursively by visiting the nodes
+        var tempDoesReturnProperly = false
         for (child in children) {
             if ((child is IfControlNode) && !child.hasElseBlock) {
                 continue
             }
 
-            doesReturnProperly = doesReturnProperly || child.doesReturnProperly
+            tempDoesReturnProperly = tempDoesReturnProperly || child.doesReturnProperly
         }
+
+        doesReturnProperly = tempDoesReturnProperly
     }
 }

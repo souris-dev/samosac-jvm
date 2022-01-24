@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.staticchecker.analysers
+package com.sachett.slang.slangc.staticchecker.analyzers
 
 import com.sachett.slang.parser.SlangBaseListener
 import com.sachett.slang.parser.SlangParser
@@ -20,7 +20,10 @@ class IfControlNode(
         // Note that a stray block is added to each of these control blocks
         // by default (in init method of ControlBlock).
 
-        if (ifCtx.IF() != null) {
+        val nIfs = ifCtx.IF().size
+        val nElses = ifCtx.ELSE().size
+
+        if (nIfs > 0) {
             val ifCtrlBlock = ControlBlock(parentFnSymbol, parent = this, type = ControlBlockType.IF)
             children.add(ifCtrlBlock)
         }
@@ -30,7 +33,8 @@ class IfControlNode(
             children.add(elseIfCtrlBlock)
         }
 
-        if (ifCtx.ELSE() != null) {
+        // Note that number of IF tokens == number of ELSE tokens implies that there's an ELSE block
+        if (nIfs == nElses) {
             hasElseBlock = true
             val elseCtrlBlock = ControlBlock(parentFnSymbol, parent = this, type = ControlBlockType.ELSE)
             children.add(elseCtrlBlock)
