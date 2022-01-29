@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.staticchecker.analyzers
+package com.sachett.slang.slangc.staticchecker.analyzers.blocks
 
 import com.sachett.slang.parser.SlangBaseListener
 import com.sachett.slang.parser.SlangParser

@@ -1,6 +1,5 @@
-package com.sachett.slang.slangc.staticchecker.analyzers
+package com.sachett.slang.slangc.staticchecker.analyzers.blocks
 
-import com.sachett.slang.parser.SlangBaseListener
 import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 
@@ -9,7 +8,7 @@ class IfControlNode(
     override val parent: IFunctionInnerBlock,
     ifCtx: SlangParser.IfStmtContext
 ) :
-    IFunctionInnerBlock, SlangBaseListener() {
+    ControlNode(parentFnSymbol, parent) {
     private var doesReturnComputed = false
     override val children: ArrayList<IFunctionInnerBlock> = arrayListOf()
     var hasElseBlock: Boolean = false
