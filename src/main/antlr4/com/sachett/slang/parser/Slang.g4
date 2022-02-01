@@ -31,16 +31,16 @@ GTEQ: '>=';
 COMP: '==';
 COMPNOTEQ: '!=';
 
-MARKERCOMMULTILINESTART: '\\\\*';
-MARKERCOMMULTILINEEND: '*\\\\';
-MARKERCOMSINGLELINE: ('\\\\-' | 'binod');
+MARKERCOMMULTILINESTART: '/*';
+MARKERCOMMULTILINEEND: '*/';
+MARKERCOMSINGLELINE: ('//' | 'binod');
 COMMENTSL : MARKERCOMSINGLELINE ~[\r\n]* '\r'? '\n' -> skip ;
 COMMENTML: MARKERCOMMULTILINESTART .*? MARKERCOMMULTILINEEND -> skip;
 
 LOGICALAND: ('and' | '&&');
 LOGICALOR: ('or' | '||');
 LOGICALXOR: ('strictor' | '||!');
-LOGICALNOT: ('no' | '!!');
+LOGICALNOT: ('not' | '!!');
 
 TRUE: ('true' | 'yes' | 'True' | 'TRUE');
 FALSE: ('false' | 'nope' | 'False' | 'FALSE');
