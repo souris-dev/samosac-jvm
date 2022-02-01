@@ -45,7 +45,7 @@ class ControlBlock(
         // Compute doesReturnProperly for this node recursively by visiting the nodes
         var tempDoesReturnProperly = false
         for (child in children) {
-            if ((child is IfControlNode) && !child.hasElseBlock) {
+            if (((child is IfControlNode) && !child.hasElseBlock) || (child is WhileControlNode)) {
                 continue
             }
 
