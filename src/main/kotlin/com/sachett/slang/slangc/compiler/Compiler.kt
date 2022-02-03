@@ -3,10 +3,13 @@ package com.sachett.slang.slangc.compiler
 import com.sachett.slang.logging.err
 import com.sachett.slang.parser.SlangLexer
 import com.sachett.slang.parser.SlangParser
+import com.sachett.slang.slangc.generation.ClassFileGenerator
 import com.sachett.slang.slangc.staticchecker.StaticTypesChecker
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+
+import kotlinx.coroutines.*;
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
@@ -26,6 +29,14 @@ fun main(args: Array<String>) {
     val staticTypesChecker = StaticTypesChecker(symbolTable)
     staticTypesChecker.visit(programContext)
 
-    println("Dumping symbol table: ")
-    TODO("Symbol table dump to be implemented")
+    // parallel generation of class files
+    runBlocking {
+        repeat (args.size) {
+            launch {
+                val classFileGenerator = ClassFileGenerator(programContext, args[0], symbolTable)
+                classFileGenerator.generateClass()
+                classFileGenerator.writeClass()
+            }
+        }
+    }
 }
