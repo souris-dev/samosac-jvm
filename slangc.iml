@@ -3,6 +3,7 @@
   <component name="AutoImportedSourceRoots">
     <option name="directories">
       <list>
+        <option value="src/main/java" />
         <option value="src/main/kotlin" />
         <option value="target/generated-sources/antlr4" />
       </list>
