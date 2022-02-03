@@ -26,14 +26,14 @@ class IntExpressionEvaluator(private val exprContext: SlangParser.ExprContext): 
      * Returns default value of the symbol type if not possible to evaluate at compile time.
      */
     fun evaluate(): Int {
-        if (!checkStaticEvaluable()) {
+        //if (!checkStaticEvaluable()) {
             return SymbolType.INT.defaultValue!! as Int
-        }
+        //}
 
-        val scriptEngineManager = ScriptEngineManager()
+        /*val scriptEngineManager = ScriptEngineManager()
         val scriptEngine = scriptEngineManager.getEngineByName("JavaScript")
         val expressionString = exprContext.text
-        return scriptEngine.eval(expressionString) as Int
+        return scriptEngine.eval(expressionString) as Int*/
     }
 
     override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?): Void? {

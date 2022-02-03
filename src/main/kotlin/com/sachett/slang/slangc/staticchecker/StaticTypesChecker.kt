@@ -5,6 +5,7 @@ import com.sachett.slang.logging.fmtfatalerr
 import com.sachett.slang.parser.SlangBaseVisitor
 import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.staticchecker.analyzers.FunctionControlPathAnalyzer
+import com.sachett.slang.slangc.staticchecker.evaluators.IntExpressionEvaluator
 import com.sachett.slang.slangc.symbol.*
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 
@@ -172,6 +173,8 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                 )
             }
 
+            val intExpressionEvaluator = IntExpressionEvaluator(ctx.expr())
+            intSymbol.value = intExpressionEvaluator.evaluate()
             symbolTable.insert(idName, intSymbol)
         } else if (typeNameCtx.STRINGTYPE() != null) {
             val stringSymbol = StringSymbol(idName, firstAppearedLineNum)
