@@ -32,15 +32,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         var symbol: ISymbol? = null
 
         if (typeNameCtx.INTTYPE() != null) {
-            val intSymbol = IntSymbol(idName, definedOnLineNum)
+            val intSymbol = IntSymbol(idName, definedOnLineNum, isInitialValueCalculated = true, initializeExpressionPresent = false)
             symbolTable.insert(idName, intSymbol)
             symbol = intSymbol
         } else if (typeNameCtx.STRINGTYPE() != null) {
-            val stringSymbol = StringSymbol(idName, definedOnLineNum)
+            val stringSymbol = StringSymbol(idName, definedOnLineNum, isInitialValueCalculated = true, initializeExpressionPresent = false)
             symbolTable.insert(idName, stringSymbol)
             symbol = stringSymbol
         } else if (typeNameCtx.BOOLTYPE() != null) {
-            val boolSymbol = BoolSymbol(idName, definedOnLineNum)
+            val boolSymbol = BoolSymbol(idName, definedOnLineNum, isInitialValueCalculated = true, initializeExpressionPresent = false)
             symbolTable.insert(idName, boolSymbol)
             symbol = boolSymbol
         } else if (typeNameCtx.VOIDTYPE() != null) {
@@ -120,15 +120,16 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
 
         if (typeNameCtx.BOOLTYPE() != null) {
             println("Found boolie type id $idName")
-            val boolSymbol = BoolSymbol(idName, firstAppearedLineNum)
+            // isInitialValueCalculated is true here because the var is initialized to a default value
+            val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = true, initializeExpressionPresent = false)
             symbolTable.insert(idName, boolSymbol)
         } else if (typeNameCtx.INTTYPE() != null) {
             println("Found int type for id $idName")
-            val intSymbol = IntSymbol(idName, firstAppearedLineNum)
+            val intSymbol = IntSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = true, initializeExpressionPresent = false)
             symbolTable.insert(idName, intSymbol)
         } else if (typeNameCtx.STRINGTYPE() != null) {
             println("Found string type for id $idName")
-            val stringSymbol = StringSymbol(idName, firstAppearedLineNum)
+            val stringSymbol = StringSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = true, initializeExpressionPresent = false)
             symbolTable.insert(idName, stringSymbol)
         } else if (typeNameCtx.VOIDTYPE() != null) {
             // We do not have void variables
@@ -160,7 +161,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         }
 
         if (typeNameCtx.INTTYPE() != null) {
-            val intSymbol = IntSymbol(idName, firstAppearedLineNum)
+            val intSymbol = IntSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = false, initializeExpressionPresent = true)
             val intExprChecker = IntExpressionChecker(symbolTable)
 
             if (!intExprChecker.checkExpr(ctx.expr())) {
@@ -175,9 +176,12 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
 
             val intExpressionEvaluator = IntExpressionEvaluator(ctx.expr())
             intSymbol.value = intExpressionEvaluator.evaluate()
+            if (intExpressionEvaluator.checkStaticEvaluable()) {
+                intSymbol.isInitialValueCalculated = true
+            }
             symbolTable.insert(idName, intSymbol)
         } else if (typeNameCtx.STRINGTYPE() != null) {
-            val stringSymbol = StringSymbol(idName, firstAppearedLineNum)
+            val stringSymbol = StringSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = false, initializeExpressionPresent = true)
             val stringExprChecker = StringExpressionChecker(symbolTable)
 
             if (!stringExprChecker.checkExpr(ctx.expr())) {
@@ -213,7 +217,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
             )
         }
 
-        val boolSymbol = BoolSymbol(idName, firstAppearedLineNum)
+        val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = false, initializeExpressionPresent = true)
         val boolExprChecker = BoolExpressionChecker(symbolTable)
 
         if (!boolExprChecker.checkExpr(ctx.booleanExpr())) {
@@ -253,7 +257,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
 
         when (expressionType) {
             SymbolType.INT -> {
-                val intSymbol = IntSymbol(idName, firstAppearedLineNum, true)
+                val intSymbol = IntSymbol(idName, firstAppearedLineNum, true, isInitialValueCalculated = false, initializeExpressionPresent = true)
                 val intExprChecker = IntExpressionChecker(symbolTable)
 
                 if (!intExprChecker.checkExpr(ctx.expr())) {
@@ -266,10 +270,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                     )
                 }
 
+                val intExpressionEvaluator = IntExpressionEvaluator(ctx.expr())
+                intSymbol.value = intExpressionEvaluator.evaluate()
+                if (intExpressionEvaluator.checkStaticEvaluable()) {
+                    intSymbol.isInitialValueCalculated = true
+                }
                 symbolTable.insert(idName, intSymbol)
             }
             SymbolType.STRING -> {
-                val stringSymbol = StringSymbol(idName, firstAppearedLineNum, true)
+                val stringSymbol = StringSymbol(idName, firstAppearedLineNum, true, isInitialValueCalculated = false, initializeExpressionPresent = true)
                 val stringExprChecker = StringExpressionChecker(symbolTable)
 
                 if (!stringExprChecker.checkExpr(ctx.expr())) {
@@ -295,7 +304,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                 // takes a different kind (type) of ctx argument
                 // TODO: implement the original override for checkExpr that takes a normal expression context in BoolExpressionChecker
 
-                val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true)
+                val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true, isInitialValueCalculated = false, initializeExpressionPresent = true)
                 symbolTable.insert(idName, boolSymbol)
             }
             else -> {
@@ -324,7 +333,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
             )
         }
 
-        val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true)
+        val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true, isInitialValueCalculated = false, initializeExpressionPresent = true)
         val boolExprChecker = BoolExpressionChecker(symbolTable)
 
         if (!boolExprChecker.checkExpr(ctx.booleanExpr())) {

@@ -17,6 +17,7 @@ class FunctionControlPathAnalyzer(
 ) : SlangBaseListener() {
 
     fun checkAllControlPathsForReturns(ctx: SlangParser.ImplicitRetTypeFuncDefContext): Boolean {
+        println("**--- Starting control paths analysis ---") // DEBUG
         // No need to check if it returns void
         if (fnSymbol.returnType == SymbolType.VOID) {
             return true
@@ -28,6 +29,7 @@ class FunctionControlPathAnalyzer(
     }
 
     fun checkAllControlPathsForReturns(ctx: SlangParser.ExplicitRetTypeFuncDefContext): Boolean {
+        println("**--- Starting control paths analysis ---") // DEBUG
         // No need to check if it returns void
         if (fnSymbol.returnType == SymbolType.VOID) {
             return true
@@ -122,6 +124,7 @@ class FunctionControlPathAnalyzer(
     }
 
     override fun enterBlock(ctx: SlangParser.BlockContext?) {
+        symbolTable.incrementScopeOverrideScopeCreation(false)
         if (ctx!!.parent is SlangParser.IfStmtContext
             || ctx.parent is SlangParser.WhileStmtContext
             || ctx.parent is SlangParser.ImplicitRetTypeFuncDefContext?
@@ -129,6 +132,10 @@ class FunctionControlPathAnalyzer(
         ) {
             currentStrayBlock = strayBlockQueue.removeFirst()
         }
+    }
+
+    override fun exitBlock(ctx: SlangParser.BlockContext?) {
+        symbolTable.decrementScope(false)
     }
 
     override fun visitErrorNode(node: ErrorNode?) {

@@ -4,7 +4,7 @@ import com.sachett.slang.parser.SlangBaseVisitor
 import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.symbol.SymbolType
 
-import javax.script.ScriptEngineManager
+import net.objecthunter.exp4j.ExpressionBuilder
 
 class IntExpressionEvaluator(private val exprContext: SlangParser.ExprContext): SlangBaseVisitor<Void?>() {
     private var isExprStaticEvaluable = true
@@ -12,7 +12,7 @@ class IntExpressionEvaluator(private val exprContext: SlangParser.ExprContext): 
     /**
      * Checks if the expression can be evaluated at compile time.
      */
-    private fun checkStaticEvaluable(): Boolean {
+    public fun checkStaticEvaluable(): Boolean {
         if (isExprStaticEvaluableCalculated) {
             return isExprStaticEvaluable
         }
@@ -26,14 +26,12 @@ class IntExpressionEvaluator(private val exprContext: SlangParser.ExprContext): 
      * Returns default value of the symbol type if not possible to evaluate at compile time.
      */
     fun evaluate(): Int {
-        //if (!checkStaticEvaluable()) {
+        if (!checkStaticEvaluable()) {
             return SymbolType.INT.defaultValue!! as Int
-        //}
+        }
 
-        /*val scriptEngineManager = ScriptEngineManager()
-        val scriptEngine = scriptEngineManager.getEngineByName("JavaScript")
-        val expressionString = exprContext.text
-        return scriptEngine.eval(expressionString) as Int*/
+        val exp = ExpressionBuilder(exprContext.text).build()
+        return exp.evaluate().toInt()
     }
 
     override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?): Void? {

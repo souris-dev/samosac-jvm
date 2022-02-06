@@ -17,7 +17,7 @@ class SymbolTable {
     private var createNewScopeEntryOnIncrement: Boolean = true
 
     init {
-        val globalEntry = SymbolTableRecordEntry(null)
+        val globalEntry = SymbolTableRecordEntry(null, prevScopeIndex = -1)
         symbolScope.add(arrayListOf(globalEntry))
         currentSymbolTableRecord = globalEntry
     }
@@ -30,37 +30,81 @@ class SymbolTable {
         return true
     }
 
-    /* Go one scope level up */
+    /**
+     * Go one scope level in.
+     */
     fun incrementScope() {
-        val newSymbolTableRecordEntry = SymbolTableRecordEntry(currentSymbolTableRecord)
+        val newSymbolTableRecordEntry = SymbolTableRecordEntry(
+            currentSymbolTableRecord, prevScopeIndex = currentScopeIndex
+        )
         if (currentScopeIndex == (symbolScope.size - 1)) {
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
             currentSymbolTableRecord = newSymbolTableRecordEntry
-        }
-        else {
+            currentScopeIndex++
+        } else {
             // implies that scope level was decreased previously
 
             if (createNewScopeEntryOnIncrement) {
                 // create a new scope entry when increasing the scope
-                symbolScope[currentScopeIndex + 1].add(newSymbolTableRecordEntry)
+                currentScopeIndex++
+                symbolScope[currentScopeIndex].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
-            }
-            else {
+            } else {
                 // get the last scope entry in the next scope
-                currentSymbolTableRecord = symbolScope[currentScopeIndex + 1].last()
+                currentScopeIndex++
+                currentSymbolTableRecord = symbolScope[currentScopeIndex].last()
                 createNewScopeEntryOnIncrement = true // reset this flag
             }
         }
     }
 
-    /* Go one scope level down */
+    /**
+     * Go one scope level in.
+     * @param   createNewScopeEntry control creation of new scope on increment
+     *                              irrespective of createNewScopeEntryOnNextIncrement
+     *                              in case currentScopeIndex != (symbolScope.size) - 1.
+     */
+    fun incrementScopeOverrideScopeCreation(createNewScopeEntry: Boolean = true) {
+        val newSymbolTableRecordEntry = SymbolTableRecordEntry(
+            currentSymbolTableRecord, prevScopeIndex = currentScopeIndex
+        )
+        if (currentScopeIndex == (symbolScope.size - 1)) {
+            symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
+            currentSymbolTableRecord = newSymbolTableRecordEntry
+            currentScopeIndex++
+        } else {
+            // implies that scope level was decreased previously
+            if (createNewScopeEntry) {
+                // create a new scope entry when increasing the scope
+                currentScopeIndex++
+                symbolScope[currentScopeIndex].add(newSymbolTableRecordEntry)
+                currentSymbolTableRecord = newSymbolTableRecordEntry
+            } else {
+                // get the last scope entry in the next scope
+                currentScopeIndex++
+                currentSymbolTableRecord = symbolScope[currentScopeIndex].last()
+                createNewScopeEntryOnIncrement = true // reset this flag
+            }
+        }
+    }
+
+    /**
+     * Sets current scope index to 0 and currently pointed scope record to first record.
+     */
+    fun resetScopeIndex() {
+        currentScopeIndex = 0
+        currentSymbolTableRecord = symbolScope[0][0]
+    }
+
+    /* Go one scope level back */
+    @JvmOverloads
     fun decrementScope(createNewScopeEntryOnNextIncrement: Boolean = true) {
         if (currentScopeIndex != 0 && currentSymbolTableRecord.prevScopeTable != null) {
             currentScopeIndex--
             currentSymbolTableRecord = currentSymbolTableRecord.prevScopeTable!!
         }
 
-        createNewScopeEntryOnIncrement = createNewScopeEntryOnNextIncrement
+        this.createNewScopeEntryOnIncrement = createNewScopeEntryOnNextIncrement
     }
 
     fun lookup(name: String): ISymbol? {
@@ -69,7 +113,16 @@ class SymbolTable {
         while (tempScope != null && !tempScope.table.containsKey(name)) {
             tempScope = tempScope.prevScopeTable
         }
-
         return tempScope?.table?.get(name)
+    }
+
+    fun getNearestScopeValue(name: String): Int? {
+        var tempScope: SymbolTableRecordEntry? = currentSymbolTableRecord
+
+        while (tempScope != null && !tempScope.table.containsKey(name)) {
+            tempScope = tempScope.prevScopeTable
+        }
+
+        return tempScope?.prevScopeIndex
     }
 }

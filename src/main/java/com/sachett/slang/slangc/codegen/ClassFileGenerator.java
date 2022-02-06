@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.generation;
+package com.sachett.slang.slangc.codegen;
 
 import com.sachett.slang.slangc.symbol.*;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
@@ -12,13 +12,16 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.Objects;
 
 public class ClassFileGenerator extends SlangBaseVisitor<Void> {
-    private final ClassWriter classWriter;
+    private final TraceClassVisitor classWriter;
+    private final ClassWriter delegateClassWriter;
     private SlangParser.ProgramContext programContext;
     private String fileName;
     private String className;
@@ -33,6 +36,9 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
         this.programContext = programContext;
         this.fileName = fileName;
         this.symbolTable = symbolTable;
+
+        // ensure that the symbol table's currentScopeIndex is reset
+        symbolTable.resetScopeIndex();
 
         String[] fileNameParts = fileName.split("\\.");
         StringBuilder genClassNameBuilder = new StringBuilder();
@@ -56,7 +62,8 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
         this.className = genClassNameBuilder.toString();
 
         // Generate a default class
-        this.classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        this.delegateClassWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        this.classWriter = new TraceClassVisitor(delegateClassWriter, new PrintWriter(System.out));
         classWriter.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, this.className, null, "java/lang/Object", null);
 
         // Generate a default main function
@@ -79,7 +86,7 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
     }
 
     public void writeClass() {
-        byte[] classBytes = classWriter.toByteArray();
+        byte[] classBytes = delegateClassWriter.toByteArray();
         try (FileOutputStream stream
                      = FileUtils.openOutputStream(new File("./out/" + this.className + ".class"))) {
             stream.write(classBytes);
@@ -121,6 +128,19 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
                     ((StringSymbol) symbol).getValue()
             ).visitEnd();
         }
+    }
+
+    private void initializeField(String idName, SlangParser.ExprContext initExpr) {
+
+    }
+
+    @Override
+    public Void visitBlock(SlangParser.BlockContext ctx) {
+        // keep track of scopes in the symbol table
+        symbolTable.incrementScope();
+        super.visitBlock(ctx);
+        symbolTable.decrementScope();
+        return null;
     }
 
     @Override

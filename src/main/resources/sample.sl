@@ -4,7 +4,8 @@
 
 /* Variable declarations and definitions: */
 /* note that "bro," or "sis," or the words "def" or "var" can be used for this */
-bro, initCounter: int = 5.
+bro, initCounter: int = 10 / 2.
+bro, nextCounter: int = initCounter + 3.
 bro, lol: string = "Result is: ".
 bro, someBoolVal: boolie = false || true.
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).

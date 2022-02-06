@@ -4,5 +4,6 @@ import com.sachett.slang.slangc.symbol.ISymbol
 
 data class SymbolTableRecordEntry(
     var prevScopeTable: SymbolTableRecordEntry?,
-    val table: MutableMap<String, ISymbol> = mutableMapOf()
+    val table: MutableMap<String, ISymbol> = mutableMapOf(),
+    var prevScopeIndex: Int
 )

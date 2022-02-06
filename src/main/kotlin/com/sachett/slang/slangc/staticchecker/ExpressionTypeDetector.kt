@@ -34,6 +34,7 @@ class ExpressionTypeDetector(
      *          The second element is the <code>SymbolType</code> that appears the most times in the expression.
      */
     fun getType(ctx: SlangParser.ExprContext): Pair<Boolean, SymbolType> {
+        println("----- Finding expr type for expr -----") // DEBUG
         visit(ctx)
 
         var maxFreq = 0
@@ -83,7 +84,8 @@ class ExpressionTypeDetector(
     override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?) {
         val idName = ctx?.IDENTIFIER()?.text
         val lineNumber = ctx?.IDENTIFIER()?.symbol?.line
-        val symbol = symbolTable.lookup(idName!!) ?: err("[Error, Line ${lineNumber}] Unknown identifier ${idName}.")
+
+        val symbol = symbolTable.lookup(idName!!) ?: fmtfatalerr("Unknown identifier ${idName}.", lineNumber!!)
 
         symbolTypesInExpr[symbol.symbolType] = symbolTypesInExpr.getOrDefault(symbol.symbolType, 0) + 1
         return super.visitExprIdentifier(ctx)

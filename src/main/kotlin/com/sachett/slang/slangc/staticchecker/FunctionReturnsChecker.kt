@@ -27,12 +27,16 @@ class FunctionReturnsChecker(
     private var foundReturn = false
 
     fun checkReturnStmts(ctx: SlangParser.ImplicitRetTypeFuncDefContext): Boolean {
+        println("###---- Checking returns -----") // DEBUG
         ParseTreeWalker.DEFAULT.walk(this, ctx)
+        println("###----- Finished checking returns -----") // DEBUG
         return allOk
     }
 
     fun checkReturnStmts(ctx: SlangParser.ExplicitRetTypeFuncDefContext): Boolean {
+        println("###---- Checking returns -----") // DEBUG
         ParseTreeWalker.DEFAULT.walk(this, ctx)
+        println("###----- Finished checking returns -----") // DEBUG
         return allOk
     }
 
@@ -82,6 +86,7 @@ class FunctionReturnsChecker(
         val lineNum = ctx!!.RETURN().symbol.line
         foundReturn = true
 
+        println("Checking return at line ${lineNum}") // DEBUG
         val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
         val (homoTypes, expType) = expressionTypeDetector.getType(ctx.expr())
 
@@ -98,5 +103,15 @@ class FunctionReturnsChecker(
             )
             allOk = false
         }
+    }
+
+    override fun enterBlock(ctx: SlangParser.BlockContext?) {
+        println("Inc scope in FunctionReturnsChecker") // DEBUG
+        symbolTable.incrementScopeOverrideScopeCreation(false)
+    }
+
+    override fun exitBlock(ctx: SlangParser.BlockContext?) {
+        println("Dec scope in FunctionReturnsChecker") // DEBUG
+        symbolTable.decrementScope()
     }
 }
