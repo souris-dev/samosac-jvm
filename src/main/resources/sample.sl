@@ -6,7 +6,8 @@
 /* note that "bro," or "sis," or the words "def" or "var" can be used for this */
 bro, initCounter: int = 10 / 2.
 bro, nextCounter: int = initCounter + 3.
-bro, lol: string = "Result is: ".
+bro, ball: string.
+
 bro, someBoolVal: boolie = false || true.
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).
 
@@ -19,7 +20,7 @@ bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVa
 
 /* Function definition */
 action main(var1: int, var2: string): int {
-    bro, sum: int = 1 + 3 * 6.
+    bro, sum: int = (1 + 3) * 6.
 
     /* Loop */
     while ((var1 < 4) and (var1 > 10 + 4)) {
@@ -52,9 +53,9 @@ action main(var1: int, var2: string): int {
 }
 
 /* Function call expression */
-bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main.
+bro, res: int = (initCounter + 11 + ((initCounter, ball) -> main), ball) -> main.
 
 /* Function call statement */
-(res, lol) -> main.
+(res, ball) -> main.
 
 </SLANG>

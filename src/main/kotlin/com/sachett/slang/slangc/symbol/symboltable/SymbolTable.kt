@@ -17,7 +17,7 @@ class SymbolTable {
     private var createNewScopeEntryOnIncrement: Boolean = true
 
     init {
-        val globalEntry = SymbolTableRecordEntry(null, prevScopeIndex = -1)
+        val globalEntry = SymbolTableRecordEntry(null, prevScopeIndex = -1, scopeIndex = 0)
         symbolScope.add(arrayListOf(globalEntry))
         currentSymbolTableRecord = globalEntry
     }
@@ -35,7 +35,8 @@ class SymbolTable {
      */
     fun incrementScope() {
         val newSymbolTableRecordEntry = SymbolTableRecordEntry(
-            currentSymbolTableRecord, prevScopeIndex = currentScopeIndex
+            currentSymbolTableRecord, prevScopeIndex = currentScopeIndex,
+            scopeIndex = currentScopeIndex + 1
         )
         if (currentScopeIndex == (symbolScope.size - 1)) {
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
@@ -66,7 +67,8 @@ class SymbolTable {
      */
     fun incrementScopeOverrideScopeCreation(createNewScopeEntry: Boolean = true) {
         val newSymbolTableRecordEntry = SymbolTableRecordEntry(
-            currentSymbolTableRecord, prevScopeIndex = currentScopeIndex
+            currentSymbolTableRecord, prevScopeIndex = currentScopeIndex,
+            scopeIndex = currentScopeIndex + 1
         )
         if (currentScopeIndex == (symbolScope.size - 1)) {
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
@@ -116,13 +118,18 @@ class SymbolTable {
         return tempScope?.table?.get(name)
     }
 
-    fun getNearestScopeValue(name: String): Int? {
+    /**
+     * Looks up and returns a pair the symbol with the scopeIndex of the
+     * scope it is in, in order.
+     * Returns a pair of nulls if the symbol is not found.
+     */
+    fun lookupWithNearestScopeValue(name: String): Pair<ISymbol?, Int?> {
         var tempScope: SymbolTableRecordEntry? = currentSymbolTableRecord
 
         while (tempScope != null && !tempScope.table.containsKey(name)) {
             tempScope = tempScope.prevScopeTable
         }
 
-        return tempScope?.prevScopeIndex
+        return Pair(tempScope?.table?.get(name), tempScope?.scopeIndex)
     }
 }

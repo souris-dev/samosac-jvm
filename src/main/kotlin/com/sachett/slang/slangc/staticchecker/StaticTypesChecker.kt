@@ -6,8 +6,11 @@ import com.sachett.slang.parser.SlangBaseVisitor
 import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.staticchecker.analyzers.FunctionControlPathAnalyzer
 import com.sachett.slang.slangc.staticchecker.evaluators.IntExpressionEvaluator
+import com.sachett.slang.slangc.staticchecker.evaluators.StringExpressionEvaluator
 import com.sachett.slang.slangc.symbol.*
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
+import org.antlr.v4.runtime.tree.ErrorNode
+import org.antlr.v4.runtime.tree.ErrorNodeImpl
 
 class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisitor<Void?>() {
 
@@ -179,6 +182,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
             if (intExpressionEvaluator.checkStaticEvaluable()) {
                 intSymbol.isInitialValueCalculated = true
             }
+
             symbolTable.insert(idName, intSymbol)
         } else if (typeNameCtx.STRINGTYPE() != null) {
             val stringSymbol = StringSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = false, initializeExpressionPresent = true)
@@ -192,6 +196,12 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                             "found ${if (detectedType.first) detectedType.second.asString else "mismatched types. "}. ",
                     firstAppearedLineNum
                 )
+            }
+
+            val stringExpressionEvaluator = StringExpressionEvaluator(ctx.expr())
+            stringSymbol.value = stringExpressionEvaluator.evaluate()
+            if (stringExpressionEvaluator.checkStaticEvaluable()) {
+                stringSymbol.isInitialValueCalculated = true
             }
 
             symbolTable.insert(idName, stringSymbol)
@@ -610,5 +620,12 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
             )
         }
         return super.visitWhileStmt(ctx)
+    }
+
+    override fun visitErrorNode(node: ErrorNode?): Void? {
+        // TODO: improve error handling
+        val errorNode = node as ErrorNodeImpl
+        val lineNumber = errorNode.symbol.line
+        fmtfatalerr("Syntax error at '${errorNode.text}'", lineNumber)
     }
 }
