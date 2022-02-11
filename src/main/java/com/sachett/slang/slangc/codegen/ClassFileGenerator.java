@@ -20,6 +20,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class ClassFileGenerator extends SlangBaseVisitor<Void> {
@@ -30,6 +31,12 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
     private String className;
     private final FunctionCodeGen mainMethodVisitor;
     private final SymbolTable symbolTable;
+
+    /**
+     * A hashmap to store the static variables. The entries are of the form:
+     * symbolName: corresponding ISymbol
+     */
+    private final HashMap<String, ISymbol> staticVariables = new HashMap<>();
 
     public ClassFileGenerator(
             SlangParser.ProgramContext programContext,
@@ -139,11 +146,7 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
     private void initializeField(ISymbol symbol, @Nullable SlangParser.ExprContext initExpr) {
         switch (symbol.getSymbolType()) {
             case INT:
-                // Compile-time evaluated expression
-                if (symbol.isInitialValueCalculated()) {
-                    mainMethodVisitor.getMv().visitLdcInsn(((IntSymbol) symbol).getValue());
-                }
-                else {
+                if (!symbol.isInitialValueCalculated()) {
                     // Runtime evaluation
                     IntExprCodeGen intExprCodeGen = new IntExprCodeGen(
                             initExpr,
@@ -153,40 +156,38 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
                             ""
                     );
                     intExprCodeGen.doCodeGen();
-                }
 
-                mainMethodVisitor.getMv().visitFieldInsn(
-                        Opcodes.PUTSTATIC,
-                        className,
-                        symbol.getName(),
-                        Type.INT_TYPE.getDescriptor()
-                );
+                    mainMethodVisitor.getMv().visitFieldInsn(
+                            Opcodes.PUTSTATIC,
+                            className,
+                            symbol.getName(),
+                            Type.INT_TYPE.getDescriptor()
+                    );
+                }
                 break;
 
             case BOOL:
-                if (symbol.isInitialValueCalculated()) {
-                    mainMethodVisitor.getMv().visitLdcInsn(((BoolSymbol) symbol).getValue());
-                }
                 // TODO: BoolExprCodeGen to be implemented
-                mainMethodVisitor.getMv().visitFieldInsn(
-                        Opcodes.PUTSTATIC,
-                        className,
-                        symbol.getName(),
-                        Type.BOOLEAN_TYPE.getDescriptor()
-                );
+                if (!symbol.isInitialValueCalculated()) {
+                    mainMethodVisitor.getMv().visitFieldInsn(
+                            Opcodes.PUTSTATIC,
+                            className,
+                            symbol.getName(),
+                            Type.BOOLEAN_TYPE.getDescriptor()
+                    );
+                }
                 break;
 
             case STRING:
-                if (symbol.isInitialValueCalculated()) {
-                    mainMethodVisitor.getMv().visitLdcInsn(((StringSymbol) symbol).getValue());
-                }
                 // TODO: StringExprCodeGen to be implemented
-                mainMethodVisitor.getMv().visitFieldInsn(
-                        Opcodes.PUTSTATIC,
-                        className,
-                        symbol.getName(),
-                        Type.getType(String.class).getDescriptor()
-                );
+                if (!symbol.isInitialValueCalculated()) {
+                    mainMethodVisitor.getMv().visitFieldInsn(
+                            Opcodes.PUTSTATIC,
+                            className,
+                            symbol.getName(),
+                            Type.getType(String.class).getDescriptor()
+                    );
+                }
                 break;
         }
     }

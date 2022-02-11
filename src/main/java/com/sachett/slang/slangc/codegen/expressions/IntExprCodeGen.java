@@ -9,7 +9,7 @@ import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class IntExprCodeGen extends SlangBaseVisitor<Void> {
+public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
     private final SlangParser.ExprContext exprContext;
     private final FunctionCodeGen functionCodeGen;
     private SymbolTable symbolTable;
@@ -28,6 +28,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> {
         this.qualifiedClassName = packageName.replace(".", "/") + className;
     }
 
+    @Override
     public void doCodeGen() {
         visit(exprContext);
     }
