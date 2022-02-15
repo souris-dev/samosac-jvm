@@ -4,7 +4,6 @@ import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
 import com.sachett.slang.slangc.symbol.ISymbol;
-import com.sachett.slang.slangc.symbol.IntSymbol;
 import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
