@@ -28,9 +28,4 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
     public void doCodeGen() {
         visit(this.exprContext);
     }
-
-    @Override
-    public Void visitExprString(SlangParser.ExprStringContext ctx) {
-        return super.visitExprString(ctx);
-    }
 }

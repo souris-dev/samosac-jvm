@@ -6,7 +6,8 @@
 /* note that "bro," or "sis," or the words "def" or "var" can be used for this */
 bro, initCounter: int = 10 / 2.
 bro, nextCounter: int = initCounter + 3.
-bro, ball: string.
+bro, stringVar: string = "hi".
+bro, ball: string = "heh" + stringVar.
 
 bro, someBoolVal: boolie = false || true.
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).

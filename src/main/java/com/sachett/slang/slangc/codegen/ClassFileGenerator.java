@@ -1,6 +1,7 @@
 package com.sachett.slang.slangc.codegen;
 
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
+import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
 import com.sachett.slang.slangc.symbol.*;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
@@ -181,6 +182,16 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
             case STRING:
                 // TODO: StringExprCodeGen to be implemented
                 if (!symbol.isInitialValueCalculated()) {
+                    StringExprCodeGen stringExprCodeGen = new StringExprCodeGen(
+                            initExpr,
+                            symbolTable,
+                            mainMethodVisitor,
+                            className,
+                            ""
+                    );
+                    stringExprCodeGen.doCodeGen();
+
+                    // the string should now be on the top of the stack
                     mainMethodVisitor.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,

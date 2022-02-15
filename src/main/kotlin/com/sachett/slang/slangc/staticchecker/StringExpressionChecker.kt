@@ -16,7 +16,9 @@ class StringExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symb
 
     override fun visitExprString(ctx: SlangParser.ExprStringContext?): Boolean = true
 
-    override fun visitExprPlus(ctx: SlangParser.ExprPlusContext?): Boolean = false
+    override fun visitExprPlus(ctx: SlangParser.ExprPlusContext?): Boolean = true
+
+    override fun visitExprParen(ctx: SlangParser.ExprParenContext?): Boolean = true
 
     override fun visitFunctionCallNoArgs(ctx: SlangParser.FunctionCallNoArgsContext?): Boolean {
         val returnSymbolType = FunctionCallExprChecker.getRetTypeOfFunctionCallNoArgs(ctx, symbolTable)

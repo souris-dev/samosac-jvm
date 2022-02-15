@@ -4,6 +4,8 @@ import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
 import com.sachett.slang.slangc.symbol.ISymbol;
+import com.sachett.slang.slangc.symbol.IntSymbol;
+import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
@@ -118,11 +120,15 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
+        // TODO: This is a DUMMY, to be implemented
+        functionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
         return null;
     }
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
+        // TODO: This is a DUMMY, to be implemented
+        functionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
         return null;
     }
 }
