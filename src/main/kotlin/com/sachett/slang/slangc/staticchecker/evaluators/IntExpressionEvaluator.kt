@@ -6,19 +6,25 @@ import com.sachett.slang.slangc.symbol.SymbolType
 
 import net.objecthunter.exp4j.ExpressionBuilder
 
-class IntExpressionEvaluator(private val exprContext: SlangParser.ExprContext): SlangBaseVisitor<Void?>() {
+class IntExpressionEvaluator(private var exprContext: SlangParser.ExprContext): SlangBaseVisitor<Void?>() {
     private var isExprStaticEvaluable = true
     private var isExprStaticEvaluableCalculated = false
     /**
      * Checks if the expression can be evaluated at compile time.
      */
-    public fun checkStaticEvaluable(): Boolean {
+    fun checkStaticEvaluable(): Boolean {
         if (isExprStaticEvaluableCalculated) {
             return isExprStaticEvaluable
         }
 
         visit(exprContext)
         return isExprStaticEvaluable
+    }
+
+    fun setExprContext(exprContext: SlangParser.ExprContext) {
+        this.exprContext = exprContext
+        isExprStaticEvaluableCalculated = false
+        isExprStaticEvaluable = true
     }
 
     /**

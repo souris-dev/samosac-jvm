@@ -6,7 +6,7 @@ import com.sachett.slang.slangc.symbol.SymbolType
 
 import net.objecthunter.exp4j.ExpressionBuilder
 
-class StringExpressionEvaluator(private val exprContext: SlangParser.ExprContext): SlangBaseVisitor<String>() {
+class StringExpressionEvaluator(private var exprContext: SlangParser.ExprContext): SlangBaseVisitor<String>() {
     private var isExprStaticEvaluable = true
     private var isExprStaticEvaluableCalculated = false
     private var evaluationResult: String = ""
@@ -34,6 +34,12 @@ class StringExpressionEvaluator(private val exprContext: SlangParser.ExprContext
         return evaluationResult
     }
 
+    fun setExprContext(exprContext: SlangParser.ExprContext) {
+        this.exprContext = exprContext
+        isExprStaticEvaluableCalculated = false
+        isExprStaticEvaluable = true
+    }
+
     // only for checking purposes
     override fun visitExprIdentifier(ctx: SlangParser.ExprIdentifierContext?): String {
         isExprStaticEvaluable = false
@@ -48,6 +54,10 @@ class StringExpressionEvaluator(private val exprContext: SlangParser.ExprContext
     // for compile-time evaluation:
     override fun visitExprPlus(ctx: SlangParser.ExprPlusContext?): String {
         return visit(ctx!!.expr(0)) + visit(ctx.expr(1))
+    }
+
+    override fun visitExprParen(ctx: SlangParser.ExprParenContext?): String {
+        return visit(ctx!!.expr())
     }
 
     override fun visitExprString(ctx: SlangParser.ExprStringContext?): String? {

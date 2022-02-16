@@ -5,6 +5,7 @@ import com.sachett.slang.logging.fmtfatalerr
 import com.sachett.slang.parser.SlangBaseVisitor
 import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.staticchecker.analyzers.FunctionControlPathAnalyzer
+import com.sachett.slang.slangc.staticchecker.evaluators.BoolExpressionEvaluator
 import com.sachett.slang.slangc.staticchecker.evaluators.IntExpressionEvaluator
 import com.sachett.slang.slangc.staticchecker.evaluators.StringExpressionEvaluator
 import com.sachett.slang.slangc.symbol.*
@@ -237,7 +238,13 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
             )
         }
 
+        val boolExpressionEvaluator = BoolExpressionEvaluator(ctx.booleanExpr(), symbolTable)
+        boolSymbol.value = boolExpressionEvaluator.evaluate()
+        if (boolExpressionEvaluator.checkStaticEvaluable()) {
+            boolSymbol.isInitialValueCalculated = true
+        }
         symbolTable.insert(idName, boolSymbol)
+
         return super.visitBooleanDeclAssignStmt(ctx)
     }
 
