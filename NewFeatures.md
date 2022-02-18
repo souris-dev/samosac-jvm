@@ -7,7 +7,7 @@ and something similar in StaticChecker).
 ## Features that may be added:
 
 1. An asap operator for functions that will call the function as soon as possible.
-This function can also be called later on too of course.
+This function can be called again later on too of course.
 For example:
     ```
     action asap doThis() {
@@ -36,3 +36,13 @@ For example:
 11. Import statements. Freaking required.
 12. Deferred blocks would be quite cool. Shouldn't be too tough to implement too.
 13. Escaped characters in strings.
+14. Blocks that execute only with a random probability. Like:
+      ```
+         /* 40% chance of executing */
+         with chance (40%) -> <identifier> {
+            // if it happens, <identifier> is an int that has the random number generated 
+         } else {
+            // if it does not happen
+         }
+      ```
+    

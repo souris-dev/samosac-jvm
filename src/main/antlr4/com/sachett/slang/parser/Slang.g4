@@ -47,7 +47,7 @@ FALSE: ('false' | 'nope' | 'False' | 'FALSE');
 
 IF: 'if';
 ELSE: 'else';
-FUNCDEF: 'action';
+FUNCDEF: 'let';
 VARDEF: ('bro,');
 
 BINAND: '&';
@@ -56,7 +56,7 @@ BINXOR: '|!';
 BINNOT: '!';
 
 RIGHTARROW: '->';
-
+TILDE: '~';
 COLON: ':';
 STATEMENTEND: '.';
 WHILE: 'while';
@@ -68,8 +68,10 @@ BOOLTYPE: 'boolie';
 VOIDTYPE: 'void';
 NULLVALUE: 'null';
 
+IMPORT: 'needs';
+
 DECINT: [0-9]+;
-IDENTIFIER: [_a-zA-Z][_a-zA-Z0-9]+;
+IDENTIFIER: ([_a-zA-Z][_a-zA-Z0-9]+ | [_a-zA-Z]);
 STRING: '"' ('\\"'|.)*? '"';
 COMMA: ',';
 
@@ -84,8 +86,15 @@ OTHER: .;
 
 program: EOF
         | PROGSTART PROGEND
-        | PROGSTART statements PROGEND
-        | statements EOF;
+        | PROGSTART (useStmt)? statements PROGEND
+        | (useStmt)? statements EOF;
+
+useStmt: IMPORT LCURLYBR (classToImport+=qualifiedClassIdentifier COMMA)*
+            (classToImport+=qualifiedClassIdentifier)? RCURLYBR;
+
+qualifiedClassIdentifier: (IDENTIFIER COLON COLON)*? IDENTIFIER
+                        | (IDENTIFIER COLON COLON)+ LCURLYBR
+                            (classListInPackage+=IDENTIFIER COMMA)* (classListInPackage+=IDENTIFIER)? RCURLYBR;
 
 statements: (statement | compoundStmt | funcDef | COMMENTSL | COMMENTML)+;
 
@@ -153,8 +162,8 @@ funcArgList: args+=argParam
            | (args+=argParam COMMA)+ args+=argParam;
 argParam: IDENTIFIER COLON typeName;
 
-callArgList: (callParams+=expr COMMA)? (booleanCallParams+=booleanExpr COMMA)?
-                (callParams+=expr COMMA)? (booleanCallParams+=booleanExpr COMMA)?
-                    (callParams+=expr | booleanCallParams+=booleanExpr);
+callArgList: (callParams+=expr COMMA)* (booleanCallParams+=booleanExpr COMMA)*
+                (callParams+=expr COMMA)* (booleanCallParams+=booleanExpr COMMA)*
+                    (callParams+=expr | booleanCallParams+=booleanExpr)?;
 functionCall: LPAREN RPAREN RIGHTARROW IDENTIFIER #functionCallNoArgs
             | LPAREN callArgList RPAREN RIGHTARROW IDENTIFIER #functionCallWithArgs;

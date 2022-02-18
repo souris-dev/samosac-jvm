@@ -1,5 +1,6 @@
 package com.sachett.slang.slangc.codegen;
 
+import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -149,14 +149,18 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
             case INT:
                 if (!symbol.isInitialValueCalculated()) {
                     // Runtime evaluation
-                    IntExprCodeGen intExprCodeGen = new IntExprCodeGen(
-                            initExpr,
-                            symbolTable,
-                            mainMethodVisitor,
-                            className,
-                            ""
-                    );
-                    intExprCodeGen.doCodeGen();
+                    if (initExpr != null) {
+                        IntExprCodeGen intExprCodeGen = new IntExprCodeGen(
+                                initExpr,
+                                symbolTable,
+                                mainMethodVisitor,
+                                className,
+                                ""
+                        );
+                        intExprCodeGen.doCodeGen();
+                    } else {
+                        mainMethodVisitor.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+                    }
 
                     mainMethodVisitor.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
@@ -168,28 +172,25 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
                 break;
 
             case BOOL:
-                // TODO: BoolExprCodeGen to be implemented
-                if (!symbol.isInitialValueCalculated()) {
-                    mainMethodVisitor.getMv().visitFieldInsn(
-                            Opcodes.PUTSTATIC,
-                            className,
-                            symbol.getName(),
-                            Type.BOOLEAN_TYPE.getDescriptor()
-                    );
-                }
+                // If we are here, that means initExpr is null and the Symbol is a bool symbol
+                // So for boolean field dynamic initialization: we don't do that here
+                // (it's done in initializeBooleanField() as it requires a BooleanExprContext)
                 break;
 
             case STRING:
-                // TODO: StringExprCodeGen to be implemented
                 if (!symbol.isInitialValueCalculated()) {
-                    StringExprCodeGen stringExprCodeGen = new StringExprCodeGen(
-                            initExpr,
-                            symbolTable,
-                            mainMethodVisitor,
-                            className,
-                            ""
-                    );
-                    stringExprCodeGen.doCodeGen();
+                    if (initExpr != null) {
+                        StringExprCodeGen stringExprCodeGen = new StringExprCodeGen(
+                                initExpr,
+                                symbolTable,
+                                mainMethodVisitor,
+                                className,
+                                ""
+                        );
+                        stringExprCodeGen.doCodeGen();
+                    } else {
+                        mainMethodVisitor.getMv().visitLdcInsn(SymbolType.STRING.getDefaultValue());
+                    }
 
                     // the string should now be on the top of the stack
                     mainMethodVisitor.getMv().visitFieldInsn(
@@ -200,6 +201,29 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
                     );
                 }
                 break;
+        }
+    }
+
+    private void initializeBooleanField(ISymbol symbol, SlangParser.BooleanExprContext initExpr) {
+        if (symbol.getSymbolType() != SymbolType.BOOL) {
+            return;
+        }
+        if (!symbol.isInitialValueCalculated()) {
+            BooleanExprCodeGen booleanExprCodeGen = new BooleanExprCodeGen(
+                    initExpr,
+                    symbolTable,
+                    mainMethodVisitor,
+                    className,
+                    ""
+            );
+            booleanExprCodeGen.doCodeGen();
+
+            mainMethodVisitor.getMv().visitFieldInsn(
+                    Opcodes.PUTSTATIC,
+                    className,
+                    symbol.getName(),
+                    Type.BOOLEAN_TYPE.getDescriptor()
+            );
         }
     }
 
@@ -233,11 +257,31 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitBooleanDeclAssignStmt(SlangParser.BooleanDeclAssignStmtContext ctx) {
+        String idName = ctx.IDENTIFIER().getSymbol().getText();
+        ISymbol symbol = makeFieldFromSymbol(idName);
+        if (symbol != null) {
+            initializeBooleanField(symbol, ctx.booleanExpr());
+        }
+        return null;
+    }
+
+    @Override
     public Void visitTypeInferredDeclAssignStmt(SlangParser.TypeInferredDeclAssignStmtContext ctx) {
         String idName = ctx.IDENTIFIER().getSymbol().getText();
         ISymbol symbol = makeFieldFromSymbol(idName);
         if (symbol != null) {
             initializeField(symbol, ctx.expr());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTypeInferredBooleanDeclAssignStmt(SlangParser.TypeInferredBooleanDeclAssignStmtContext ctx) {
+        String idName = ctx.IDENTIFIER().getSymbol().getText();
+        ISymbol symbol = makeFieldFromSymbol(idName);
+        if (symbol != null) {
+            initializeBooleanField(symbol, ctx.booleanExpr());
         }
         return null;
     }

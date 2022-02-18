@@ -1,5 +1,15 @@
 <SLANG>
 
+/* Imports these classes */
+
+needs {
+    java::util:: {
+        Scanner,
+        ArrayList
+    },
+    java::lang::Parser,
+}
+
 /* This is a comment */
 
 /* Variable declarations and definitions: */
@@ -20,7 +30,7 @@ bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVa
  * sis, (a: int, b: int, c: int) = 0, d: int = 3. */
 
 /* Function definition */
-action main(var1: int, var2: string): int {
+let main(var1: int, var2: string): int {
     bro, sum: int = (1 + 3) * 6.
 
     /* Loop */

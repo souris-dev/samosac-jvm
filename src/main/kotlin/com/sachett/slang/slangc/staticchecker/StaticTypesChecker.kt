@@ -308,6 +308,11 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                     )
                 }
 
+                val stringExpressionEvaluator = StringExpressionEvaluator(ctx.expr())
+                stringSymbol.value = stringExpressionEvaluator.evaluate()
+                if (stringExpressionEvaluator.checkStaticEvaluable()) {
+                    stringSymbol.isInitialValueCalculated = true
+                }
                 symbolTable.insert(idName, stringSymbol)
             }
             SymbolType.BOOL -> {
@@ -360,6 +365,11 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
             )
         }
 
+        val boolExpressionEvaluator = BoolExpressionEvaluator(ctx.booleanExpr(), symbolTable)
+        boolSymbol.value = boolExpressionEvaluator.evaluate()
+        if (boolExpressionEvaluator.checkStaticEvaluable()) {
+            boolSymbol.isInitialValueCalculated = true
+        }
         symbolTable.insert(idName, boolSymbol)
 
         return super.visitTypeInferredBooleanDeclAssignStmt(ctx)
