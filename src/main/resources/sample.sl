@@ -30,11 +30,22 @@ bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVa
  * sis, (a: int, b: int, c: int) = 0, d: int = 3. */
 
 /* Function definition */
-let main(var1: int, var2: string): int {
+let main (var1: int, var2: string): int {
     bro, sum: int = (1 + 3) * 6.
+    sum = 0.
 
     /* Loop */
     while ((var1 < 4) and (var1 > 10 + 4)) {
+        sum = sum + 1.
+
+        if (sum > 10) {
+            breakout.
+        }
+
+        if (sum > 3) {
+            continue.
+        }
+
         sum = sum + 1.
     }
 

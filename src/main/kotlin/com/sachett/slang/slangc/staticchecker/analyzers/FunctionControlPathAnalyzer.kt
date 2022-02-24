@@ -81,10 +81,8 @@ class FunctionControlPathAnalyzer(
         currentStrayBlock = strayStrayBlock
 
         if (!controlNodeStack.isEmpty()) {
-            if (controlNodeStack.peekFirst() is IfControlNode) {
-                isInsideControlNode = true
-                currentControlNode = controlNodeStack.removeFirst() as IfControlNode
-            }
+            isInsideControlNode = true
+            currentControlNode = controlNodeStack.removeFirst()
         } else {
             isInsideControlNode = false
         }

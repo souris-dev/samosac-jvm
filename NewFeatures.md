@@ -45,4 +45,4 @@ For example:
             // if it does not happen
          }
       ```
-    
+15. What if a function returns a value probabilistically? :-) 

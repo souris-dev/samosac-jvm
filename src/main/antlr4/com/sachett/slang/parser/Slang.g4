@@ -69,6 +69,8 @@ VOIDTYPE: 'void';
 NULLVALUE: 'null';
 
 IMPORT: 'needs';
+BREAK: 'breakout';
+CONTINUE: 'continue';
 
 DECINT: [0-9]+;
 IDENTIFIER: ([_a-zA-Z][_a-zA-Z0-9]+ | [_a-zA-Z]);
@@ -98,7 +100,10 @@ qualifiedClassIdentifier: (IDENTIFIER COLON COLON)*? IDENTIFIER
 
 statements: (statement | compoundStmt | funcDef | COMMENTSL | COMMENTML)+;
 
-statement: (declStmt | assignStmt | declAssignStmt | functionCall | returnStmt) STATEMENTEND;
+statement: (declStmt | assignStmt | declAssignStmt | functionCall | returnStmt | loopcontrolStmt) STATEMENTEND;
+
+loopcontrolStmt: BREAK #breakControlStmt
+               | CONTINUE #continueControlStmt;
 
 returnStmt: RETURN #returnStmtNoExpr
           | RETURN expr #returnStmtWithExpr;

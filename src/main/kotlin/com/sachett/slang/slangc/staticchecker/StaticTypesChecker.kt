@@ -639,6 +639,36 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         return super.visitWhileStmt(ctx)
     }
 
+    override fun visitBreakControlStmt(ctx: SlangParser.BreakControlStmtContext?): Void? {
+        var parentBlockCtx = ctx!!.parent
+
+        while (parentBlockCtx != null && parentBlockCtx !is SlangParser.WhileStmtContext) {
+            parentBlockCtx = parentBlockCtx.parent
+        }
+
+        if (parentBlockCtx == null) {
+            // this statement is not a part of while
+            fmtfatalerr("Breakout statement must be within a loop.", ctx.BREAK().symbol.line)
+        }
+
+        return null
+    }
+
+    override fun visitContinueControlStmt(ctx: SlangParser.ContinueControlStmtContext?): Void? {
+        var parentBlockCtx = ctx!!.parent
+
+        while (parentBlockCtx != null && parentBlockCtx !is SlangParser.WhileStmtContext) {
+            parentBlockCtx = parentBlockCtx.parent
+        }
+
+        if (parentBlockCtx == null) {
+            // this statement is not a part of while
+            fmtfatalerr("Continue statement must be within a loop.", ctx.CONTINUE().symbol.line)
+        }
+
+        return null
+    }
+
     override fun visitErrorNode(node: ErrorNode?): Void? {
         // TODO: improve error handling
         val errorNode = node as ErrorNodeImpl
