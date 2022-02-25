@@ -3,18 +3,16 @@ package com.sachett.slang.slangc.codegen.expressions;
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
-import com.sachett.slang.slangc.symbol.ISymbol;
 import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
-import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
-    private final SlangParser.ExprContext exprContext;
+    private SlangParser.ExprContext exprContext;
     private final FunctionCodeGen functionCodeGen;
-    private SymbolTable symbolTable;
-    private String qualifiedClassName;
+    private final SymbolTable symbolTable;
+    private final String qualifiedClassName;
 
     public IntExprCodeGen(
             SlangParser.ExprContext exprContext,
@@ -32,6 +30,10 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     @Override
     public void doCodeGen() {
         visit(exprContext);
+    }
+
+    public void setExprContext(SlangParser.ExprContext exprContext) {
+        this.exprContext = exprContext;
     }
 
     @Override
@@ -97,23 +99,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     @Override
     public Void visitExprIdentifier(SlangParser.ExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
-        Pair<ISymbol, Integer> lookupInfo = symbolTable.lookupWithNearestScopeValue(idName);
-        if (lookupInfo.getFirst() == null) {
-            // lookup failed
-            return null;
-        }
-
-        if (lookupInfo.getSecond() == 0) {
-            // we're talking about a global variable
-            // (a static field of the class during generation)
-            functionCodeGen.getMv().visitFieldInsn(
-                    Opcodes.GETSTATIC, qualifiedClassName, idName, Type.INT_TYPE.getDescriptor()
-            );
-        }
-        else {
-            Integer localVarIndex = functionCodeGen.getLocalVarIndex(idName);
-            functionCodeGen.getMv().visitVarInsn(Opcodes.ILOAD, localVarIndex);
-        }
+        doIdentifierCodegen(idName, symbolTable, Type.INT_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
         return null;
     }
 

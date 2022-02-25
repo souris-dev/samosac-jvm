@@ -21,6 +21,7 @@ bro, ball: string = "heh" + stringVar.
 
 bro, someBoolVal: boolie = false || true.
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).
+bro, relOpValue: boolie = initCounter > nextCounter.
 
 /* Can we use "bhai," or "behen," too :-)) */
 

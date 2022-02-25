@@ -4,9 +4,7 @@ import com.sachett.slang.logging.LoggingUtilsKt;
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
-import com.sachett.slang.slangc.symbol.ISymbol;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
-import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -48,22 +46,8 @@ public class StringExprCodeGen extends SlangBaseVisitor<Void> implements IExprCo
     @Override
     public Void visitExprIdentifier(SlangParser.ExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
-        Pair<ISymbol, Integer> lookupInfo = symbolTable.lookupWithNearestScopeValue(idName);
-        if (lookupInfo.getFirst() == null) {
-            // lookup failed
-            return null;
-        }
-
-        if (lookupInfo.getSecond() == 0) {
-            // we're talking about a global variable
-            // (a static field of the class during generation)
-            functionCodeGen.getMv().visitFieldInsn(
-                    Opcodes.GETSTATIC, qualifiedClassName, idName, Type.getType(String.class).getDescriptor()
-            );
-        } else {
-            Integer localVarIndex = functionCodeGen.getLocalVarIndex(idName);
-            functionCodeGen.getMv().visitVarInsn(Opcodes.ALOAD, localVarIndex);
-        }
+        doIdentifierCodegen(idName, symbolTable, Type.getType(String.class),
+                functionCodeGen, qualifiedClassName, Opcodes.ALOAD);
         return super.visitExprIdentifier(ctx);
     }
 
