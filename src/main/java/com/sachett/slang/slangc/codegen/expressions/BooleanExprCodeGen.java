@@ -20,16 +20,25 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
     private final String packageName;
     private final String qualifiedClassName;
 
-    private boolean insertLabelJumps = false;
+    /**
+     * Indicates whether the labels generated will have more code inserted in them.
+     * This should be true in the case of if, while etc.
+     * but false for cases where the boolean result of the evaluation should be stored
+     * on top of the stack after doCodeGen(); for example, in case of assignment statements.
+     */
+    private boolean jumpLabelsHaveBlocks = false;
 
-    // jump instructions are inverted to jump to false labels
-    // for example if it is var1 > var2, codegen generates jump to falseLabel if var1 <= var 2
-    // and if jumpToFalseLabel is set to false:
-    // for var1 > var2, codegen generates jump to trueLabel if var2 > var2
+    /**
+     * jump instructions are inverted to jump to false labels
+     * for example if it is var1 > var2, codegen generates jump to falseLabel if var1 <= var 2
+     * and if jumpToFalseLabel is set to false:
+     * for var1 > var2, codegen generates jump to trueLabel if var2 > var2
+     */
     private boolean jumpToFalseLabel = true;
 
-    private Label trueLabel = new Label();
-    private Label falseLabel = new Label();
+    private Label trueLabel = new Label();  // to jump to when condition is true
+    private Label falseLabel = new Label(); // to jump to when condition is false
+    private Label nextLabel = new Label();  // to jump to after the boolean expression is evaluated
 
     public BooleanExprCodeGen(
             SlangParser.BooleanExprContext exprContext,
@@ -62,8 +71,8 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         visit(specialExprContext);
     }
 
-    public void setInsertLabelJumps(boolean insertLabelJumps) {
-        this.insertLabelJumps = insertLabelJumps;
+    public void setJumpLabelsHaveBlocks(boolean jumpLabelsHaveBlocks) {
+        this.jumpLabelsHaveBlocks = jumpLabelsHaveBlocks;
     }
 
     public void setTrueLabel(Label label) {
@@ -72,6 +81,10 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
 
     public void setFalseLabel(Label label) {
         this.falseLabel = label;
+    }
+
+    public void setNextLabel(Label label) {
+        this.nextLabel = label;
     }
 
     public void setJumpToFalseLabel(boolean jumpToFalseLabel) {
@@ -103,60 +116,53 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
             IntExprCodeGen intExprCodeGen = new IntExprCodeGen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
             intExprCodeGen.doCodeGen();
 
-            if (!this.insertLabelJumps) {
-                functionCodeGen.getMv().visitInsn(Opcodes.I2L);
-            }
-
             intExprCodeGen.setExprContext(ctx.expr(1));
             intExprCodeGen.doCodeGen();
-
-            if (!this.insertLabelJumps) {
-                functionCodeGen.getMv().visitInsn(Opcodes.I2L);
-            }
         }
+
+        Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
 
         if (theRelOp.GT() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.insertLabelJumps) {
-                    int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPLE : Opcodes.IF_ICMPGT;
-                    Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
-                    functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
-                } else {
-                    functionCodeGen.getMv().visitInsn(Opcodes.LCMP);
-                }
+                int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPLE : Opcodes.IF_ICMPGT;
+                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else if (theRelOp.GTEQ() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.insertLabelJumps) {
-                    int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPLT : Opcodes.IF_ICMPGE;
-                    Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
-                    functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
-                } else {
-                    functionCodeGen.getMv().visitInsn(Opcodes.LCMP);
-                }
+                int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPLT : Opcodes.IF_ICMPGE;
+                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else if (theRelOp.LT() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.insertLabelJumps) {
-                    int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPGE : Opcodes.IF_ICMPLT;
-                    Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
-                    functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
-                } else {
-                    functionCodeGen.getMv().visitInsn(Opcodes.LCMP);
-                }
+                int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPGE : Opcodes.IF_ICMPLT;
+                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else if (theRelOp.LTEQ() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.insertLabelJumps) {
-                    int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPGT : Opcodes.IF_ICMPLE;
-                    Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
-                    functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
-                } else {
-                    functionCodeGen.getMv().visitInsn(Opcodes.LCMP);
-                }
+                int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPGE : Opcodes.IF_ICMPLT;
+                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else {
             err("[Error] Unknown relational operator.");
+        }
+
+        if (!this.jumpLabelsHaveBlocks) {
+            // the argument passed in the next line
+            // is the simplification of: this.jumpToFalseLabel ? true : false
+            functionCodeGen.getMv().visitLdcInsn(this.jumpToFalseLabel);
+            functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+
+            functionCodeGen.getMv().visitLabel(labelToJump);
+            functionCodeGen.getMv().visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+            // the argument passed in the next line
+            // is the simplification of: this.jumpToFalseLabel ? false : true
+            functionCodeGen.getMv().visitLdcInsn(!this.jumpToFalseLabel);
+            functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+
+            functionCodeGen.getMv().visitLabel(nextLabel);
+            // see the Javadoc about visitFrame to know what is Opcodes.F_SAME1
+            functionCodeGen.getMv().visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {Opcodes.INTEGER } );
         }
 
         return null;
@@ -211,7 +217,7 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
 
         if (theRelOp.COMP() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.insertLabelJumps) {
+                if (this.jumpLabelsHaveBlocks) {
                     int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
                     Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
                     functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
@@ -221,7 +227,7 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
             }
         } else if (theRelOp.COMPNOTEQ() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.insertLabelJumps) {
+                if (this.jumpLabelsHaveBlocks) {
                     int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPEQ : Opcodes.IF_ICMPNE;
                     Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
                     functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
