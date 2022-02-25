@@ -4,11 +4,13 @@ import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector;
 import com.sachett.slang.slangc.symbol.*;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
+import kotlin.Pair;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,8 +23,11 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Objects;
+
+import static com.sachett.slang.logging.LoggingUtilsKt.err;
 
 public class ClassFileGenerator extends SlangBaseVisitor<Void> {
     private final TraceClassVisitor classWriter;
@@ -284,6 +289,103 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
             initializeBooleanField(symbol, ctx.booleanExpr());
         }
         return null;
+    }
+
+    @Override
+    public Void visitExprAssign(SlangParser.ExprAssignContext ctx) {
+        // look up the identifier on the left to determine the type of the expression
+        // because static type check has already ensured compatibility on both sides
+        String idName = ctx.IDENTIFIER().getText();
+
+        Pair<ISymbol, Integer> lookupInfo = symbolTable.lookupWithNearestScopeValue(idName);
+        if (lookupInfo.getFirst() == null) {
+            // lookup failed
+            return null;
+        }
+
+        Type type = null;
+        int storeInstruction = Opcodes.ASTORE;
+
+        // Do codegen of RHS
+        switch (lookupInfo.getFirst().getSymbolType()) {
+            case INT:
+                type = Type.INT_TYPE;
+                storeInstruction = Opcodes.ISTORE;
+                IntExprCodeGen intCodeGen = new IntExprCodeGen(
+                        ctx.expr(), symbolTable, mainMethodVisitor, className, "");
+                intCodeGen.doCodeGen();
+                break;
+
+            case BOOL:
+                // This is the case when either of these occurs:
+                // aBoolVar = () -> aFunctionReturningBool.
+                // or,
+                // aBoolVar = anotherBoolVar.
+                type = Type.BOOLEAN_TYPE;
+                storeInstruction = Opcodes.ISTORE;
+                BooleanExprCodeGen boolCodeGen = new BooleanExprCodeGen(
+                        null, symbolTable, mainMethodVisitor, className, "");
+                boolCodeGen.doSpecialCodeGen(ctx.expr());
+                break;
+
+            case STRING:
+                type = Type.getType(String.class);
+                StringExprCodeGen stringExprCodeGen = new StringExprCodeGen(
+                        ctx.expr(), symbolTable, mainMethodVisitor, className, "");
+                stringExprCodeGen.doCodeGen();
+                break;
+
+            default:
+                err("[Error] Wrong assignment (bad type on LHS).");
+        }
+
+        // Store the value generated into the variable
+        if (lookupInfo.getSecond() == 0) {
+            // we're talking about a global variable
+            // (a static field of the class during generation)
+            assert type != null;
+            mainMethodVisitor.getMv().visitFieldInsn(
+                    Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
+            );
+        } else {
+            Integer localVarIndex = mainMethodVisitor.getLocalVarIndex(idName);
+            mainMethodVisitor.getMv().visitVarInsn(storeInstruction, localVarIndex);
+        }
+        return super.visitExprAssign(ctx);
+    }
+
+    @Override
+    public Void visitBooleanExprAssign(SlangParser.BooleanExprAssignContext ctx) {
+        String idName = ctx.IDENTIFIER().getText();
+
+        Pair<ISymbol, Integer> lookupInfo = symbolTable.lookupWithNearestScopeValue(idName);
+        if (lookupInfo.getFirst() == null) {
+            // lookup failed
+            return null;
+        }
+
+        // Let's just trust the compile-time type checker here
+        Type type = Type.BOOLEAN_TYPE;
+        int storeInstruction = Opcodes.ISTORE;
+
+        // Do codegen of RHS
+        BooleanExprCodeGen boolCodeGen = new BooleanExprCodeGen(
+                ctx.booleanExpr(), symbolTable, mainMethodVisitor, className, "");
+        boolCodeGen.doCodeGen();
+
+        // Store the value generated into the variable
+        if (lookupInfo.getSecond() == 0) {
+            // we're talking about a global variable
+            // (a static field of the class during generation)
+            mainMethodVisitor.getMv().visitFieldInsn(
+                    Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
+            );
+        } else {
+            Integer localVarIndex = mainMethodVisitor.getLocalVarIndex(idName);
+            mainMethodVisitor.getMv().visitVarInsn(storeInstruction, localVarIndex);
+        }
+
+        return super.visitBooleanExprAssign(ctx);
     }
 
     @Override

@@ -51,6 +51,17 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         visit(this.exprContext);
     }
 
+    /**
+     * Performs codeGen in cases such as:
+     * aBoolVariable = () -> aFuncThatReturnsABool.
+     * or,
+     * aBoolVar = anotherBoolVar.
+     * @param specialExprContext    The ExprContext corresponding to the RHS.
+     */
+    public void doSpecialCodeGen(SlangParser.ExprContext specialExprContext) {
+        visit(specialExprContext);
+    }
+
     public void setInsertLabelJumps(boolean insertLabelJumps) {
         this.insertLabelJumps = insertLabelJumps;
     }
@@ -234,6 +245,18 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
     @Override
     public Void visitBooleanExprIdentifier(SlangParser.BooleanExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
+        doIdentifierCodegen(idName, symbolTable, Type.BOOLEAN_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
+        return null;
+    }
+
+    /**
+     * Used by doSpecialCodeGen().
+     * @param ctx   Appropriate context.
+     */
+    @Override
+    public Void visitExprIdentifier(SlangParser.ExprIdentifierContext ctx) {
+        String idName = ctx.IDENTIFIER().getText();
+        // Let's trust the static type checker here and assume that this identifier is of boolean type
         doIdentifierCodegen(idName, symbolTable, Type.BOOLEAN_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
         return null;
     }
