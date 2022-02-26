@@ -23,11 +23,24 @@ bro, someBoolVal: boolie = false || true.
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).
 bro, somethingA = 3.
 bro, somethingB = 2.
-bro, relOpValue: boolie = somethingA > somethingB.
+bro, relOpValue: boolie = someBoolVal and somethingA > somethingB.
 
 ball = "myGawd" + stringVar.
 relOpValue = nextCounter > nextCounter.
 someBoolVal = anotherBoolVal.
+
+if (someBoolVal) {
+    ball = "ball1".
+}
+else if (relOpValue) {
+    ball = "ball2".
+}
+else if (somethingA > somethingB) {
+    ball = "ball3".
+}
+else {
+    ball = "myGawd" + "lawl".
+}
 
 /* Can we use "bhai," or "behen," too :-)) */
 

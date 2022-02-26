@@ -134,7 +134,7 @@ declAssignStmt: VARDEF IDENTIFIER COLON BOOLTYPE EQUAL booleanExpr #booleanDeclA
 block: LCURLYBR RCURLYBR
      | LCURLYBR statements RCURLYBR;
 
-ifStmt: IF LPAREN booleanExpr RPAREN block (elseifblocks+=ELSE IF LPAREN booleanExpr RPAREN block)*? (ELSE block)?;
+ifStmt: IF LPAREN booleanExpr RPAREN block (ELSE IF LPAREN booleanExpr RPAREN elseifblocks+=block)*? (ELSE elseblock+=block)?;
 
 whileStmt: WHILE LPAREN booleanExpr RPAREN block;
 

@@ -13,7 +13,7 @@ import org.objectweb.asm.Type;
 import static com.sachett.slang.logging.LoggingUtilsKt.err;
 
 public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
-    private final SlangParser.BooleanExprContext exprContext;
+    private SlangParser.BooleanExprContext exprContext;
     private final FunctionCodeGen functionCodeGen;
     private final SymbolTable symbolTable;
     private final String className;
@@ -58,6 +58,10 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
     @Override
     public void doCodeGen() {
         visit(this.exprContext);
+    }
+
+    public void setBooleanExprContext(SlangParser.BooleanExprContext booleanExprContext) {
+        this.exprContext = booleanExprContext;
     }
 
     /**
@@ -121,6 +125,8 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         }
 
         Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
+        // save current stack map
+        var currentFrameStack = functionCodeGen.getCurrentFrameStackInfo();
 
         if (theRelOp.GT() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
@@ -149,20 +155,29 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         if (!this.jumpLabelsHaveBlocks) {
             // the argument passed in the next line
             // is the simplification of: this.jumpToFalseLabel ? true : false
-            functionCodeGen.getMv().visitLdcInsn(this.jumpToFalseLabel);
-            functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+            functionCodeGen.getMv().visitLdcInsn(this.jumpToFalseLabel ? 1 : 0);
 
+            functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
             functionCodeGen.getMv().visitLabel(labelToJump);
-            functionCodeGen.getMv().visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+            functionCodeGen.getMv().visitFrame(
+                    Opcodes.F_NEW,
+                    currentFrameStack.numLocals, currentFrameStack.locals,
+                    currentFrameStack.numStack, currentFrameStack.stack
+            );
 
             // the argument passed in the next line
             // is the simplification of: this.jumpToFalseLabel ? false : true
-            functionCodeGen.getMv().visitLdcInsn(!this.jumpToFalseLabel);
+            functionCodeGen.getMv().visitLdcInsn(this.jumpToFalseLabel ? 0 : 1);
+            currentFrameStack = functionCodeGen.getCurrentFrameStackInfo();
             functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
 
             functionCodeGen.getMv().visitLabel(nextLabel);
             // see the Javadoc about visitFrame to know what is Opcodes.F_SAME1
-            functionCodeGen.getMv().visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {Opcodes.INTEGER } );
+            functionCodeGen.getMv().visitFrame(
+                    Opcodes.F_NEW,
+                    currentFrameStack.numLocals, currentFrameStack.locals,
+                    currentFrameStack.numStack, currentFrameStack.stack
+            );
         }
 
         return null;
@@ -182,7 +197,7 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         // I couldn't find a JVM "not" instruction.
         // So, here's a little trick: xoring anything with true gives its complement
         visit(ctx.booleanExpr());
-        functionCodeGen.getMv().visitLdcInsn(true);
+        functionCodeGen.getMv().visitLdcInsn(1);
         functionCodeGen.getMv().visitInsn(Opcodes.IXOR);
         return null;
     }
@@ -269,13 +284,13 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
 
     @Override
     public Void visitBooleanTrue(SlangParser.BooleanTrueContext ctx) {
-        functionCodeGen.getMv().visitLdcInsn(true);
+        functionCodeGen.getMv().visitLdcInsn(1);
         return null;
     }
 
     @Override
     public Void visitBooleanFalse(SlangParser.BooleanFalseContext ctx) {
-        functionCodeGen.getMv().visitLdcInsn(false);
+        functionCodeGen.getMv().visitLdcInsn(0);
         return null;
     }
 
