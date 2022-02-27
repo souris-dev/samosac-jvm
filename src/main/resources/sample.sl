@@ -42,6 +42,10 @@ else {
     ball = "myGawd" + "lawl".
 }
 
+while (somethingA < 5) {
+    somethingA = somethingA + 1.
+}
+
 /* Can we use "bhai," or "behen," too :-)) */
 
 /* TODO: add support for multiple declarations/definitions

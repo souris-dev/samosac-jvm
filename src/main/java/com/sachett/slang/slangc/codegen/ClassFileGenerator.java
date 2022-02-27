@@ -494,6 +494,39 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
 
     @Override
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
-        return super.visitWhileStmt(ctx);
+        Label loopLabel = new Label();
+        Label exitLoopLabel = new Label();
+        var currentStackFrame = mainMethodVisitor.getCurrentFrameStackInfo();
+
+        mainMethodVisitor.getMv().visitLabel(loopLabel);
+        mainMethodVisitor.getMv().visitFrame(Opcodes.F_NEW,
+                currentStackFrame.numLocals, currentStackFrame.locals,
+                currentStackFrame.numStack, currentStackFrame.stack
+        );
+
+        // check condition
+        BooleanExprCodeGen booleanExprCodeGen = new BooleanExprCodeGen(
+                ctx.booleanExpr(),
+                symbolTable,
+                mainMethodVisitor,
+                className,
+                ""
+        );
+        booleanExprCodeGen.doCodeGen();
+
+        // if condition is false, exit loop
+        var currentStack = mainMethodVisitor.getCurrentFrameStackInfo();
+        mainMethodVisitor.getMv().visitJumpInsn(Opcodes.IFEQ, exitLoopLabel);
+        visit(ctx.block());
+
+        // start next iteration
+        mainMethodVisitor.getMv().visitJumpInsn(Opcodes.GOTO, loopLabel);
+        mainMethodVisitor.getMv().visitLabel(exitLoopLabel);
+        mainMethodVisitor.getMv().visitFrame(Opcodes.F_NEW,
+                currentStackFrame.numLocals, currentStackFrame.locals,
+                currentStackFrame.numStack, currentStackFrame.stack
+        );
+
+        return null;
     }
 }
