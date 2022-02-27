@@ -43,6 +43,10 @@ else {
 }
 
 while (somethingA < 5) {
+    if (relOpValue) {
+        breakout.
+    }
+
     somethingA = somethingA + 1.
 }
 

@@ -40,6 +40,11 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
     private final FunctionCodeGen mainMethodVisitor;
     private final SymbolTable symbolTable;
 
+    // TODO: Refactor into a new class for while block generation else won't work for nested whiles
+    private boolean generatingWhileBlock = false;
+    private Label whileLoopStartLabel = null;
+    private Label whileLoopExitLabel = null;
+
     /**
      * A hashmap to store the static variables. The entries are of the form:
      * symbolName: corresponding ISymbol
@@ -492,10 +497,32 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
         return null;
     }
 
+    // TODO: refactor into a separate class
+    @Override
+    public Void visitBreakControlStmt(SlangParser.BreakControlStmtContext ctx) {
+        if (generatingWhileBlock && whileLoopExitLabel != null && whileLoopStartLabel != null) {
+            mainMethodVisitor.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopExitLabel);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitContinueControlStmt(SlangParser.ContinueControlStmtContext ctx) {
+        if (generatingWhileBlock && whileLoopExitLabel != null && whileLoopStartLabel != null) {
+            mainMethodVisitor.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopStartLabel);
+        }
+        return null;
+    }
+
     @Override
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
         Label loopLabel = new Label();
         Label exitLoopLabel = new Label();
+
+        // TODO: change next two lines on refactor
+        this.whileLoopStartLabel = loopLabel;
+        this.whileLoopExitLabel = exitLoopLabel;
+
         var currentStackFrame = mainMethodVisitor.getCurrentFrameStackInfo();
 
         mainMethodVisitor.getMv().visitLabel(loopLabel);
@@ -515,9 +542,17 @@ public class ClassFileGenerator extends SlangBaseVisitor<Void> {
         booleanExprCodeGen.doCodeGen();
 
         // if condition is false, exit loop
-        var currentStack = mainMethodVisitor.getCurrentFrameStackInfo();
+        currentStackFrame = mainMethodVisitor.getCurrentFrameStackInfo();
         mainMethodVisitor.getMv().visitJumpInsn(Opcodes.IFEQ, exitLoopLabel);
+
+        // TODO: on refactor next line is to be changed
+        this.generatingWhileBlock = true;
         visit(ctx.block());
+
+        // TODO: on refactor next 3 lines are to be changed
+        this.generatingWhileBlock = false;
+        this.whileLoopStartLabel = null;
+        this.whileLoopExitLabel = null;
 
         // start next iteration
         mainMethodVisitor.getMv().visitJumpInsn(Opcodes.GOTO, loopLabel);
