@@ -31,7 +31,7 @@ public interface IExprCodeGen {
                     Opcodes.GETSTATIC, qualifiedClassName, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = functionCodeGen.getLocalVarIndex(idName);
+            Integer localVarIndex = functionCodeGen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
             functionCodeGen.getMv().visitVarInsn(loadInstruction, localVarIndex);
         }
     }

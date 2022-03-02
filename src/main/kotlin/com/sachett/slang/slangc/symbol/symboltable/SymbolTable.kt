@@ -25,7 +25,7 @@ class SymbolTable {
     /* Insert a symbol into the current scope */
     fun insert(name: String, symbol: ISymbol): Boolean {
         if (currentSymbolTableRecord.table.containsKey(name)) return false
-
+        symbol.symbolCoordinates = currentSymbolTableRecord.recordEntryCoordinates
         currentSymbolTableRecord.table[name] = symbol
         return true
     }
@@ -39,15 +39,19 @@ class SymbolTable {
             scopeIndex = currentScopeIndex + 1
         )
         if (currentScopeIndex == (symbolScope.size - 1)) {
+            currentScopeIndex++
+            newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeIndex, 0)
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
             currentSymbolTableRecord = newSymbolTableRecordEntry
-            currentScopeIndex++
         } else {
             // implies that scope level was decreased previously
 
             if (createNewScopeEntryOnIncrement) {
                 // create a new scope entry when increasing the scope
                 currentScopeIndex++
+                // since this is being appended, coordinates
+                // = (currentScopeIndex, <size of this symbolScope - 1 (for 0-based indexing)>)
+                newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeIndex, symbolScope.size - 1)
                 symbolScope[currentScopeIndex].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
             } else {
@@ -71,14 +75,18 @@ class SymbolTable {
             scopeIndex = currentScopeIndex + 1
         )
         if (currentScopeIndex == (symbolScope.size - 1)) {
+            currentScopeIndex++
+            newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeIndex, 0)
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
             currentSymbolTableRecord = newSymbolTableRecordEntry
-            currentScopeIndex++
         } else {
             // implies that scope level was decreased previously
             if (createNewScopeEntry) {
                 // create a new scope entry when increasing the scope
                 currentScopeIndex++
+                // since this is being appended, coordinates
+                // = (currentScopeIndex, <size of this symbolScope - 1 (for 0-based indexing)>)
+                newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeIndex, symbolScope.size - 1)
                 symbolScope[currentScopeIndex].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
             } else {
@@ -131,5 +139,34 @@ class SymbolTable {
         }
 
         return Pair(tempScope?.table?.get(name), tempScope?.scopeIndex)
+    }
+
+    /**
+     * Looks up a symbol in the SymbolTableRecordEntry having the specified coordinates.
+     * @param coordinates Coordinates of the SymbolTableRecordEntry.
+     */
+    fun lookupInCoordinates(name: String, coordinates: Pair<Int, Int>): ISymbol? {
+        return try {
+            val tempScope: SymbolTableRecordEntry = symbolScope[coordinates.first][coordinates.second]
+            if (tempScope.table.containsKey(name)) {
+                tempScope.table[name]
+            } else {
+                null
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            // TODO: throw?
+            null
+        }
+    }
+
+    /**
+     * Looks up a symbol in the current SymbolTableRecordEntry (that is, in the current scope only).
+     */
+    fun lookupInCurrentScopeOnly(name: String): ISymbol? {
+        return if (currentSymbolTableRecord.table.containsKey(name)) {
+            currentSymbolTableRecord.table[name]
+        } else {
+            null
+        }
     }
 }

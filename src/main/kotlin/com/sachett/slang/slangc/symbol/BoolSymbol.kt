@@ -6,7 +6,8 @@ class BoolSymbol(
     override val isInferredType: Boolean = false,
     var value: Boolean = SymbolType.BOOL.defaultValue as Boolean,
     override var isInitialValueCalculated: Boolean,
-    override var initializeExpressionPresent: Boolean
+    override var initializeExpressionPresent: Boolean,
+    override var symbolCoordinates: Pair<Int, Int>? = null
 ) : ISymbol {
     override val symbolType: SymbolType = SymbolType.BOOL
 

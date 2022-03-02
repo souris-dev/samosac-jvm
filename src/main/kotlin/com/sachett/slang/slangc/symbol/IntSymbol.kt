@@ -6,7 +6,8 @@ class IntSymbol(
     override val isInferredType: Boolean = false,
     var value: Int = SymbolType.INT.defaultValue as Int,
     override var isInitialValueCalculated: Boolean,
-    override var initializeExpressionPresent: Boolean
+    override var initializeExpressionPresent: Boolean,
+    override var symbolCoordinates: Pair<Int, Int>? = null
 ) : ISymbol {
     override val symbolType: SymbolType = SymbolType.INT
 

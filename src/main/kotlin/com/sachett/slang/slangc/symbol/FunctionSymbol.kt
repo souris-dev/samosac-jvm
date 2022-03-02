@@ -7,7 +7,8 @@ class FunctionSymbol(
     val returnType: SymbolType = SymbolType.VOID,
     override val isInferredType: Boolean = false,
     override var isInitialValueCalculated: Boolean = true,
-    override var initializeExpressionPresent: Boolean = true
+    override var initializeExpressionPresent: Boolean = true,
+    override var symbolCoordinates: Pair<Int, Int>? = null
 ) : ISymbol {
     override val symbolType: SymbolType = SymbolType.FUNCTION
 

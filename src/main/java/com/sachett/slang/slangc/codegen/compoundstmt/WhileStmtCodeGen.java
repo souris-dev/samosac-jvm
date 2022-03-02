@@ -5,7 +5,6 @@ import com.sachett.slang.slangc.codegen.CodeGenerator;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 

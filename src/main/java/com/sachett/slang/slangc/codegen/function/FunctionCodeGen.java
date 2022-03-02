@@ -1,12 +1,13 @@
 package com.sachett.slang.slangc.codegen.function;
 
+import com.sachett.slang.slangc.symbol.FunctionSymbol;
+import com.sachett.slang.slangc.symbol.ISymbol;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.sachett.slang.logging.LoggingUtilsKt;
@@ -89,6 +90,45 @@ public class FunctionCodeGen {
 
     public void newLocal(String name, Type type) {
         localVariableIndex.put(name, localVariablesSorter.newLocal(type));
+    }
+
+    public void registerLocal(String name, int index) {
+        localVariableIndex.put(name, index);
+    }
+
+    static public String generateDescriptor(FunctionSymbol functionSymbol) {
+        StringBuilder descriptorString = new StringBuilder("(");
+
+        for (ISymbol symbol : functionSymbol.getParamList()) {
+            switch (symbol.getSymbolType()) {
+                case INT:
+                    descriptorString.append("I");
+                    break;
+                case STRING:
+                    descriptorString.append("Ljava/lang/String;");
+                    break;
+                case BOOL:
+                    descriptorString.append("Z");
+                    break;
+            }
+        }
+        descriptorString.append(")");
+        switch (functionSymbol.getReturnType()) {
+            case INT:
+                descriptorString.append("I");
+                break;
+            case STRING:
+                descriptorString.append("Ljava/lang/String;");
+                break;
+            case BOOL:
+                descriptorString.append("Z");
+                break;
+            case VOID:
+                descriptorString.append("V");
+                break;
+        }
+
+        return descriptorString.toString();
     }
 
     public Integer getLocalVarIndex(String name) {

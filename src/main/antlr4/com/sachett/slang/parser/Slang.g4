@@ -106,7 +106,8 @@ loopcontrolStmt: BREAK #breakControlStmt
                | CONTINUE #continueControlStmt;
 
 returnStmt: RETURN #returnStmtNoExpr
-          | RETURN expr #returnStmtWithExpr;
+          | RETURN expr #returnStmtWithExpr
+          | RETURN booleanExpr #returnStmtWithBooleanExpr; // TODO: STATIC VERIFICATION TO BE ADDED!!
 
 assignStmt: IDENTIFIER EQUAL expr #exprAssign
           | IDENTIFIER EQUAL booleanExpr #booleanExprAssign;
