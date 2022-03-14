@@ -58,7 +58,7 @@ while (somethingA < 5) {
  * sis, (a: int, b: int, c: int) = 0, d: int = 3. */
 
 /* Function definition */
-let main (var1: int, var2: string): int {
+let mana (var1: int, var2: string): int {
     bro, sum: int = (1 + 3) * 6.
     sum = 0.
 
@@ -103,9 +103,9 @@ let main (var1: int, var2: string): int {
 }
 
 /* Function call expression */
-bro, res: int = (initCounter + 11 + ((initCounter, ball) -> main), ball) -> main.
+bro, res: int = (initCounter + 11 + ((initCounter, ball) -> mana), ball) -> mana.
 
 /* Function call statement */
-(res, ball) -> main.
+(res, ball) -> mana.
 
 </SLANG>

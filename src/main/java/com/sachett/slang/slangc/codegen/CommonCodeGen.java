@@ -67,11 +67,11 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
     @Override
     public Void visitBlock(SlangParser.BlockContext ctx) {
         // keep track of scopes in the symbol table
-        symbolTable.incrementScope();
+        symbolTable.incrementScopeOverrideScopeCreation(false);
         if (ctx.statements() != null) {
             parentCodeGen.visit(ctx.statements());
         }
-        symbolTable.decrementScope();
+        symbolTable.decrementScope(false);
         return null;
     }
 
@@ -210,7 +210,7 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
                     Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = functionCodeGen.getLocalVarIndex(idName);
+            Integer localVarIndex = functionCodeGen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
             functionCodeGen.getMv().visitVarInsn(storeInstruction, localVarIndex);
         }
         return super.visitExprAssign(ctx);

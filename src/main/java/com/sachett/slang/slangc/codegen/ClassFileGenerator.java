@@ -1,15 +1,13 @@
 package com.sachett.slang.slangc.codegen;
 
-import com.sachett.slang.slangc.codegen.compoundstmt.WhileStmtCodeGen;
+import com.sachett.slang.slangc.codegen.compoundstmt.FunctionGenerator;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
-import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector;
 import com.sachett.slang.slangc.symbol.*;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 
-import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
 import kotlin.Pair;
 import org.apache.commons.io.FileUtils;
@@ -17,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -25,12 +22,9 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.sql.Types;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Objects;
-
-import static com.sachett.slang.logging.LoggingUtilsKt.err;
 
 public class ClassFileGenerator extends CodeGenerator {
     private final TraceClassVisitor classWriter;
@@ -38,7 +32,8 @@ public class ClassFileGenerator extends CodeGenerator {
     private final SlangParser.ProgramContext programContext;
     private String fileName;
     private String className;
-    private final FunctionCodeGen mainMethodVisitor;
+    private final ArrayDeque<FunctionCodeGen> functionCodeGenStack = new ArrayDeque<>();
+    private FunctionCodeGen currentFunctionCodeGen;
     private final CommonCodeGen delegateCommonCodeGen;
     private final SymbolTable symbolTable;
 
@@ -90,7 +85,7 @@ public class ClassFileGenerator extends CodeGenerator {
         classWriter.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, this.className, null, "java/lang/Object", null);
 
         // Generate a default main function
-        mainMethodVisitor = new FunctionCodeGen(
+        currentFunctionCodeGen = new FunctionCodeGen(
                 classWriter,
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC,
                 "main",
@@ -98,15 +93,15 @@ public class ClassFileGenerator extends CodeGenerator {
                 null,
                 null
         );
-        mainMethodVisitor.getMv().visitCode();
-        delegateCommonCodeGen = new CommonCodeGen(this, mainMethodVisitor, symbolTable, className, "");
+        currentFunctionCodeGen.getMv().visitCode();
+        delegateCommonCodeGen = new CommonCodeGen(this, currentFunctionCodeGen, symbolTable, className, "");
     }
 
     public void generateClass() {
         this.visit(this.programContext);
-        mainMethodVisitor.getMv().visitInsn(Opcodes.RETURN);
-        mainMethodVisitor.getMv().visitMaxs(0, 0); // any arguments work, will be recalculated
-        mainMethodVisitor.getMv().visitEnd();
+        currentFunctionCodeGen.getMv().visitInsn(Opcodes.RETURN);
+        currentFunctionCodeGen.getMv().visitMaxs(0, 0); // any arguments work, will be recalculated
+        currentFunctionCodeGen.getMv().visitEnd();
         classWriter.visitEnd();
     }
 
@@ -166,16 +161,16 @@ public class ClassFileGenerator extends CodeGenerator {
                         IntExprCodeGen intExprCodeGen = new IntExprCodeGen(
                                 initExpr,
                                 symbolTable,
-                                mainMethodVisitor,
+                                currentFunctionCodeGen,
                                 className,
                                 ""
                         );
                         intExprCodeGen.doCodeGen();
                     } else {
-                        mainMethodVisitor.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+                        currentFunctionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
                     }
 
-                    mainMethodVisitor.getMv().visitFieldInsn(
+                    currentFunctionCodeGen.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,
                             symbol.getName(),
@@ -196,17 +191,17 @@ public class ClassFileGenerator extends CodeGenerator {
                         StringExprCodeGen stringExprCodeGen = new StringExprCodeGen(
                                 initExpr,
                                 symbolTable,
-                                mainMethodVisitor,
+                                currentFunctionCodeGen,
                                 className,
                                 ""
                         );
                         stringExprCodeGen.doCodeGen();
                     } else {
-                        mainMethodVisitor.getMv().visitLdcInsn(SymbolType.STRING.getDefaultValue());
+                        currentFunctionCodeGen.getMv().visitLdcInsn(SymbolType.STRING.getDefaultValue());
                     }
 
                     // the string should now be on the top of the stack
-                    mainMethodVisitor.getMv().visitFieldInsn(
+                    currentFunctionCodeGen.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,
                             symbol.getName(),
@@ -225,13 +220,13 @@ public class ClassFileGenerator extends CodeGenerator {
             BooleanExprCodeGen booleanExprCodeGen = new BooleanExprCodeGen(
                     initExpr,
                     symbolTable,
-                    mainMethodVisitor,
+                    currentFunctionCodeGen,
                     className,
                     ""
             );
             booleanExprCodeGen.doCodeGen();
 
-            mainMethodVisitor.getMv().visitFieldInsn(
+            currentFunctionCodeGen.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC,
                     className,
                     symbol.getName(),
@@ -318,19 +313,19 @@ public class ClassFileGenerator extends CodeGenerator {
 
         // Do codegen of RHS
         BooleanExprCodeGen boolCodeGen = new BooleanExprCodeGen(
-                ctx.booleanExpr(), symbolTable, mainMethodVisitor, className, "");
+                ctx.booleanExpr(), symbolTable, currentFunctionCodeGen, className, "");
         boolCodeGen.doCodeGen();
 
         // Store the value generated into the variable
         if (lookupInfo.getSecond() == 0) {
             // we're talking about a global variable
             // (a static field of the class during generation)
-            mainMethodVisitor.getMv().visitFieldInsn(
+            currentFunctionCodeGen.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = mainMethodVisitor.getLocalVarIndex(idName);
-            mainMethodVisitor.getMv().visitVarInsn(storeInstruction, localVarIndex);
+            Integer localVarIndex = currentFunctionCodeGen.getLocalVarIndex(idName);
+            currentFunctionCodeGen.getMv().visitVarInsn(storeInstruction, localVarIndex);
         }
 
         return super.visitBooleanExprAssign(ctx);
@@ -346,13 +341,73 @@ public class ClassFileGenerator extends CodeGenerator {
         return delegateCommonCodeGen.visitFunctionCallWithArgs(ctx);
     }
 
+    private void setCurrentFunctionCodeGen(FunctionCodeGen functionCodeGen) {
+        // save current functionCodeGen to a stack
+        functionCodeGenStack.push(currentFunctionCodeGen);
+        currentFunctionCodeGen = functionCodeGen;
+
+        // Update functionCodeGens of delegates
+        delegateCommonCodeGen.setFunctionCodeGen(currentFunctionCodeGen); // TODO: refactor this redundancy
+    }
+
+    private void restoreLastFunctionCodeGen() {
+        currentFunctionCodeGen = functionCodeGenStack.pop();
+
+        // Update functionCodeGens of delegates
+        delegateCommonCodeGen.setFunctionCodeGen(currentFunctionCodeGen);
+    }
+
+    private FunctionGenerator makeMethod(String funcIdName) {
+        var funcSymbol = symbolTable.lookup(funcIdName);
+
+        if (funcSymbol == null) {
+            return null;
+        }
+
+        if (!(funcSymbol instanceof FunctionSymbol functionSymbol)) {
+            return null;
+        }
+
+        String funcDescriptor = FunctionCodeGen.generateDescriptor(functionSymbol);
+        FunctionCodeGen functionCodeGen = new FunctionCodeGen(
+                classWriter,
+                Opcodes.ACC_STATIC + Opcodes.ACC_PUBLIC,
+                functionSymbol.getName(),
+                funcDescriptor,
+                null, null
+        );
+
+        setCurrentFunctionCodeGen(functionCodeGen);
+
+        return new FunctionGenerator(
+                this, functionCodeGen,
+                delegateCommonCodeGen, symbolTable, functionSymbol, className, ""
+        );
+    }
+
     @Override
     public Void visitImplicitRetTypeFuncDef(SlangParser.ImplicitRetTypeFuncDefContext ctx) {
+        String funcIdName = ctx.IDENTIFIER().getText();
+        FunctionGenerator functionGenerator = makeMethod(funcIdName);
+        if (functionGenerator == null) return null;
+
+        functionGenerator.generateImplicitRetTypeFuncDef(ctx);
+
+        // restore previous functionCodeGen
+        restoreLastFunctionCodeGen();
         return null;
     }
 
     @Override
     public Void visitExplicitRetTypeFuncDef(SlangParser.ExplicitRetTypeFuncDefContext ctx) {
+        String funcIdName = ctx.IDENTIFIER().getText();
+        FunctionGenerator functionGenerator = makeMethod(funcIdName);
+        if (functionGenerator == null) return null;
+
+        functionGenerator.generateExplicitRetTypeFuncDef(ctx);
+
+        // restore previous functionCodeGen
+        restoreLastFunctionCodeGen();
         return null;
     }
 

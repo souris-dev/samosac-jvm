@@ -18,6 +18,7 @@ class SymbolTable {
 
     init {
         val globalEntry = SymbolTableRecordEntry(null, prevScopeIndex = -1, scopeIndex = 0)
+        globalEntry.recordEntryCoordinates = Pair(0, 0)
         symbolScope.add(arrayListOf(globalEntry))
         currentSymbolTableRecord = globalEntry
     }
@@ -51,7 +52,9 @@ class SymbolTable {
                 currentScopeIndex++
                 // since this is being appended, coordinates
                 // = (currentScopeIndex, <size of this symbolScope - 1 (for 0-based indexing)>)
-                newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeIndex, symbolScope.size - 1)
+                newSymbolTableRecordEntry.recordEntryCoordinates = Pair(
+                    currentScopeIndex, symbolScope[currentScopeIndex].size
+                )
                 symbolScope[currentScopeIndex].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
             } else {
@@ -86,7 +89,9 @@ class SymbolTable {
                 currentScopeIndex++
                 // since this is being appended, coordinates
                 // = (currentScopeIndex, <size of this symbolScope - 1 (for 0-based indexing)>)
-                newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeIndex, symbolScope.size - 1)
+                newSymbolTableRecordEntry.recordEntryCoordinates = Pair(
+                    currentScopeIndex, symbolScope[currentScopeIndex].size
+                )
                 symbolScope[currentScopeIndex].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
             } else {
