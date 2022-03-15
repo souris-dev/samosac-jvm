@@ -23,7 +23,7 @@ import java.util.List;
 
 public class FunctionGenerator extends CodegenDelegatable {
     private SymbolTable symbolTable;
-    private FunctionCodegen functionCodeGen;
+    private FunctionCodegen functionCodegen;
 
     @Override
     public Void visitBreakControlStmt(SlangParser.BreakControlStmtContext ctx) {
@@ -60,22 +60,22 @@ public class FunctionGenerator extends CodegenDelegatable {
         return delegatedParentCodegen.visitFunctionCallWithArgs(ctx);
     }
 
-    private CodeGenerator delegatedParentCodegen;
+    private CodegenDelegatable delegatedParentCodegen;
     private CodegenCommons codegenCommons;
     private String className;
     private String packageName;
     private FunctionSymbol functionSymbol;
 
     public FunctionGenerator(
-            CodeGenerator delegatedParentCodegen,
-            FunctionCodegen functionCodeGen,
+            CodegenDelegatable delegatedParentCodegen,
+            FunctionCodegen functionCodegen,
             CodegenCommons codegenCommons,
             SymbolTable symbolTable,
             FunctionSymbol functionSymbol,
             String className,
             String packageName
     ) {
-        super();
+        super(delegatedParentCodegen.getSharedDelegationManager());
 
         /**
          * Register with the manager the stuff that this partial generator generates.
@@ -92,7 +92,7 @@ public class FunctionGenerator extends CodegenDelegatable {
         ));
         this.registerDelegatedMethods(delegatedMethodHashSet);
 
-        this.functionCodeGen = functionCodeGen;
+        this.functionCodegen = functionCodegen;
         this.delegatedParentCodegen = delegatedParentCodegen;
         this.codegenCommons = codegenCommons;
         this.symbolTable = symbolTable;
@@ -103,7 +103,7 @@ public class FunctionGenerator extends CodegenDelegatable {
 
     @Override
     public Void visitReturnStmtNoExpr(SlangParser.ReturnStmtNoExprContext ctx) {
-        functionCodeGen.getMv().visitInsn(Opcodes.RETURN);
+        functionCodegen.getMv().visitInsn(Opcodes.RETURN);
         return null;
     }
 
@@ -114,35 +114,35 @@ public class FunctionGenerator extends CodegenDelegatable {
         if (typeInfo.getFirst()) {
             switch (typeInfo.getSecond()) {
                 case INT -> {
-                    IntExprCodegen intExprCodeGen = new IntExprCodegen(
+                    IntExprCodegen intExprCodegen = new IntExprCodegen(
                             ctx.expr(),
-                            symbolTable, functionCodeGen,
+                            symbolTable, functionCodegen,
                             className, packageName
                     );
-                    intExprCodeGen.doCodeGen();
-                    functionCodeGen.getMv().visitInsn(Opcodes.IRETURN);
+                    intExprCodegen.doCodegen();
+                    functionCodegen.getMv().visitInsn(Opcodes.IRETURN);
                 }
                 case STRING -> {
-                    StringExprCodegen strExprCodeGen = new StringExprCodegen(
+                    StringExprCodegen strExprCodegen = new StringExprCodegen(
                             ctx.expr(),
-                            symbolTable, functionCodeGen,
+                            symbolTable, functionCodegen,
                             className, packageName
                     );
-                    strExprCodeGen.doCodeGen();
-                    functionCodeGen.getMv().visitInsn(Opcodes.ARETURN);
+                    strExprCodegen.doCodegen();
+                    functionCodegen.getMv().visitInsn(Opcodes.ARETURN);
                 }
                 case BOOL -> {
                     // This again, is either of these scenarios:
                     // return boolVar.
                     // or,
                     // return () -> boolValReturnFunc.
-                    BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
+                    BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                             null,
-                            symbolTable, functionCodeGen,
+                            symbolTable, functionCodegen,
                             className, packageName
                     );
-                    booleanExprCodeGen.doSpecialCodeGen(ctx.expr());
-                    functionCodeGen.getMv().visitInsn(Opcodes.IRETURN);
+                    booleanExprCodegen.doSpecialCodegen(ctx.expr());
+                    functionCodegen.getMv().visitInsn(Opcodes.IRETURN);
                 }
             }
         }
@@ -151,13 +151,13 @@ public class FunctionGenerator extends CodegenDelegatable {
 
     @Override
     public Void visitReturnStmtWithBooleanExpr(SlangParser.ReturnStmtWithBooleanExprContext ctx) {
-        BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
+        BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                 ctx.booleanExpr(),
-                symbolTable, functionCodeGen,
+                symbolTable, functionCodegen,
                 className, packageName
         );
-        booleanExprCodeGen.doCodeGen();
-        functionCodeGen.getMv().visitInsn(Opcodes.IRETURN);
+        booleanExprCodegen.doCodegen();
+        functionCodegen.getMv().visitInsn(Opcodes.IRETURN);
 
         return null;
     }
@@ -176,20 +176,20 @@ public class FunctionGenerator extends CodegenDelegatable {
         Object symbolTypeDefaultValue = symbolType.getDefaultValue();
         switch (symbolType) {
             case INT -> {
-                functionCodeGen.newLocal(symbolAugmentedName, Type.INT_TYPE);
-                functionCodeGen.getMv().visitLdcInsn(symbolTypeDefaultValue);
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.INT_TYPE);
+                functionCodegen.getMv().visitLdcInsn(symbolTypeDefaultValue);
+                functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
             case STRING -> {
-                functionCodeGen.newLocal(symbol.getAugmentedName(), Type.getType(String.class));
-                functionCodeGen.getMv().visitLdcInsn(symbolTypeDefaultValue);
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ASTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbol.getAugmentedName(), Type.getType(String.class));
+                functionCodegen.getMv().visitLdcInsn(symbolTypeDefaultValue);
+                functionCodegen.getMv().visitVarInsn(Opcodes.ASTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
             case BOOL -> {
-                functionCodeGen.newLocal(symbol.getAugmentedName(), Type.BOOLEAN_TYPE);
+                functionCodegen.newLocal(symbol.getAugmentedName(), Type.BOOLEAN_TYPE);
                 symbolTypeDefaultValue = Boolean.TRUE.equals(symbolType.getDefaultValue()) ? 1 : 0;
-                functionCodeGen.getMv().visitLdcInsn(symbolTypeDefaultValue);
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.getMv().visitLdcInsn(symbolTypeDefaultValue);
+                functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
         }
 
@@ -205,14 +205,14 @@ public class FunctionGenerator extends CodegenDelegatable {
             return null;
         }
 
-        functionCodeGen.newLocal(symbol.getAugmentedName(), Type.BOOLEAN_TYPE);
-        BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
+        functionCodegen.newLocal(symbol.getAugmentedName(), Type.BOOLEAN_TYPE);
+        BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                 ctx.booleanExpr(),
-                symbolTable, functionCodeGen,
+                symbolTable, functionCodegen,
                 className, packageName
         );
-        booleanExprCodeGen.doCodeGen();
-        functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbol.getAugmentedName()));
+        booleanExprCodegen.doCodegen();
+        functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbol.getAugmentedName()));
 
         return null;
     }
@@ -230,26 +230,26 @@ public class FunctionGenerator extends CodegenDelegatable {
         String symbolAugmentedName = symbol.getAugmentedName();
         switch (symbolType) {
             case INT -> {
-                functionCodeGen.newLocal(symbolAugmentedName, Type.INT_TYPE);
-                IntExprCodegen intExprCodeGen = new IntExprCodegen(ctx.expr(), symbolTable, functionCodeGen, className, packageName);
-                intExprCodeGen.doCodeGen();
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.INT_TYPE);
+                IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                intExprCodegen.doCodegen();
+                functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
             case STRING -> {
-                functionCodeGen.newLocal(symbolAugmentedName, Type.getType(String.class));
-                StringExprCodegen strExprCodeGen = new StringExprCodegen(ctx.expr(), symbolTable, functionCodeGen, className, packageName);
-                strExprCodeGen.doCodeGen();
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ASTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.getType(String.class));
+                StringExprCodegen strExprCodegen = new StringExprCodegen(ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                strExprCodegen.doCodegen();
+                functionCodegen.getMv().visitVarInsn(Opcodes.ASTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
             case BOOL -> {
                 // This again, is either of these scenarios:
                 // bro, boolVar = boolVar2.
                 // or,
                 // bro, boolVar = () -> boolValReturnFunc.
-                functionCodeGen.newLocal(symbolAugmentedName, Type.BOOLEAN_TYPE);
-                BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(null, symbolTable, functionCodeGen, className, packageName);
-                booleanExprCodeGen.doSpecialCodeGen(ctx.expr());
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.BOOLEAN_TYPE);
+                BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(null, symbolTable, functionCodegen, className, packageName);
+                booleanExprCodegen.doSpecialCodegen(ctx.expr());
+                functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
         }
 
@@ -275,26 +275,26 @@ public class FunctionGenerator extends CodegenDelegatable {
 
         switch (symbolTypeInfo.getSecond()) {
             case INT -> {
-                functionCodeGen.newLocal(symbolAugmentedName, Type.INT_TYPE);
-                IntExprCodegen intExprCodeGen = new IntExprCodegen(ctx.expr(), symbolTable, functionCodeGen, className, packageName);
-                intExprCodeGen.doCodeGen();
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.INT_TYPE);
+                IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                intExprCodegen.doCodegen();
+                functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
             case STRING -> {
-                functionCodeGen.newLocal(symbolAugmentedName, Type.getType(String.class));
-                StringExprCodegen strExprCodeGen = new StringExprCodegen(ctx.expr(), symbolTable, functionCodeGen, className, packageName);
-                strExprCodeGen.doCodeGen();
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ASTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.getType(String.class));
+                StringExprCodegen strExprCodegen = new StringExprCodegen(ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                strExprCodegen.doCodegen();
+                functionCodegen.getMv().visitVarInsn(Opcodes.ASTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
             case BOOL -> {
                 // This again, is either of these scenarios:
                 // bro, boolVar = boolVar2.
                 // or,
                 // bro, boolVar = () -> boolValReturnFunc.
-                functionCodeGen.newLocal(symbolAugmentedName, Type.BOOLEAN_TYPE);
-                BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(null, symbolTable, functionCodeGen, className, packageName);
-                booleanExprCodeGen.doSpecialCodeGen(ctx.expr());
-                functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbolAugmentedName));
+                functionCodegen.newLocal(symbolAugmentedName, Type.BOOLEAN_TYPE);
+                BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(null, symbolTable, functionCodegen, className, packageName);
+                booleanExprCodegen.doSpecialCodegen(ctx.expr());
+                functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbolAugmentedName));
             }
         }
 
@@ -310,14 +310,14 @@ public class FunctionGenerator extends CodegenDelegatable {
             return null;
         }
 
-        functionCodeGen.newLocal(symbol.getAugmentedName(), Type.BOOLEAN_TYPE);
-        BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
+        functionCodegen.newLocal(symbol.getAugmentedName(), Type.BOOLEAN_TYPE);
+        BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                 ctx.booleanExpr(),
-                symbolTable, functionCodeGen,
+                symbolTable, functionCodegen,
                 className, packageName
         );
-        booleanExprCodeGen.doCodeGen();
-        functionCodeGen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodeGen.getLocalVarIndex(symbol.getAugmentedName()));
+        booleanExprCodegen.doCodegen();
+        functionCodegen.getMv().visitVarInsn(Opcodes.ISTORE, functionCodegen.getLocalVarIndex(symbol.getAugmentedName()));
 
         return null;
     }
@@ -327,7 +327,7 @@ public class FunctionGenerator extends CodegenDelegatable {
         int localVarSlot = 0;
 
         for (ISymbol symbol : functionSymbol.getParamList()) {
-            functionCodeGen.registerLocal(symbol.getAugmentedName(), localVarSlot);
+            functionCodegen.registerLocal(symbol.getAugmentedName(), localVarSlot);
 
             // TODO: When long/doubles/arrays are added, localVarSlot will have to be be incremented by more than one for them
             localVarSlot++;

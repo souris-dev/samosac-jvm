@@ -9,6 +9,7 @@ import java.util.HashSet;
 public abstract class CodegenDelegatable extends CodeGenerator {
     HashSet<CodegenDelegatedMethod> delegatedMethods = new HashSet<>();
     CodegenDelegationManager codeGenDelegationManager;
+    private boolean beingDelegated = false;
 
     public CodegenDelegatable(
             HashSet<CodegenDelegatedMethod> delegatedMethods,
@@ -36,18 +37,23 @@ public abstract class CodegenDelegatable extends CodeGenerator {
         return codeGenDelegationManager;
     }
 
-    protected void startDelegatingTo(CodegenDelegatable delegatable) {
+    // Needs to be public so that delegated CodegenCommons can access the parent's method of startDelegatingTo
+    public void startDelegatingTo(CodegenDelegatable delegatable) {
         codeGenDelegationManager.setCurrentDelegated(delegatable);
         codeGenDelegationManager.setCurrentDelegator(this);
     }
 
-    protected void finishDelegating() {
+    public void finishDelegating() {
         codeGenDelegationManager.setCurrentDelegated(null);
         codeGenDelegationManager.setCurrentDelegator(this);
     }
 
-    protected void registerDelegatedMethod(CodegenDelegatedMethod method) {
-        this.delegatedMethods.add(method);
+    public void setBeingDelegated(boolean beingDelegated) {
+        this.beingDelegated = beingDelegated;
+    }
+
+    public boolean isBeingDelegated() {
+        return beingDelegated;
     }
 
     protected void registerDelegatedMethods(HashSet<CodegenDelegatedMethod> methods) {
@@ -60,11 +66,21 @@ public abstract class CodegenDelegatable extends CodeGenerator {
 
     @Override
     public Void visit(ParseTree parseTree) {
-        return codeGenDelegationManager.visit(parseTree);
+        if (isBeingDelegated()) {
+            return super.visit(parseTree);
+        }
+        else {
+            return codeGenDelegationManager.visit(parseTree);
+        }
     }
 
     @Override
     public Void visitChildren(RuleNode node) {
-        return codeGenDelegationManager.visitChildren(node);
+        if (isBeingDelegated()) {
+            return super.visitChildren(node);
+        }
+        else {
+            return codeGenDelegationManager.visitChildren(node);
+        }
     }
 }

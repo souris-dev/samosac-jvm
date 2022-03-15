@@ -8,13 +8,13 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public interface IExprCodegen {
-    void doCodeGen();
+    void doCodegen();
 
     default void doIdentifierCodegen(
             String idName,
             SymbolTable symbolTable,
             Type type,
-            FunctionCodegen functionCodeGen,
+            FunctionCodegen functionCodegen,
             String qualifiedClassName,
             int loadInstruction
     ) {
@@ -27,12 +27,12 @@ public interface IExprCodegen {
         if (lookupInfo.getSecond() == 0) {
             // we're talking about a global variable
             // (a static field of the class during generation)
-            functionCodeGen.getMv().visitFieldInsn(
+            functionCodegen.getMv().visitFieldInsn(
                     Opcodes.GETSTATIC, qualifiedClassName, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = functionCodeGen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
-            functionCodeGen.getMv().visitVarInsn(loadInstruction, localVarIndex);
+            Integer localVarIndex = functionCodegen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
+            functionCodegen.getMv().visitVarInsn(loadInstruction, localVarIndex);
         }
     }
 }

@@ -31,8 +31,16 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
     @Override
     public Void visit(ParseTree parseTree) {
         CodegenDelegatedMethod method = CodegenMethodMap.getMethodFromClass(parseTree.getClass());
+
+        if (method == CodegenDelegatedMethod.NORMAL_DECLASSIGN) {
+            System.out.println("Delegating NormalDeclAssign"); //debug
+        }
+
         if (method == null) {
-            currentCodeGenDelegator.visit(parseTree);
+            currentCodeGenDelegator.setBeingDelegated(true);
+            var voidPlaceholder = currentCodeGenDelegator.visit(parseTree);
+            currentCodeGenDelegator.setBeingDelegated(false);
+            return voidPlaceholder;
         }
 
         if (currentCodeGenDelegated == null) {
@@ -40,12 +48,18 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
                 return null;
             }
             else {
-                return currentCodeGenDelegator.visit(parseTree);
+                currentCodeGenDelegator.setBeingDelegated(true);
+                var voidPlaceholder = currentCodeGenDelegator.visit(parseTree);
+                currentCodeGenDelegator.setBeingDelegated(false);
+                return voidPlaceholder;
             }
         }
 
         if (currentCodeGenDelegated.isMethodDelegated(method)) {
-            currentCodeGenDelegated.visit(parseTree);
+            currentCodeGenDelegated.setBeingDelegated(true);
+            var voidPlaceholder = currentCodeGenDelegated.visit(parseTree);
+            currentCodeGenDelegated.setBeingDelegated(false);
+            return voidPlaceholder;
         }
         else {
             if (currentCodeGenDelegator == null) {
@@ -56,10 +70,18 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitChildren(RuleNode parseTree) {
-        CodegenDelegatedMethod method = CodegenMethodMap.getMethodFromClass(parseTree.getClass());
+    public Void visitChildren(RuleNode node) {
+        CodegenDelegatedMethod method = CodegenMethodMap.getMethodFromClass(node.getClass());
+
+        if (method == CodegenDelegatedMethod.NORMAL_DECLASSIGN) {
+            System.out.println("Delegating NormalDeclAssign"); //debug
+        }
+
         if (method == null) {
-            currentCodeGenDelegator.visitChildren(parseTree);
+            currentCodeGenDelegator.setBeingDelegated(true);
+            var voidPlaceholder = currentCodeGenDelegator.visitChildren(node);
+            currentCodeGenDelegator.setBeingDelegated(false);
+            return voidPlaceholder;
         }
 
         if (currentCodeGenDelegated == null) {
@@ -67,12 +89,18 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
                 return null;
             }
             else {
-                return currentCodeGenDelegator.visitChildren(parseTree);
+                currentCodeGenDelegator.setBeingDelegated(true);
+                var voidPlaceholder = currentCodeGenDelegator.visit(node);
+                currentCodeGenDelegator.setBeingDelegated(false);
+                return voidPlaceholder;
             }
         }
 
         if (currentCodeGenDelegated.isMethodDelegated(method)) {
-            currentCodeGenDelegated.visitChildren(parseTree);
+            currentCodeGenDelegated.setBeingDelegated(true);
+            var voidPlaceholder = currentCodeGenDelegated.visit(node);
+            currentCodeGenDelegated.setBeingDelegated(false);
+            return voidPlaceholder;
         }
         else {
             if (currentCodeGenDelegator == null) {

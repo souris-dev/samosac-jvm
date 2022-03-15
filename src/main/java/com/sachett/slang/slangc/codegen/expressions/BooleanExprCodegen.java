@@ -14,7 +14,7 @@ import static com.sachett.slang.logging.LoggingUtilsKt.err;
 
 public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private SlangParser.BooleanExprContext exprContext;
-    private final FunctionCodegen functionCodeGen;
+    private final FunctionCodegen functionCodegen;
     private final SymbolTable symbolTable;
     private final String className;
     private final String packageName;
@@ -24,7 +24,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
      * Indicates whether the labels generated will have more code inserted in them.
      * This should be true in the case of if, while etc.
      * but false for cases where the boolean result of the evaluation should be stored
-     * on top of the stack after doCodeGen(); for example, in case of assignment statements.
+     * on top of the stack after doCodegen(); for example, in case of assignment statements.
      */
     private boolean jumpLabelsHaveBlocks = false;
 
@@ -43,12 +43,12 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
     public BooleanExprCodegen(
             SlangParser.BooleanExprContext exprContext,
             SymbolTable symbolTable,
-            FunctionCodegen functionCodeGen,
+            FunctionCodegen functionCodegen,
             String className,
             String packageName
     ) {
         this.exprContext = exprContext;
-        this.functionCodeGen = functionCodeGen;
+        this.functionCodegen = functionCodegen;
         this.symbolTable = symbolTable;
         this.packageName = packageName;
         this.className = className;
@@ -56,7 +56,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
     }
 
     @Override
-    public void doCodeGen() {
+    public void doCodegen() {
         visit(this.exprContext);
     }
 
@@ -71,7 +71,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
      * aBoolVar = anotherBoolVar.
      * @param specialExprContext    The ExprContext corresponding to the RHS.
      */
-    public void doSpecialCodeGen(SlangParser.ExprContext specialExprContext) {
+    public void doSpecialCodegen(SlangParser.ExprContext specialExprContext) {
         visit(specialExprContext);
     }
 
@@ -117,36 +117,36 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         // Since we only have int expressions that can be compared using relops right now
         if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
             // evaluate the left and right sides of the relOp expression
-            IntExprCodegen intExprCodeGen = new IntExprCodegen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
-            intExprCodeGen.doCodeGen();
+            IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(0), symbolTable, functionCodegen, className, packageName);
+            intExprCodegen.doCodegen();
 
-            intExprCodeGen.setExprContext(ctx.expr(1));
-            intExprCodeGen.doCodeGen();
+            intExprCodegen.setExprContext(ctx.expr(1));
+            intExprCodegen.doCodegen();
         }
 
         Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
         // save current stack map
-        var currentFrameStack = functionCodeGen.getCurrentFrameStackInfo();
+        var currentFrameStack = functionCodegen.getCurrentFrameStackInfo();
 
         if (theRelOp.GT() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
                 int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPLE : Opcodes.IF_ICMPGT;
-                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
+                functionCodegen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else if (theRelOp.GTEQ() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
                 int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPLT : Opcodes.IF_ICMPGE;
-                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
+                functionCodegen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else if (theRelOp.LT() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
                 int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPGE : Opcodes.IF_ICMPLT;
-                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
+                functionCodegen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else if (theRelOp.LTEQ() != null) {
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
                 int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPGE : Opcodes.IF_ICMPLT;
-                functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
+                functionCodegen.getMv().visitJumpInsn(opcode, labelToJump);
             }
         } else {
             err("[Error] Unknown relational operator.");
@@ -155,11 +155,11 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         if (!this.jumpLabelsHaveBlocks) {
             // the argument passed in the next line
             // is the simplification of: this.jumpToFalseLabel ? true : false
-            functionCodeGen.getMv().visitLdcInsn(this.jumpToFalseLabel ? 1 : 0);
+            functionCodegen.getMv().visitLdcInsn(this.jumpToFalseLabel ? 1 : 0);
 
-            functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
-            functionCodeGen.getMv().visitLabel(labelToJump);
-            functionCodeGen.getMv().visitFrame(
+            functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+            functionCodegen.getMv().visitLabel(labelToJump);
+            functionCodegen.getMv().visitFrame(
                     Opcodes.F_NEW,
                     currentFrameStack.numLocals, currentFrameStack.locals,
                     currentFrameStack.numStack, currentFrameStack.stack
@@ -167,13 +167,13 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
 
             // the argument passed in the next line
             // is the simplification of: this.jumpToFalseLabel ? false : true
-            functionCodeGen.getMv().visitLdcInsn(this.jumpToFalseLabel ? 0 : 1);
-            currentFrameStack = functionCodeGen.getCurrentFrameStackInfo();
-            functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+            functionCodegen.getMv().visitLdcInsn(this.jumpToFalseLabel ? 0 : 1);
+            currentFrameStack = functionCodegen.getCurrentFrameStackInfo();
+            functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
 
-            functionCodeGen.getMv().visitLabel(nextLabel);
+            functionCodegen.getMv().visitLabel(nextLabel);
             // see the Javadoc about visitFrame to know what is Opcodes.F_SAME1
-            functionCodeGen.getMv().visitFrame(
+            functionCodegen.getMv().visitFrame(
                     Opcodes.F_NEW,
                     currentFrameStack.numLocals, currentFrameStack.locals,
                     currentFrameStack.numStack, currentFrameStack.stack
@@ -188,7 +188,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         // TODO: implement short circuiting
         visit(ctx.booleanExpr(0));
         visit(ctx.booleanExpr(1));
-        functionCodeGen.getMv().visitInsn(Opcodes.IOR);
+        functionCodegen.getMv().visitInsn(Opcodes.IOR);
         return null;
     }
 
@@ -197,8 +197,8 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         // I couldn't find a JVM "not" instruction.
         // So, here's a little trick: xoring anything with true gives its complement
         visit(ctx.booleanExpr());
-        functionCodeGen.getMv().visitLdcInsn(1);
-        functionCodeGen.getMv().visitInsn(Opcodes.IXOR);
+        functionCodegen.getMv().visitLdcInsn(1);
+        functionCodegen.getMv().visitInsn(Opcodes.IXOR);
         return null;
     }
 
@@ -224,10 +224,10 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         // Since we only have int expressions that can be compared using relops right now
         if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
             // evaluate the left and right sides of the relOp expression
-            IntExprCodegen intExprCodeGen = new IntExprCodegen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
-            intExprCodeGen.doCodeGen();
-            intExprCodeGen.setExprContext(ctx.expr(1));
-            intExprCodeGen.doCodeGen();
+            IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(0), symbolTable, functionCodegen, className, packageName);
+            intExprCodegen.doCodegen();
+            intExprCodegen.setExprContext(ctx.expr(1));
+            intExprCodegen.doCodegen();
         }
 
         if (theRelOp.COMP() != null) {
@@ -235,9 +235,9 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
                 if (this.jumpLabelsHaveBlocks) {
                     int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
                     Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
-                    functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
+                    functionCodegen.getMv().visitJumpInsn(opcode, labelToJump);
                 } else {
-                    functionCodeGen.getMv().visitInsn(Opcodes.LCMP);
+                    functionCodegen.getMv().visitInsn(Opcodes.LCMP);
                 }
             }
         } else if (theRelOp.COMPNOTEQ() != null) {
@@ -245,9 +245,9 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
                 if (this.jumpLabelsHaveBlocks) {
                     int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPEQ : Opcodes.IF_ICMPNE;
                     Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
-                    functionCodeGen.getMv().visitJumpInsn(opcode, labelToJump);
+                    functionCodegen.getMv().visitJumpInsn(opcode, labelToJump);
                 } else {
-                    functionCodeGen.getMv().visitInsn(Opcodes.LCMP);
+                    functionCodegen.getMv().visitInsn(Opcodes.LCMP);
                 }
             }
         } else {
@@ -266,31 +266,31 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
     @Override
     public Void visitBooleanExprIdentifier(SlangParser.BooleanExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
-        doIdentifierCodegen(idName, symbolTable, Type.BOOLEAN_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
+        doIdentifierCodegen(idName, symbolTable, Type.BOOLEAN_TYPE, functionCodegen, qualifiedClassName, Opcodes.ILOAD);
         return null;
     }
 
     /**
-     * Used by doSpecialCodeGen().
+     * Used by doSpecialCodegen().
      * @param ctx   Appropriate context.
      */
     @Override
     public Void visitExprIdentifier(SlangParser.ExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
         // Let's trust the static type checker here and assume that this identifier is of boolean type
-        doIdentifierCodegen(idName, symbolTable, Type.BOOLEAN_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
+        doIdentifierCodegen(idName, symbolTable, Type.BOOLEAN_TYPE, functionCodegen, qualifiedClassName, Opcodes.ILOAD);
         return null;
     }
 
     @Override
     public Void visitBooleanTrue(SlangParser.BooleanTrueContext ctx) {
-        functionCodeGen.getMv().visitLdcInsn(1);
+        functionCodegen.getMv().visitLdcInsn(1);
         return null;
     }
 
     @Override
     public Void visitBooleanFalse(SlangParser.BooleanFalseContext ctx) {
-        functionCodeGen.getMv().visitLdcInsn(0);
+        functionCodegen.getMv().visitLdcInsn(0);
         return null;
     }
 
@@ -298,7 +298,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
     public Void visitBooleanExprXor(SlangParser.BooleanExprXorContext ctx) {
         visit(ctx.booleanExpr(0));
         visit(ctx.booleanExpr(1));
-        functionCodeGen.getMv().visitInsn(Opcodes.IXOR); // TODO: TEST IF THIS WORKS!
+        functionCodegen.getMv().visitInsn(Opcodes.IXOR); // TODO: TEST IF THIS WORKS!
         return null;
     }
 
@@ -307,21 +307,21 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         // TODO: implement short circuiting
         visit(ctx.booleanExpr(0));
         visit(ctx.booleanExpr(1));
-        functionCodeGen.getMv().visitInsn(Opcodes.IAND);
+        functionCodegen.getMv().visitInsn(Opcodes.IAND);
         return null;
     }
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
         // TODO: This is a DUMMY, to be implemented
-        functionCodeGen.getMv().visitLdcInsn(SymbolType.BOOL.getDefaultValue());
+        functionCodegen.getMv().visitLdcInsn(SymbolType.BOOL.getDefaultValue());
         return null;
     }
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
         // TODO: This is a DUMMY, to be implemented
-        functionCodeGen.getMv().visitLdcInsn(SymbolType.BOOL.getDefaultValue());
+        functionCodegen.getMv().visitLdcInsn(SymbolType.BOOL.getDefaultValue());
         return null;
     }
 }

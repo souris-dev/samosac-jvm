@@ -77,6 +77,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 CodegenDelegatedMethod.BREAK,
                 CodegenDelegatedMethod.CONTINUE));
         this.registerDelegatedMethods(delegatedMethodHashSet);
+        this.setDelegationManager(sharedCodeGenDelegationManager);
 
         /**
          * Initialize the class file generator.
@@ -196,14 +197,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 if (!symbol.isInitialValueCalculated()) {
                     // Runtime evaluation
                     if (initExpr != null) {
-                        IntExprCodegen intExprCodeGen = new IntExprCodegen(
+                        IntExprCodegen intExprCodegen = new IntExprCodegen(
                                 initExpr,
                                 symbolTable,
                                 currentFunctionCodegen,
                                 className,
                                 ""
                         );
-                        intExprCodeGen.doCodeGen();
+                        intExprCodegen.doCodegen();
                     } else {
                         currentFunctionCodegen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
                     }
@@ -226,14 +227,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
             case STRING:
                 if (!symbol.isInitialValueCalculated()) {
                     if (initExpr != null) {
-                        StringExprCodegen stringExprCodeGen = new StringExprCodegen(
+                        StringExprCodegen stringExprCodegen = new StringExprCodegen(
                                 initExpr,
                                 symbolTable,
                                 currentFunctionCodegen,
                                 className,
                                 ""
                         );
-                        stringExprCodeGen.doCodeGen();
+                        stringExprCodegen.doCodegen();
                     } else {
                         currentFunctionCodegen.getMv().visitLdcInsn(SymbolType.STRING.getDefaultValue());
                     }
@@ -255,14 +256,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
             return;
         }
         if (!symbol.isInitialValueCalculated()) {
-            BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
+            BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                     initExpr,
                     symbolTable,
                     currentFunctionCodegen,
                     className,
                     ""
             );
-            booleanExprCodeGen.doCodeGen();
+            booleanExprCodegen.doCodegen();
 
             currentFunctionCodegen.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC,
@@ -350,9 +351,9 @@ public class ClassFileGenerator extends CodegenDelegatable {
         int storeInstruction = Opcodes.ISTORE;
 
         // Do codegen of RHS
-        BooleanExprCodegen boolCodeGen = new BooleanExprCodegen(
+        BooleanExprCodegen boolCodegen = new BooleanExprCodegen(
                 ctx.booleanExpr(), symbolTable, currentFunctionCodegen, className, "");
-        boolCodeGen.doCodeGen();
+        boolCodegen.doCodegen();
 
         // Store the value generated into the variable
         if (lookupInfo.getSecond() == 0) {
@@ -379,20 +380,20 @@ public class ClassFileGenerator extends CodegenDelegatable {
         return delegateCodegenCommons.visitFunctionCallWithArgs(ctx);
     }
 
-    private void setCurrentFunctionCodeGen(FunctionCodegen functionCodeGen) {
-        // save current functionCodeGen to a stack
+    private void setCurrentFunctionCodegen(FunctionCodegen functionCodegen) {
+        // save current functionCodegen to a stack
         functionCodegenStack.push(currentFunctionCodegen);
-        currentFunctionCodegen = functionCodeGen;
+        currentFunctionCodegen = functionCodegen;
 
         // Update functionCodeGens of delegates
-        delegateCodegenCommons.setFunctionCodeGen(currentFunctionCodegen); // TODO: refactor this redundancy
+        delegateCodegenCommons.setFunctionCodegen(currentFunctionCodegen); // TODO: refactor this redundancy
     }
 
-    private void restoreLastFunctionCodeGen() {
+    private void restoreLastFunctionCodegen() {
         currentFunctionCodegen = functionCodegenStack.pop();
 
         // Update functionCodeGens of delegates
-        delegateCodegenCommons.setFunctionCodeGen(currentFunctionCodegen);
+        delegateCodegenCommons.setFunctionCodegen(currentFunctionCodegen);
     }
 
     private FunctionGenerator makeMethod(String funcIdName) {
@@ -407,7 +408,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
         }
 
         String funcDescriptor = FunctionCodegen.generateDescriptor(functionSymbol);
-        FunctionCodegen functionCodeGen = new FunctionCodegen(
+        FunctionCodegen functionCodegen = new FunctionCodegen(
                 classWriter,
                 Opcodes.ACC_STATIC + Opcodes.ACC_PUBLIC,
                 functionSymbol.getName(),
@@ -415,10 +416,10 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 null, null
         );
 
-        setCurrentFunctionCodeGen(functionCodeGen);
+        setCurrentFunctionCodegen(functionCodegen);
 
         return new FunctionGenerator(
-                this, functionCodeGen,
+                this, functionCodegen,
                 delegateCodegenCommons, symbolTable, functionSymbol, className, ""
         );
     }
@@ -433,8 +434,8 @@ public class ClassFileGenerator extends CodegenDelegatable {
         functionGenerator.generateImplicitRetTypeFuncDef(ctx);
         this.finishDelegating();
 
-        // restore previous functionCodeGen
-        restoreLastFunctionCodeGen();
+        // restore previous functionCodegen
+        restoreLastFunctionCodegen();
         return null;
     }
 
@@ -448,8 +449,8 @@ public class ClassFileGenerator extends CodegenDelegatable {
         functionGenerator.generateExplicitRetTypeFuncDef(ctx);
         this.finishDelegating();
 
-        // restore previous functionCodeGen
-        restoreLastFunctionCodeGen();
+        // restore previous functionCodegen
+        restoreLastFunctionCodegen();
         return null;
     }
 

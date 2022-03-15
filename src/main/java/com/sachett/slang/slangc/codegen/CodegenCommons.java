@@ -26,7 +26,7 @@ import static com.sachett.slang.logging.LoggingUtilsKt.err;
 public class CodegenCommons extends SlangBaseVisitor<Void> {
     protected final String className;
     protected final String packageName;
-    protected FunctionCodegen functionCodeGen;
+    protected FunctionCodegen functionCodegen;
     protected final SymbolTable symbolTable;
 
     /**
@@ -34,35 +34,35 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
      */
     protected final ArrayDeque<WhileStmtCodegen> whileStmtCodegens = new ArrayDeque<>();
 
-    protected CodegenDelegatable parentCodeGen; // parent codegen class instance
-    public CodeGenerator getParentCodeGen() {
-        return parentCodeGen;
+    protected CodegenDelegatable parentCodegen; // parent codegen class instance
+    public CodeGenerator getParentCodegen() {
+        return parentCodegen;
     }
 
-    public void setParentCodeGen(CodegenDelegatable parentCodeGen) {
-        this.parentCodeGen = parentCodeGen;
+    public void setParentCodegen(CodegenDelegatable parentCodegen) {
+        this.parentCodegen = parentCodegen;
     }
 
-    public FunctionCodegen getFunctionCodeGen() {
-        return functionCodeGen;
+    public FunctionCodegen getFunctionCodegen() {
+        return functionCodegen;
     }
 
-    public void setFunctionCodeGen(FunctionCodegen functionCodeGen) {
-        this.functionCodeGen = functionCodeGen;
+    public void setFunctionCodegen(FunctionCodegen functionCodegen) {
+        this.functionCodegen = functionCodegen;
     }
 
     public CodegenCommons(
-            CodegenDelegatable parentCodeGen,
-            FunctionCodegen functionCodeGen,
+            CodegenDelegatable parentCodegen,
+            FunctionCodegen functionCodegen,
             SymbolTable symbolTable,
             String className,
             String packageName
     ) {
         this.className = className;
         this.packageName = packageName;
-        this.functionCodeGen = functionCodeGen;
+        this.functionCodegen = functionCodegen;
         this.symbolTable = symbolTable;
-        this.parentCodeGen = parentCodeGen;
+        this.parentCodegen = parentCodegen;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         // keep track of scopes in the symbol table
         symbolTable.incrementScopeOverrideScopeCreation(false);
         if (ctx.statements() != null) {
-            parentCodeGen.visit(ctx.statements());
+            parentCodegen.visit(ctx.statements());
         }
         symbolTable.decrementScope(false);
         return null;
@@ -79,8 +79,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     @Override
     public Void visitIfStmt(SlangParser.IfStmtContext ctx) {
         SlangParser.BooleanExprContext booleanExprContext = ctx.booleanExpr(0);
-        BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
-                booleanExprContext, symbolTable, functionCodeGen, className, packageName);
+        BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
+                booleanExprContext, symbolTable, functionCodegen, className, packageName);
 
         ArrayList<Pair<Label, SlangParser.BooleanExprContext>> labels = new ArrayList<>();
         int nElseIfs = ctx.elseifblocks.size();
@@ -106,29 +106,29 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         // First generate the boolean expressions and if branch statements
         for (Pair<Label, SlangParser.BooleanExprContext> labelCtx : labels) {
             if (labelCtx.getSecond() != null) {
-                booleanExprCodeGen.setBooleanExprContext(labelCtx.getSecond());
+                booleanExprCodegen.setBooleanExprContext(labelCtx.getSecond());
                 if (!(booleanExprContext instanceof SlangParser.BooleanExprRelOpContext)
                         && !(booleanExprContext instanceof SlangParser.BooleanExprCompOpContext)) {
-                    booleanExprCodeGen.doCodeGen();
+                    booleanExprCodegen.doCodegen();
                     // In this case, after codegen of the booleanExpr, the stack should contain
                     // a bool value on top, on whose basis we can jump
 
                     // Note that IFEQ jumps if top of stack == 0 and IFNE jumps if top of stack != 0
-                    functionCodeGen.getMv().visitJumpInsn(Opcodes.IFNE, labelCtx.getFirst());
+                    functionCodegen.getMv().visitJumpInsn(Opcodes.IFNE, labelCtx.getFirst());
                 } else {
-                    booleanExprCodeGen.setFalseLabel(labelCtx.getFirst());
-                    booleanExprCodeGen.setJumpLabelsHaveBlocks(true);
-                    booleanExprCodeGen.doCodeGen();
+                    booleanExprCodegen.setFalseLabel(labelCtx.getFirst());
+                    booleanExprCodegen.setJumpLabelsHaveBlocks(true);
+                    booleanExprCodegen.doCodegen();
                 }
             } else {
                 // TODO: Generate else block code here
                 if (ctx.elseblock.size() > 0) {
                     // else block is present
-                    parentCodeGen.visit(ctx.elseblock.get(0));
+                    parentCodegen.visit(ctx.elseblock.get(0));
                 }
                 // the label corresponding to the next statement after the if construct
-                frameStackMaps.add(functionCodeGen.getCurrentFrameStackInfo());
-                functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
+                frameStackMaps.add(functionCodegen.getCurrentFrameStackInfo());
+                functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
             }
         }
 
@@ -136,8 +136,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         for (int i = 0; i < labels.size(); i++) {
             // visit the label and generate code for that block
             Pair<Label, SlangParser.BooleanExprContext> labelCtx = labels.get(i);
-            functionCodeGen.getMv().visitLabel(labelCtx.getFirst());
-            functionCodeGen.getMv().visitFrame(
+            functionCodegen.getMv().visitLabel(labelCtx.getFirst());
+            functionCodegen.getMv().visitFrame(
                     Opcodes.F_NEW,
                     frameStackMaps.get(0).numLocals, frameStackMaps.get(0).locals,
                     frameStackMaps.get(0).numStack, frameStackMaps.get(0).stack
@@ -145,10 +145,10 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
 
             // generate codes for the corresponding blocks
             if (i < labels.size() - 1) {
-                parentCodeGen.visit(ctx.block(i));
+                parentCodegen.visit(ctx.block(i));
                 // after execution, skip other labels and go to afterIf
-                frameStackMaps.add(functionCodeGen.getCurrentFrameStackInfo());
-                functionCodeGen.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
+                frameStackMaps.add(functionCodegen.getCurrentFrameStackInfo());
+                functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
             }
         }
 
@@ -174,9 +174,9 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
             case INT:
                 type = Type.INT_TYPE;
                 storeInstruction = Opcodes.ISTORE;
-                IntExprCodegen intCodeGen = new IntExprCodegen(
-                        ctx.expr(), symbolTable, functionCodeGen, className, packageName);
-                intCodeGen.doCodeGen();
+                IntExprCodegen intCodegen = new IntExprCodegen(
+                        ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                intCodegen.doCodegen();
                 break;
 
             case BOOL:
@@ -186,16 +186,16 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                 // aBoolVar = anotherBoolVar.
                 type = Type.BOOLEAN_TYPE;
                 storeInstruction = Opcodes.ISTORE;
-                BooleanExprCodegen boolCodeGen = new BooleanExprCodegen(
-                        null, symbolTable, functionCodeGen, className, packageName);
-                boolCodeGen.doSpecialCodeGen(ctx.expr());
+                BooleanExprCodegen boolCodegen = new BooleanExprCodegen(
+                        null, symbolTable, functionCodegen, className, packageName);
+                boolCodegen.doSpecialCodegen(ctx.expr());
                 break;
 
             case STRING:
                 type = Type.getType(String.class);
-                StringExprCodegen stringExprCodeGen = new StringExprCodegen(
-                        ctx.expr(), symbolTable, functionCodeGen, className, packageName);
-                stringExprCodeGen.doCodeGen();
+                StringExprCodegen stringExprCodegen = new StringExprCodegen(
+                        ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                stringExprCodegen.doCodegen();
                 break;
 
             default:
@@ -207,28 +207,30 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
             // we're talking about a global variable
             // (a static field of the class during generation)
             assert type != null;
-            functionCodeGen.getMv().visitFieldInsn(
+            functionCodegen.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = functionCodeGen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
-            functionCodeGen.getMv().visitVarInsn(storeInstruction, localVarIndex);
+            Integer localVarIndex = functionCodegen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
+            functionCodegen.getMv().visitVarInsn(storeInstruction, localVarIndex);
         }
         return super.visitExprAssign(ctx);
     }
 
     @Override
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
-        WhileStmtCodegen whileStmtCodeGen = new WhileStmtCodegen(
-                parentCodeGen,
-                functionCodeGen,
+        WhileStmtCodegen whileStmtCodegen = new WhileStmtCodegen(
+                parentCodegen,
+                functionCodegen,
                 symbolTable,
                 className,
                 packageName
         );
 
-        whileStmtCodegens.push(whileStmtCodeGen);
-        whileStmtCodeGen.generateWhileStmt(ctx);
+        whileStmtCodegens.push(whileStmtCodegen);
+        parentCodegen.startDelegatingTo(whileStmtCodegen);
+        whileStmtCodegen.generateWhileStmt(ctx);
+        parentCodegen.finishDelegating();
         whileStmtCodegens.pop();
         return null;
     }

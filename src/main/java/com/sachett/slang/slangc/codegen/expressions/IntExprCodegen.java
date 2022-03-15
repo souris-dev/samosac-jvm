@@ -10,25 +10,25 @@ import org.objectweb.asm.Type;
 
 public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private SlangParser.ExprContext exprContext;
-    private final FunctionCodegen functionCodeGen;
+    private final FunctionCodegen functionCodegen;
     private final SymbolTable symbolTable;
     private final String qualifiedClassName;
 
     public IntExprCodegen(
             SlangParser.ExprContext exprContext,
             SymbolTable symbolTable,
-            FunctionCodegen functionCodeGen,
+            FunctionCodegen functionCodegen,
             String className,
             String packageName
     ) {
         this.exprContext = exprContext;
-        this.functionCodeGen = functionCodeGen;
+        this.functionCodegen = functionCodegen;
         this.symbolTable = symbolTable;
         this.qualifiedClassName = packageName.replace(".", "/") + className;
     }
 
     @Override
-    public void doCodeGen() {
+    public void doCodegen() {
         visit(exprContext);
     }
 
@@ -39,7 +39,7 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     @Override
     public Void visitExprDecint(SlangParser.ExprDecintContext ctx) {
         int number = Integer.parseInt(ctx.DECINT().getText());
-        functionCodeGen.getMv().visitLdcInsn(number);
+        functionCodegen.getMv().visitLdcInsn(number);
         return null;
     }
 
@@ -53,7 +53,7 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     public Void visitExprPlus(SlangParser.ExprPlusContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IADD);
+        functionCodegen.getMv().visitInsn(Opcodes.IADD);
         return null;
     }
 
@@ -61,7 +61,7 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     public Void visitExprMinus(SlangParser.ExprMinusContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.ISUB);
+        functionCodegen.getMv().visitInsn(Opcodes.ISUB);
         return null;
     }
 
@@ -69,7 +69,7 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     public Void visitExprMultiply(SlangParser.ExprMultiplyContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IMUL);
+        functionCodegen.getMv().visitInsn(Opcodes.IMUL);
         return null;
     }
 
@@ -77,7 +77,7 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     public Void visitExprDivide(SlangParser.ExprDivideContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IDIV);
+        functionCodegen.getMv().visitInsn(Opcodes.IDIV);
         return null;
     }
 
@@ -85,35 +85,35 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     public Void visitExprModulo(SlangParser.ExprModuloContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IREM);
+        functionCodegen.getMv().visitInsn(Opcodes.IREM);
         return null;
     }
 
     @Override
     public Void visitUnaryMinus(SlangParser.UnaryMinusContext ctx) {
         visit(ctx.expr());
-        functionCodeGen.getMv().visitInsn(Opcodes.INEG);
+        functionCodegen.getMv().visitInsn(Opcodes.INEG);
         return null;
     }
 
     @Override
     public Void visitExprIdentifier(SlangParser.ExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
-        doIdentifierCodegen(idName, symbolTable, Type.INT_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
+        doIdentifierCodegen(idName, symbolTable, Type.INT_TYPE, functionCodegen, qualifiedClassName, Opcodes.ILOAD);
         return null;
     }
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
         // TODO: This is a DUMMY, to be implemented
-        functionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+        functionCodegen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
         return null;
     }
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
         // TODO: This is a DUMMY, to be implemented
-        functionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+        functionCodegen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
         return null;
     }
 }
