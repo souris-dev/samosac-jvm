@@ -22,7 +22,12 @@ public class CodeGenMethodMap {
             entry(SlangParser.ReturnStmtWithBooleanExprContext.class, CodeGenDelegatedMethod.RETURN_BOOL),
             entry(SlangParser.ReturnStmtWithExprContext.class, CodeGenDelegatedMethod.RETURN_WITHEXPR),
             entry(SlangParser.ImplicitRetTypeFuncDefContext.class, CodeGenDelegatedMethod.IMPLICIT_RET_FUNCDEF),
-            entry(SlangParser.ExplicitRetTypeFuncDefContext.class, CodeGenDelegatedMethod.EXPLICIT_RET_FUNCDEF)
+            entry(SlangParser.ExplicitRetTypeFuncDefContext.class, CodeGenDelegatedMethod.EXPLICIT_RET_FUNCDEF),
+            entry(SlangParser.ExprAssignContext.class, CodeGenDelegatedMethod.EXPR_ASSIGN),
+            entry(SlangParser.BooleanExprAssignContext.class, CodeGenDelegatedMethod.BOOLEAN_EXPR_ASSIGN),
+            entry(SlangParser.BlockContext.class, CodeGenDelegatedMethod.BLOCK),
+            entry(SlangParser.FunctionCallNoArgsContext.class, CodeGenDelegatedMethod.FUNCTIONCALL_NOARGS),
+            entry(SlangParser.FunctionCallWithArgsContext.class, CodeGenDelegatedMethod.FUNCTIONCALL_WITHARGS)
     );
 
     public static CodeGenDelegatedMethod getMethodFromClass(Class<? extends ParseTree> parseTreeClass) {

@@ -7,6 +7,8 @@ import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodeGenDelegatedMethod;
+import com.sachett.slang.slangc.codegen.utils.delegation.ICodeGenDelegatable;
 import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector;
 import com.sachett.slang.slangc.symbol.FunctionSymbol;
 import com.sachett.slang.slangc.symbol.ISymbol;
@@ -16,7 +18,10 @@ import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class FunctionGenerator extends CodeGenerator {
+import java.util.HashSet;
+import java.util.List;
+
+public class FunctionGenerator extends ICodeGenDelegatable {
     private SymbolTable symbolTable;
     private FunctionCodeGen functionCodeGen;
 
@@ -70,6 +75,23 @@ public class FunctionGenerator extends CodeGenerator {
             String className,
             String packageName
     ) {
+        super();
+
+        /**
+         * Register with the manager the stuff that this partial generator generates.
+         */
+        HashSet<CodeGenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodeGenDelegatedMethod.BLOCK,
+                CodeGenDelegatedMethod.RETURN_NOEXPR,
+                CodeGenDelegatedMethod.RETURN_WITHEXPR,
+                CodeGenDelegatedMethod.RETURN_BOOL,
+                CodeGenDelegatedMethod.DECL,
+                CodeGenDelegatedMethod.BOOLEAN_DECLASSIGN,
+                CodeGenDelegatedMethod.NORMAL_DECLASSIGN,
+                CodeGenDelegatedMethod.TYPEINF_DECLASSIGN,
+                CodeGenDelegatedMethod.TYPEINF_BOOLEAN_DECLASSIGN
+        ));
+        this.registerDelegatedMethods(delegatedMethodHashSet);
+
         this.functionCodeGen = functionCodeGen;
         this.delegatedParentCodegen = delegatedParentCodegen;
         this.commonCodeGen = commonCodeGen;

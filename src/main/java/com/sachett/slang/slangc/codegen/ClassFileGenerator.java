@@ -5,6 +5,9 @@ import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodeGenDelegatedMethod;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodeGenDelegationManager;
+import com.sachett.slang.slangc.codegen.utils.delegation.ICodeGenDelegatable;
 import com.sachett.slang.slangc.symbol.*;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 
@@ -22,11 +25,9 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
-public class ClassFileGenerator extends CodeGenerator {
+public class ClassFileGenerator extends ICodeGenDelegatable {
     private final TraceClassVisitor classWriter;
     private final ClassWriter delegateClassWriter;
     private final SlangParser.ProgramContext programContext;
@@ -36,6 +37,12 @@ public class ClassFileGenerator extends CodeGenerator {
     private FunctionCodeGen currentFunctionCodeGen;
     private final CommonCodeGen delegateCommonCodeGen;
     private final SymbolTable symbolTable;
+
+    /**
+     * The CodeGenDelegationManager helps manage the delegation of the partial code generators.
+     */
+    private CodeGenDelegationManager sharedCodeGenDelegationManager
+            = new CodeGenDelegationManager(this, null);
 
     /**
      * A hashmap to store the static variables. The entries are of the form:
@@ -48,6 +55,33 @@ public class ClassFileGenerator extends CodeGenerator {
             @NotNull String fileName,
             @NotNull SymbolTable symbolTable
     ) {
+        super();
+
+        /**
+         * Register the stuff that this generator generates with the shared delegation manager.
+         */
+        HashSet<CodeGenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodeGenDelegatedMethod.BLOCK,
+                CodeGenDelegatedMethod.DECL,
+                CodeGenDelegatedMethod.NORMAL_DECLASSIGN,
+                CodeGenDelegatedMethod.BOOLEAN_DECLASSIGN,
+                CodeGenDelegatedMethod.TYPEINF_DECLASSIGN,
+                CodeGenDelegatedMethod.TYPEINF_BOOLEAN_DECLASSIGN,
+                CodeGenDelegatedMethod.EXPR_ASSIGN,
+                CodeGenDelegatedMethod.BOOLEAN_EXPR_ASSIGN,
+                CodeGenDelegatedMethod.FUNCTIONCALL_NOARGS,
+                CodeGenDelegatedMethod.FUNCTIONCALL_WITHARGS,
+                CodeGenDelegatedMethod.IMPLICIT_RET_FUNCDEF,
+                CodeGenDelegatedMethod.EXPLICIT_RET_FUNCDEF,
+                CodeGenDelegatedMethod.IF,
+                CodeGenDelegatedMethod.WHILE,
+                CodeGenDelegatedMethod.BREAK,
+                CodeGenDelegatedMethod.CONTINUE));
+        this.registerDelegatedMethods(delegatedMethodHashSet);
+
+        /**
+         * Initialize the class file generator.
+         */
+
         this.programContext = programContext;
         this.fileName = fileName;
         this.symbolTable = symbolTable;
@@ -391,7 +425,9 @@ public class ClassFileGenerator extends CodeGenerator {
         FunctionGenerator functionGenerator = makeMethod(funcIdName);
         if (functionGenerator == null) return null;
 
+        this.startDelegatingTo(functionGenerator);
         functionGenerator.generateImplicitRetTypeFuncDef(ctx);
+        this.finishDelegating();
 
         // restore previous functionCodeGen
         restoreLastFunctionCodeGen();
@@ -404,7 +440,9 @@ public class ClassFileGenerator extends CodeGenerator {
         FunctionGenerator functionGenerator = makeMethod(funcIdName);
         if (functionGenerator == null) return null;
 
+        this.startDelegatingTo(functionGenerator);
         functionGenerator.generateExplicitRetTypeFuncDef(ctx);
+        this.finishDelegating();
 
         // restore previous functionCodeGen
         restoreLastFunctionCodeGen();

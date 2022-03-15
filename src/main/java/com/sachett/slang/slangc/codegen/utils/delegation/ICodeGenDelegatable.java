@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
 
 import java.util.HashSet;
 
-abstract class ICodeGenDelegatable extends CodeGenerator {
+public abstract class ICodeGenDelegatable extends CodeGenerator {
     HashSet<CodeGenDelegatedMethod> delegatedMethods = new HashSet<>();
     CodeGenDelegationManager codeGenDelegationManager;
 
@@ -24,8 +24,34 @@ abstract class ICodeGenDelegatable extends CodeGenerator {
         this.codeGenDelegationManager = codeGenDelegationManager;
     }
 
+    public ICodeGenDelegatable() {
+        this.codeGenDelegationManager = new CodeGenDelegationManager(this);
+    }
+
+    public void setDelegationManager(CodeGenDelegationManager manager) {
+        this.codeGenDelegationManager = manager;
+    }
+
+    public CodeGenDelegationManager getSharedDelegationManager() {
+        return codeGenDelegationManager;
+    }
+
+    protected void startDelegatingTo(ICodeGenDelegatable delegatable) {
+        codeGenDelegationManager.setCurrentDelegated(delegatable);
+        codeGenDelegationManager.setCurrentDelegator(this);
+    }
+
+    protected void finishDelegating() {
+        codeGenDelegationManager.setCurrentDelegated(null);
+        codeGenDelegationManager.setCurrentDelegator(this);
+    }
+
     protected void registerDelegatedMethod(CodeGenDelegatedMethod method) {
         this.delegatedMethods.add(method);
+    }
+
+    protected void registerDelegatedMethods(HashSet<CodeGenDelegatedMethod> methods) {
+        this.delegatedMethods.addAll(methods);
     }
 
     public boolean isMethodDelegated(CodeGenDelegatedMethod method) {

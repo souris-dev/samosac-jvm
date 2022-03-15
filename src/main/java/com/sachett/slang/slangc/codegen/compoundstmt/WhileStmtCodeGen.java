@@ -4,11 +4,16 @@ import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.CodeGenerator;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
 import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodeGenDelegatedMethod;
+import com.sachett.slang.slangc.codegen.utils.delegation.ICodeGenDelegatable;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
-public class WhileStmtCodeGen extends CodeGenerator {
+import java.util.HashSet;
+import java.util.List;
+
+public class WhileStmtCodeGen extends ICodeGenDelegatable {
     private FunctionCodeGen functionCodeGen;
 
     private boolean generatingWhileBlock = false;
@@ -81,6 +86,17 @@ public class WhileStmtCodeGen extends CodeGenerator {
             String className,
             String packageName
     ) {
+        super();
+
+        /**
+         * Register the stuff that this generator generates with the shared delegation manager.
+         */
+        HashSet<CodeGenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodeGenDelegatedMethod.BLOCK,
+                CodeGenDelegatedMethod.BREAK,
+                CodeGenDelegatedMethod.CONTINUE
+        ));
+        this.registerDelegatedMethods(delegatedMethodHashSet);
+
         this.functionCodeGen = functionCodeGen;
         this.delegatedParentCodeGen = delegatedParentCodeGen;
         this.className = className;
