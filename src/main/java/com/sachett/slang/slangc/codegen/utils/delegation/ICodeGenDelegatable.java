@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.codegen.utils;
+package com.sachett.slang.slangc.codegen.utils.delegation;
 
 import com.sachett.slang.slangc.codegen.CodeGenerator;
 import org.antlr.v4.runtime.tree.ParseTree;

@@ -1,4 +1,4 @@
-package com.sachett.slang.slangc.codegen.utils;
+package com.sachett.slang.slangc.codegen.utils.delegation;
 
 public enum CodeGenDelegatedMethod {
     NORMAL_DECLASSIGN, BOOLEAN_DECLASSIGN, DECL, TYPEINF_DECLASSIGN, TYPEINF_BOOLEAN_DECLASSIGN,
