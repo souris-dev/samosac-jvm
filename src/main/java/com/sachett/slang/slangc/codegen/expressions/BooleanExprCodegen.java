@@ -2,7 +2,7 @@ package com.sachett.slang.slangc.codegen.expressions;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
 import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector;
 import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
@@ -12,9 +12,9 @@ import org.objectweb.asm.Type;
 
 import static com.sachett.slang.logging.LoggingUtilsKt.err;
 
-public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
+public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private SlangParser.BooleanExprContext exprContext;
-    private final FunctionCodeGen functionCodeGen;
+    private final FunctionCodegen functionCodeGen;
     private final SymbolTable symbolTable;
     private final String className;
     private final String packageName;
@@ -40,10 +40,10 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
     private Label falseLabel = new Label(); // to jump to when condition is false
     private Label nextLabel = new Label();  // to jump to after the boolean expression is evaluated
 
-    public BooleanExprCodeGen(
+    public BooleanExprCodegen(
             SlangParser.BooleanExprContext exprContext,
             SymbolTable symbolTable,
-            FunctionCodeGen functionCodeGen,
+            FunctionCodegen functionCodeGen,
             String className,
             String packageName
     ) {
@@ -117,7 +117,7 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         // Since we only have int expressions that can be compared using relops right now
         if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
             // evaluate the left and right sides of the relOp expression
-            IntExprCodeGen intExprCodeGen = new IntExprCodeGen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
+            IntExprCodegen intExprCodeGen = new IntExprCodegen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
             intExprCodeGen.doCodeGen();
 
             intExprCodeGen.setExprContext(ctx.expr(1));
@@ -224,7 +224,7 @@ public class BooleanExprCodeGen extends SlangBaseVisitor<Void> implements IExprC
         // Since we only have int expressions that can be compared using relops right now
         if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
             // evaluate the left and right sides of the relOp expression
-            IntExprCodeGen intExprCodeGen = new IntExprCodeGen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
+            IntExprCodegen intExprCodeGen = new IntExprCodegen(ctx.expr(0), symbolTable, functionCodeGen, className, packageName);
             intExprCodeGen.doCodeGen();
             intExprCodeGen.setExprContext(ctx.expr(1));
             intExprCodeGen.doCodeGen();

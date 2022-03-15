@@ -6,37 +6,37 @@ import org.antlr.v4.runtime.tree.RuleNode;
 
 import java.util.HashSet;
 
-public abstract class ICodeGenDelegatable extends CodeGenerator {
-    HashSet<CodeGenDelegatedMethod> delegatedMethods = new HashSet<>();
-    CodeGenDelegationManager codeGenDelegationManager;
+public abstract class CodegenDelegatable extends CodeGenerator {
+    HashSet<CodegenDelegatedMethod> delegatedMethods = new HashSet<>();
+    CodegenDelegationManager codeGenDelegationManager;
 
-    public ICodeGenDelegatable(
-            HashSet<CodeGenDelegatedMethod> delegatedMethods,
-            CodeGenDelegationManager codeGenDelegationManager
+    public CodegenDelegatable(
+            HashSet<CodegenDelegatedMethod> delegatedMethods,
+            CodegenDelegationManager codeGenDelegationManager
     ) {
         this.codeGenDelegationManager = codeGenDelegationManager;
         this.delegatedMethods = delegatedMethods;
     }
 
-    public ICodeGenDelegatable(
-            CodeGenDelegationManager codeGenDelegationManager
+    public CodegenDelegatable(
+            CodegenDelegationManager codeGenDelegationManager
     ) {
         this.codeGenDelegationManager = codeGenDelegationManager;
     }
 
-    public ICodeGenDelegatable() {
-        this.codeGenDelegationManager = new CodeGenDelegationManager(this);
+    public CodegenDelegatable() {
+        this.codeGenDelegationManager = new CodegenDelegationManager(this);
     }
 
-    public void setDelegationManager(CodeGenDelegationManager manager) {
+    public void setDelegationManager(CodegenDelegationManager manager) {
         this.codeGenDelegationManager = manager;
     }
 
-    public CodeGenDelegationManager getSharedDelegationManager() {
+    public CodegenDelegationManager getSharedDelegationManager() {
         return codeGenDelegationManager;
     }
 
-    protected void startDelegatingTo(ICodeGenDelegatable delegatable) {
+    protected void startDelegatingTo(CodegenDelegatable delegatable) {
         codeGenDelegationManager.setCurrentDelegated(delegatable);
         codeGenDelegationManager.setCurrentDelegator(this);
     }
@@ -46,15 +46,15 @@ public abstract class ICodeGenDelegatable extends CodeGenerator {
         codeGenDelegationManager.setCurrentDelegator(this);
     }
 
-    protected void registerDelegatedMethod(CodeGenDelegatedMethod method) {
+    protected void registerDelegatedMethod(CodegenDelegatedMethod method) {
         this.delegatedMethods.add(method);
     }
 
-    protected void registerDelegatedMethods(HashSet<CodeGenDelegatedMethod> methods) {
+    protected void registerDelegatedMethods(HashSet<CodegenDelegatedMethod> methods) {
         this.delegatedMethods.addAll(methods);
     }
 
-    public boolean isMethodDelegated(CodeGenDelegatedMethod method) {
+    public boolean isMethodDelegated(CodegenDelegatedMethod method) {
         return delegatedMethods.contains(method);
     }
 

@@ -4,33 +4,33 @@ import com.sachett.slang.parser.SlangBaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-public class CodeGenDelegationManager extends SlangBaseVisitor<Void> {
-    private ICodeGenDelegatable currentCodeGenDelegator;
-    private ICodeGenDelegatable currentCodeGenDelegated;
+public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
+    private CodegenDelegatable currentCodeGenDelegator;
+    private CodegenDelegatable currentCodeGenDelegated;
 
-    public CodeGenDelegationManager(ICodeGenDelegatable currentCodeGenDelegator) {
+    public CodegenDelegationManager(CodegenDelegatable currentCodeGenDelegator) {
         this.currentCodeGenDelegator = currentCodeGenDelegator;
     }
 
-    public CodeGenDelegationManager(
-            ICodeGenDelegatable currentCodeGenDelegator,
-            ICodeGenDelegatable currentCodeGenDelegated
+    public CodegenDelegationManager(
+            CodegenDelegatable currentCodeGenDelegator,
+            CodegenDelegatable currentCodeGenDelegated
     ) {
         this.currentCodeGenDelegator = currentCodeGenDelegator;
         this.currentCodeGenDelegated = currentCodeGenDelegated;
     }
 
-    public void setCurrentDelegator(ICodeGenDelegatable parentDelegator) {
+    public void setCurrentDelegator(CodegenDelegatable parentDelegator) {
         this.currentCodeGenDelegator = parentDelegator;
     }
 
-    public void setCurrentDelegated(ICodeGenDelegatable childDelegated) {
+    public void setCurrentDelegated(CodegenDelegatable childDelegated) {
         this.currentCodeGenDelegated = childDelegated;
     }
 
     @Override
     public Void visit(ParseTree parseTree) {
-        CodeGenDelegatedMethod method = CodeGenMethodMap.getMethodFromClass(parseTree.getClass());
+        CodegenDelegatedMethod method = CodegenMethodMap.getMethodFromClass(parseTree.getClass());
         if (method == null) {
             currentCodeGenDelegator.visit(parseTree);
         }
@@ -57,7 +57,7 @@ public class CodeGenDelegationManager extends SlangBaseVisitor<Void> {
 
     @Override
     public Void visitChildren(RuleNode parseTree) {
-        CodeGenDelegatedMethod method = CodeGenMethodMap.getMethodFromClass(parseTree.getClass());
+        CodegenDelegatedMethod method = CodegenMethodMap.getMethodFromClass(parseTree.getClass());
         if (method == null) {
             currentCodeGenDelegator.visitChildren(parseTree);
         }

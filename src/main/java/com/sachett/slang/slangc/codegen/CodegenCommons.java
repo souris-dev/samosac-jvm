@@ -2,11 +2,12 @@ package com.sachett.slang.slangc.codegen;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
-import com.sachett.slang.slangc.codegen.compoundstmt.WhileStmtCodeGen;
-import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
-import com.sachett.slang.slangc.codegen.expressions.IntExprCodeGen;
-import com.sachett.slang.slangc.codegen.expressions.StringExprCodeGen;
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.compoundstmt.WhileStmtCodegen;
+import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
+import com.sachett.slang.slangc.codegen.expressions.IntExprCodegen;
+import com.sachett.slang.slangc.codegen.expressions.StringExprCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
 import com.sachett.slang.slangc.symbol.ISymbol;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
@@ -22,37 +23,37 @@ import static com.sachett.slang.logging.LoggingUtilsKt.err;
 /**
  * This class has methods for common codegen constructs.
  */
-public class CommonCodeGen extends SlangBaseVisitor<Void> {
+public class CodegenCommons extends SlangBaseVisitor<Void> {
     protected final String className;
     protected final String packageName;
-    protected FunctionCodeGen functionCodeGen;
+    protected FunctionCodegen functionCodeGen;
     protected final SymbolTable symbolTable;
 
     /**
      * Stack of WhileStmtCodeGens (for nested while statements).
      */
-    protected final ArrayDeque<WhileStmtCodeGen> whileStmtCodeGens = new ArrayDeque<>();
+    protected final ArrayDeque<WhileStmtCodegen> whileStmtCodegens = new ArrayDeque<>();
 
-    protected CodeGenerator parentCodeGen; // parent codegen class instance
+    protected CodegenDelegatable parentCodeGen; // parent codegen class instance
     public CodeGenerator getParentCodeGen() {
         return parentCodeGen;
     }
 
-    public void setParentCodeGen(CodeGenerator parentCodeGen) {
+    public void setParentCodeGen(CodegenDelegatable parentCodeGen) {
         this.parentCodeGen = parentCodeGen;
     }
 
-    public FunctionCodeGen getFunctionCodeGen() {
+    public FunctionCodegen getFunctionCodeGen() {
         return functionCodeGen;
     }
 
-    public void setFunctionCodeGen(FunctionCodeGen functionCodeGen) {
+    public void setFunctionCodeGen(FunctionCodegen functionCodeGen) {
         this.functionCodeGen = functionCodeGen;
     }
 
-    public CommonCodeGen(
-            CodeGenerator parentCodeGen,
-            FunctionCodeGen functionCodeGen,
+    public CodegenCommons(
+            CodegenDelegatable parentCodeGen,
+            FunctionCodegen functionCodeGen,
             SymbolTable symbolTable,
             String className,
             String packageName
@@ -78,7 +79,7 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
     @Override
     public Void visitIfStmt(SlangParser.IfStmtContext ctx) {
         SlangParser.BooleanExprContext booleanExprContext = ctx.booleanExpr(0);
-        BooleanExprCodeGen booleanExprCodeGen = new BooleanExprCodeGen(
+        BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
                 booleanExprContext, symbolTable, functionCodeGen, className, packageName);
 
         ArrayList<Pair<Label, SlangParser.BooleanExprContext>> labels = new ArrayList<>();
@@ -100,7 +101,7 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
         }
 
         Label afterIf = labels.get(labels.size() - 1).getFirst();
-        ArrayList<FunctionCodeGen.FrameStackMap> frameStackMaps = new ArrayList<>();
+        ArrayList<FunctionCodegen.FrameStackMap> frameStackMaps = new ArrayList<>();
 
         // First generate the boolean expressions and if branch statements
         for (Pair<Label, SlangParser.BooleanExprContext> labelCtx : labels) {
@@ -173,7 +174,7 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
             case INT:
                 type = Type.INT_TYPE;
                 storeInstruction = Opcodes.ISTORE;
-                IntExprCodeGen intCodeGen = new IntExprCodeGen(
+                IntExprCodegen intCodeGen = new IntExprCodegen(
                         ctx.expr(), symbolTable, functionCodeGen, className, packageName);
                 intCodeGen.doCodeGen();
                 break;
@@ -185,14 +186,14 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
                 // aBoolVar = anotherBoolVar.
                 type = Type.BOOLEAN_TYPE;
                 storeInstruction = Opcodes.ISTORE;
-                BooleanExprCodeGen boolCodeGen = new BooleanExprCodeGen(
+                BooleanExprCodegen boolCodeGen = new BooleanExprCodegen(
                         null, symbolTable, functionCodeGen, className, packageName);
                 boolCodeGen.doSpecialCodeGen(ctx.expr());
                 break;
 
             case STRING:
                 type = Type.getType(String.class);
-                StringExprCodeGen stringExprCodeGen = new StringExprCodeGen(
+                StringExprCodegen stringExprCodeGen = new StringExprCodegen(
                         ctx.expr(), symbolTable, functionCodeGen, className, packageName);
                 stringExprCodeGen.doCodeGen();
                 break;
@@ -218,7 +219,7 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
 
     @Override
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
-        WhileStmtCodeGen whileStmtCodeGen = new WhileStmtCodeGen(
+        WhileStmtCodegen whileStmtCodeGen = new WhileStmtCodegen(
                 parentCodeGen,
                 functionCodeGen,
                 symbolTable,
@@ -226,24 +227,24 @@ public class CommonCodeGen extends SlangBaseVisitor<Void> {
                 packageName
         );
 
-        whileStmtCodeGens.push(whileStmtCodeGen);
+        whileStmtCodegens.push(whileStmtCodeGen);
         whileStmtCodeGen.generateWhileStmt(ctx);
-        whileStmtCodeGens.pop();
+        whileStmtCodegens.pop();
         return null;
     }
 
     @Override
     public Void visitBreakControlStmt(SlangParser.BreakControlStmtContext ctx) {
-        if (whileStmtCodeGens.size() > 0) {
-            whileStmtCodeGens.peek().visitBreakControlStmt(ctx);
+        if (whileStmtCodegens.size() > 0) {
+            whileStmtCodegens.peek().visitBreakControlStmt(ctx);
         }
         return null;
     }
 
     @Override
     public Void visitContinueControlStmt(SlangParser.ContinueControlStmtContext ctx) {
-        if (whileStmtCodeGens.size() > 0) {
-            whileStmtCodeGens.peek().visitContinueControlStmt(ctx);
+        if (whileStmtCodegens.size() > 0) {
+            whileStmtCodegens.peek().visitContinueControlStmt(ctx);
         }
         return null;
     }

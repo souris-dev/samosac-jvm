@@ -1,20 +1,20 @@
 package com.sachett.slang.slangc.codegen.expressions;
 
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
 import com.sachett.slang.slangc.symbol.ISymbol;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public interface IExprCodeGen {
+public interface IExprCodegen {
     void doCodeGen();
 
     default void doIdentifierCodegen(
             String idName,
             SymbolTable symbolTable,
             Type type,
-            FunctionCodeGen functionCodeGen,
+            FunctionCodegen functionCodeGen,
             String qualifiedClassName,
             int loadInstruction
     ) {

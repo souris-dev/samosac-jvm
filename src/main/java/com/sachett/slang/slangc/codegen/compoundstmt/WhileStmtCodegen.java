@@ -2,10 +2,10 @@ package com.sachett.slang.slangc.codegen.compoundstmt;
 
 import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.CodeGenerator;
-import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodeGen;
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
-import com.sachett.slang.slangc.codegen.utils.delegation.CodeGenDelegatedMethod;
-import com.sachett.slang.slangc.codegen.utils.delegation.ICodeGenDelegatable;
+import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
+import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatedMethod;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -13,8 +13,8 @@ import org.objectweb.asm.Opcodes;
 import java.util.HashSet;
 import java.util.List;
 
-public class WhileStmtCodeGen extends ICodeGenDelegatable {
-    private FunctionCodeGen functionCodeGen;
+public class WhileStmtCodegen extends CodegenDelegatable {
+    private FunctionCodegen functionCodeGen;
 
     private boolean generatingWhileBlock = false;
     private Label whileLoopStartLabel = null;
@@ -75,13 +75,13 @@ public class WhileStmtCodeGen extends ICodeGenDelegatable {
         this.delegatedParentCodeGen = delegatedParentCodeGen;
     }
 
-    public void setFunctionCodeGen(FunctionCodeGen functionCodeGen) {
+    public void setFunctionCodeGen(FunctionCodegen functionCodeGen) {
         this.functionCodeGen = functionCodeGen;
     }
 
-    public WhileStmtCodeGen(
+    public WhileStmtCodegen(
             CodeGenerator delegatedParentCodeGen,
-            FunctionCodeGen functionCodeGen,
+            FunctionCodegen functionCodeGen,
             SymbolTable symbolTable,
             String className,
             String packageName
@@ -91,9 +91,9 @@ public class WhileStmtCodeGen extends ICodeGenDelegatable {
         /**
          * Register the stuff that this generator generates with the shared delegation manager.
          */
-        HashSet<CodeGenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodeGenDelegatedMethod.BLOCK,
-                CodeGenDelegatedMethod.BREAK,
-                CodeGenDelegatedMethod.CONTINUE
+        HashSet<CodegenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodegenDelegatedMethod.BLOCK,
+                CodegenDelegatedMethod.BREAK,
+                CodegenDelegatedMethod.CONTINUE
         ));
         this.registerDelegatedMethods(delegatedMethodHashSet);
 
@@ -135,7 +135,7 @@ public class WhileStmtCodeGen extends ICodeGenDelegatable {
         );
 
         // check condition
-        BooleanExprCodeGen booleanExprCodeGen = new BooleanExprCodeGen(
+        BooleanExprCodegen booleanExprCodeGen = new BooleanExprCodegen(
                 ctx.booleanExpr(),
                 symbolTable,
                 functionCodeGen,

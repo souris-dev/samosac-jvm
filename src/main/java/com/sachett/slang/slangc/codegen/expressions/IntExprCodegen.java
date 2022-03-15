@@ -2,22 +2,22 @@ package com.sachett.slang.slangc.codegen.expressions;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
 import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
+public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private SlangParser.ExprContext exprContext;
-    private final FunctionCodeGen functionCodeGen;
+    private final FunctionCodegen functionCodeGen;
     private final SymbolTable symbolTable;
     private final String qualifiedClassName;
 
-    public IntExprCodeGen(
+    public IntExprCodegen(
             SlangParser.ExprContext exprContext,
             SymbolTable symbolTable,
-            FunctionCodeGen functionCodeGen,
+            FunctionCodegen functionCodeGen,
             String className,
             String packageName
     ) {

@@ -13,33 +13,33 @@ import java.util.HashMap;
 import com.sachett.slang.logging.LoggingUtilsKt;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-public class FunctionCodeGen {
+public class FunctionCodegen {
     private final MethodVisitor methodVisitor;
     private final LocalVariablesSorter localVariablesSorter;
     private final AnalyzerAdapter analyzerAdapter;
     HashMap<String, Integer> localVariableIndex = new HashMap<>();
 
-    public FunctionCodeGen(
+    public FunctionCodegen(
             ClassWriter classWriter,
             int access, String name, String descriptor,
             String signature, String[] exceptions
     ) {
         this.methodVisitor = classWriter.visitMethod(access, name, descriptor, signature, exceptions);
         analyzerAdapter = new AnalyzerAdapter(
-                FunctionCodeGen.class.getName(),
+                FunctionCodegen.class.getName(),
                 access, name, descriptor, this.methodVisitor
         );
         localVariablesSorter = new LocalVariablesSorter(access, descriptor, analyzerAdapter);
     }
 
-    public FunctionCodeGen(
+    public FunctionCodegen(
             TraceClassVisitor classWriter,
             int access, String name, String descriptor,
             String signature, String[] exceptions
     ) {
         this.methodVisitor = classWriter.visitMethod(access, name, descriptor, signature, exceptions);
         analyzerAdapter = new AnalyzerAdapter(
-                FunctionCodeGen.class.getName(),
+                FunctionCodegen.class.getName(),
                 access, name, descriptor, this.methodVisitor
         );
         localVariablesSorter = new LocalVariablesSorter(access, descriptor, this.methodVisitor);

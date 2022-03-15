@@ -3,7 +3,7 @@ package com.sachett.slang.slangc.codegen.expressions;
 import com.sachett.slang.logging.LoggingUtilsKt;
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -11,16 +11,16 @@ import org.objectweb.asm.Type;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public class StringExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
+public class StringExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private final SlangParser.ExprContext exprContext;
-    private final FunctionCodeGen functionCodeGen;
+    private final FunctionCodegen functionCodeGen;
     private final SymbolTable symbolTable;
     private final String qualifiedClassName;
 
-    public StringExprCodeGen(
+    public StringExprCodegen(
             SlangParser.ExprContext exprContext,
             SymbolTable symbolTable,
-            FunctionCodeGen functionCodeGen,
+            FunctionCodegen functionCodeGen,
             String className,
             String packageName
     ) {

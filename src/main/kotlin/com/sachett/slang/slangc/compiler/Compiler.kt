@@ -4,7 +4,6 @@ import com.sachett.slang.logging.err
 import com.sachett.slang.parser.SlangLexer
 import com.sachett.slang.parser.SlangParser
 import com.sachett.slang.slangc.codegen.ClassFileGenerator
-import com.sachett.slang.slangc.codegen.utils.delegation.CodeGenDelegationManager
 import com.sachett.slang.slangc.staticchecker.StaticTypesChecker
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.CharStreams
