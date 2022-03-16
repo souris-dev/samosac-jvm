@@ -1,10 +1,10 @@
 package com.sachett.slang.slangc.codegen;
 
-import com.sachett.slang.slangc.codegen.compoundstmt.FunctionGenerator;
+import com.sachett.slang.slangc.codegen.compoundstmt.FunctionCodegen;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodegen;
-import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatedMethod;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegationManager;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
@@ -33,8 +33,8 @@ public class ClassFileGenerator extends CodegenDelegatable {
     private final SlangParser.ProgramContext programContext;
     private String fileName;
     private String className;
-    private final ArrayDeque<FunctionCodegen> functionCodegenStack = new ArrayDeque<>();
-    private FunctionCodegen currentFunctionCodegen;
+    private final ArrayDeque<FunctionGenerationContext> functionGenerationContextStack = new ArrayDeque<>();
+    private FunctionGenerationContext currentFunctionGenerationContext;
     private final CodegenCommons delegateCodegenCommons;
     private final SymbolTable symbolTable;
 
@@ -120,7 +120,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
         classWriter.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, this.className, null, "java/lang/Object", null);
 
         // Generate a default main function
-        currentFunctionCodegen = new FunctionCodegen(
+        currentFunctionGenerationContext = new FunctionGenerationContext(
                 classWriter,
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC,
                 "main",
@@ -128,9 +128,9 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 null,
                 null
         );
-        currentFunctionCodegen.getMv().visitCode();
+        currentFunctionGenerationContext.getMv().visitCode();
         delegateCodegenCommons = new CodegenCommons(this,
-                currentFunctionCodegen,
+                currentFunctionGenerationContext,
                 symbolTable,
                 className, ""
         );
@@ -138,9 +138,9 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
     public void generateClass() {
         this.visit(this.programContext);
-        currentFunctionCodegen.getMv().visitInsn(Opcodes.RETURN);
-        currentFunctionCodegen.getMv().visitMaxs(0, 0); // any arguments work, will be recalculated
-        currentFunctionCodegen.getMv().visitEnd();
+        currentFunctionGenerationContext.getMv().visitInsn(Opcodes.RETURN);
+        currentFunctionGenerationContext.getMv().visitMaxs(0, 0); // any arguments work, will be recalculated
+        currentFunctionGenerationContext.getMv().visitEnd();
         classWriter.visitEnd();
     }
 
@@ -200,16 +200,16 @@ public class ClassFileGenerator extends CodegenDelegatable {
                         IntExprCodegen intExprCodegen = new IntExprCodegen(
                                 initExpr,
                                 symbolTable,
-                                currentFunctionCodegen,
+                                currentFunctionGenerationContext,
                                 className,
                                 ""
                         );
                         intExprCodegen.doCodegen();
                     } else {
-                        currentFunctionCodegen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+                        currentFunctionGenerationContext.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
                     }
 
-                    currentFunctionCodegen.getMv().visitFieldInsn(
+                    currentFunctionGenerationContext.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,
                             symbol.getName(),
@@ -230,17 +230,17 @@ public class ClassFileGenerator extends CodegenDelegatable {
                         StringExprCodegen stringExprCodegen = new StringExprCodegen(
                                 initExpr,
                                 symbolTable,
-                                currentFunctionCodegen,
+                                currentFunctionGenerationContext,
                                 className,
                                 ""
                         );
                         stringExprCodegen.doCodegen();
                     } else {
-                        currentFunctionCodegen.getMv().visitLdcInsn(SymbolType.STRING.getDefaultValue());
+                        currentFunctionGenerationContext.getMv().visitLdcInsn(SymbolType.STRING.getDefaultValue());
                     }
 
                     // the string should now be on the top of the stack
-                    currentFunctionCodegen.getMv().visitFieldInsn(
+                    currentFunctionGenerationContext.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,
                             symbol.getName(),
@@ -259,13 +259,13 @@ public class ClassFileGenerator extends CodegenDelegatable {
             BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                     initExpr,
                     symbolTable,
-                    currentFunctionCodegen,
+                    currentFunctionGenerationContext,
                     className,
                     ""
             );
             booleanExprCodegen.doCodegen();
 
-            currentFunctionCodegen.getMv().visitFieldInsn(
+            currentFunctionGenerationContext.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC,
                     className,
                     symbol.getName(),
@@ -352,19 +352,19 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
         // Do codegen of RHS
         BooleanExprCodegen boolCodegen = new BooleanExprCodegen(
-                ctx.booleanExpr(), symbolTable, currentFunctionCodegen, className, "");
+                ctx.booleanExpr(), symbolTable, currentFunctionGenerationContext, className, "");
         boolCodegen.doCodegen();
 
         // Store the value generated into the variable
         if (lookupInfo.getSecond() == 0) {
             // we're talking about a global variable
             // (a static field of the class during generation)
-            currentFunctionCodegen.getMv().visitFieldInsn(
+            currentFunctionGenerationContext.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = currentFunctionCodegen.getLocalVarIndex(idName);
-            currentFunctionCodegen.getMv().visitVarInsn(storeInstruction, localVarIndex);
+            Integer localVarIndex = currentFunctionGenerationContext.getLocalVarIndex(idName);
+            currentFunctionGenerationContext.getMv().visitVarInsn(storeInstruction, localVarIndex);
         }
 
         return super.visitBooleanExprAssign(ctx);
@@ -380,23 +380,23 @@ public class ClassFileGenerator extends CodegenDelegatable {
         return delegateCodegenCommons.visitFunctionCallWithArgs(ctx);
     }
 
-    private void setCurrentFunctionCodegen(FunctionCodegen functionCodegen) {
-        // save current functionCodegen to a stack
-        functionCodegenStack.push(currentFunctionCodegen);
-        currentFunctionCodegen = functionCodegen;
+    private void setCurrentFunctionCodegen(FunctionGenerationContext functionGenerationContext) {
+        // save current functionGenerationContext to a stack
+        functionGenerationContextStack.push(currentFunctionGenerationContext);
+        currentFunctionGenerationContext = functionGenerationContext;
 
         // Update functionCodeGens of delegates
-        delegateCodegenCommons.setFunctionCodegen(currentFunctionCodegen); // TODO: refactor this redundancy
+        delegateCodegenCommons.setFunctionCodegen(currentFunctionGenerationContext); // TODO: refactor this redundancy
     }
 
     private void restoreLastFunctionCodegen() {
-        currentFunctionCodegen = functionCodegenStack.pop();
+        currentFunctionGenerationContext = functionGenerationContextStack.pop();
 
         // Update functionCodeGens of delegates
-        delegateCodegenCommons.setFunctionCodegen(currentFunctionCodegen);
+        delegateCodegenCommons.setFunctionCodegen(currentFunctionGenerationContext);
     }
 
-    private FunctionGenerator makeMethod(String funcIdName) {
+    private FunctionCodegen makeMethod(String funcIdName) {
         var funcSymbol = symbolTable.lookup(funcIdName);
 
         if (funcSymbol == null) {
@@ -407,8 +407,8 @@ public class ClassFileGenerator extends CodegenDelegatable {
             return null;
         }
 
-        String funcDescriptor = FunctionCodegen.generateDescriptor(functionSymbol);
-        FunctionCodegen functionCodegen = new FunctionCodegen(
+        String funcDescriptor = FunctionGenerationContext.generateDescriptor(functionSymbol);
+        FunctionGenerationContext functionGenerationContext = new FunctionGenerationContext(
                 classWriter,
                 Opcodes.ACC_STATIC + Opcodes.ACC_PUBLIC,
                 functionSymbol.getName(),
@@ -416,10 +416,10 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 null, null
         );
 
-        setCurrentFunctionCodegen(functionCodegen);
+        setCurrentFunctionCodegen(functionGenerationContext);
 
-        return new FunctionGenerator(
-                this, functionCodegen,
+        return new FunctionCodegen(
+                this, functionGenerationContext,
                 delegateCodegenCommons, symbolTable, functionSymbol, className, ""
         );
     }
@@ -427,14 +427,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
     @Override
     public Void visitImplicitRetTypeFuncDef(SlangParser.ImplicitRetTypeFuncDefContext ctx) {
         String funcIdName = ctx.IDENTIFIER().getText();
-        FunctionGenerator functionGenerator = makeMethod(funcIdName);
-        if (functionGenerator == null) return null;
+        FunctionCodegen functionCodegen = makeMethod(funcIdName);
+        if (functionCodegen == null) return null;
 
-        this.startDelegatingTo(functionGenerator);
-        functionGenerator.generateImplicitRetTypeFuncDef(ctx);
+        this.startDelegatingTo(functionCodegen);
+        functionCodegen.generateImplicitRetTypeFuncDef(ctx);
         this.finishDelegating();
 
-        // restore previous functionCodegen
+        // restore previous functionGenerationContext
         restoreLastFunctionCodegen();
         return null;
     }
@@ -442,14 +442,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
     @Override
     public Void visitExplicitRetTypeFuncDef(SlangParser.ExplicitRetTypeFuncDefContext ctx) {
         String funcIdName = ctx.IDENTIFIER().getText();
-        FunctionGenerator functionGenerator = makeMethod(funcIdName);
-        if (functionGenerator == null) return null;
+        FunctionCodegen functionCodegen = makeMethod(funcIdName);
+        if (functionCodegen == null) return null;
 
-        this.startDelegatingTo(functionGenerator);
-        functionGenerator.generateExplicitRetTypeFuncDef(ctx);
+        this.startDelegatingTo(functionCodegen);
+        functionCodegen.generateExplicitRetTypeFuncDef(ctx);
         this.finishDelegating();
 
-        // restore previous functionCodegen
+        // restore previous functionGenerationContext
         restoreLastFunctionCodegen();
         return null;
     }

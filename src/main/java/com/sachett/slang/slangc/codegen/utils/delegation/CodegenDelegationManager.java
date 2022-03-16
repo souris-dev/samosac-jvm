@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
 public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
     private CodegenDelegatable currentCodeGenDelegator;
     private CodegenDelegatable currentCodeGenDelegated;
+    private boolean beingDelegatedStore = false;
 
     public CodegenDelegationManager(CodegenDelegatable currentCodeGenDelegator) {
         this.currentCodeGenDelegator = currentCodeGenDelegator;
@@ -28,18 +29,27 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
         this.currentCodeGenDelegated = childDelegated;
     }
 
-    private Void delegateVisitTo(CodegenDelegatable delegatable, ParseTree tree) {
-        delegatable.setBeingDelegated(true);
-        var voidPlaceholder = delegatable.visit(tree);
-        delegatable.setBeingDelegated(false);
+    private Void delegateVisitTo(CodegenDelegatable delegated, ParseTree tree) {
+        delegated.setBeingDelegated(true);
+        var voidPlaceholder = delegated.visit(tree);
+        delegated.setBeingDelegated(false);
         return voidPlaceholder;
     }
 
-    private Void delegateChildrenVisitTo(CodegenDelegatable delegatable, RuleNode node) {
-        delegatable.setBeingDelegated(true);
-        var voidPlaceholder = delegatable.visitChildren(node);
-        delegatable.setBeingDelegated(false);
+    private Void delegateChildrenVisitTo(CodegenDelegatable delegated, RuleNode node) {
+        delegated.setBeingDelegated(true);
+        var voidPlaceholder = delegated.visitChildren(node);
+        delegated.setBeingDelegated(false);
         return voidPlaceholder;
+    }
+
+    private void undelegate(CodegenDelegatable delegatable) {
+        beingDelegatedStore = delegatable.isBeingDelegated();
+        delegatable.setBeingDelegated(false);
+    }
+
+    private void restoreDelegate(CodegenDelegatable delegatable) {
+        delegatable.setBeingDelegated(beingDelegatedStore);
     }
 
     @Override
@@ -64,7 +74,10 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
         }
 
         if (currentCodeGenDelegated.isMethodDelegated(method)) {
-            return delegateVisitTo(currentCodeGenDelegated, parseTree);
+            undelegate(currentCodeGenDelegated);
+            var _void = delegateVisitTo(currentCodeGenDelegated, parseTree);
+            restoreDelegate(currentCodeGenDelegated);
+            return _void;
         }
         else {
             if (currentCodeGenDelegator == null) {
@@ -98,7 +111,10 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
         }
 
         if (currentCodeGenDelegated.isMethodDelegated(method)) {
-            return delegateChildrenVisitTo(currentCodeGenDelegated, node);
+            undelegate(currentCodeGenDelegator);
+            var _void = delegateChildrenVisitTo(currentCodeGenDelegated, node);
+            restoreDelegate(currentCodeGenDelegator);
+            return _void;
         }
         else {
             if (currentCodeGenDelegator == null) {

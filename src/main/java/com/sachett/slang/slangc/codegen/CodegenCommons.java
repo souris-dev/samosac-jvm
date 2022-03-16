@@ -6,7 +6,7 @@ import com.sachett.slang.slangc.codegen.compoundstmt.WhileStmtCodegen;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodegen;
-import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
 import com.sachett.slang.slangc.symbol.ISymbol;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
@@ -26,7 +26,7 @@ import static com.sachett.slang.logging.LoggingUtilsKt.err;
 public class CodegenCommons extends SlangBaseVisitor<Void> {
     protected final String className;
     protected final String packageName;
-    protected FunctionCodegen functionCodegen;
+    protected FunctionGenerationContext functionGenerationContext;
     protected final SymbolTable symbolTable;
 
     /**
@@ -43,24 +43,24 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         this.parentCodegen = parentCodegen;
     }
 
-    public FunctionCodegen getFunctionCodegen() {
-        return functionCodegen;
+    public FunctionGenerationContext getFunctionCodegen() {
+        return functionGenerationContext;
     }
 
-    public void setFunctionCodegen(FunctionCodegen functionCodegen) {
-        this.functionCodegen = functionCodegen;
+    public void setFunctionCodegen(FunctionGenerationContext functionGenerationContext) {
+        this.functionGenerationContext = functionGenerationContext;
     }
 
     public CodegenCommons(
             CodegenDelegatable parentCodegen,
-            FunctionCodegen functionCodegen,
+            FunctionGenerationContext functionGenerationContext,
             SymbolTable symbolTable,
             String className,
             String packageName
     ) {
         this.className = className;
         this.packageName = packageName;
-        this.functionCodegen = functionCodegen;
+        this.functionGenerationContext = functionGenerationContext;
         this.symbolTable = symbolTable;
         this.parentCodegen = parentCodegen;
     }
@@ -69,9 +69,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     public Void visitBlock(SlangParser.BlockContext ctx) {
         // keep track of scopes in the symbol table
         symbolTable.incrementScopeOverrideScopeCreation(false);
-        if (ctx.statements() != null) {
-            parentCodegen.visit(ctx.statements());
-        }
+        parentCodegen.visitChildren(ctx);
         symbolTable.decrementScope(false);
         return null;
     }
@@ -80,7 +78,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     public Void visitIfStmt(SlangParser.IfStmtContext ctx) {
         SlangParser.BooleanExprContext booleanExprContext = ctx.booleanExpr(0);
         BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
-                booleanExprContext, symbolTable, functionCodegen, className, packageName);
+                booleanExprContext, symbolTable, functionGenerationContext, className, packageName);
 
         ArrayList<Pair<Label, SlangParser.BooleanExprContext>> labels = new ArrayList<>();
         int nElseIfs = ctx.elseifblocks.size();
@@ -101,7 +99,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         }
 
         Label afterIf = labels.get(labels.size() - 1).getFirst();
-        ArrayList<FunctionCodegen.FrameStackMap> frameStackMaps = new ArrayList<>();
+        ArrayList<FunctionGenerationContext.FrameStackMap> frameStackMaps = new ArrayList<>();
 
         // First generate the boolean expressions and if branch statements
         for (Pair<Label, SlangParser.BooleanExprContext> labelCtx : labels) {
@@ -114,7 +112,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                     // a bool value on top, on whose basis we can jump
 
                     // Note that IFEQ jumps if top of stack == 0 and IFNE jumps if top of stack != 0
-                    functionCodegen.getMv().visitJumpInsn(Opcodes.IFNE, labelCtx.getFirst());
+                    functionGenerationContext.getMv().visitJumpInsn(Opcodes.IFNE, labelCtx.getFirst());
                 } else {
                     booleanExprCodegen.setFalseLabel(labelCtx.getFirst());
                     booleanExprCodegen.setJumpLabelsHaveBlocks(true);
@@ -127,8 +125,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                     parentCodegen.visit(ctx.elseblock.get(0));
                 }
                 // the label corresponding to the next statement after the if construct
-                frameStackMaps.add(functionCodegen.getCurrentFrameStackInfo());
-                functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
+                frameStackMaps.add(functionGenerationContext.getCurrentFrameStackInfo());
+                functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
             }
         }
 
@@ -136,8 +134,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         for (int i = 0; i < labels.size(); i++) {
             // visit the label and generate code for that block
             Pair<Label, SlangParser.BooleanExprContext> labelCtx = labels.get(i);
-            functionCodegen.getMv().visitLabel(labelCtx.getFirst());
-            functionCodegen.getMv().visitFrame(
+            functionGenerationContext.getMv().visitLabel(labelCtx.getFirst());
+            functionGenerationContext.getMv().visitFrame(
                     Opcodes.F_NEW,
                     frameStackMaps.get(0).numLocals, frameStackMaps.get(0).locals,
                     frameStackMaps.get(0).numStack, frameStackMaps.get(0).stack
@@ -147,8 +145,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
             if (i < labels.size() - 1) {
                 parentCodegen.visit(ctx.block(i));
                 // after execution, skip other labels and go to afterIf
-                frameStackMaps.add(functionCodegen.getCurrentFrameStackInfo());
-                functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
+                frameStackMaps.add(functionGenerationContext.getCurrentFrameStackInfo());
+                functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, afterIf);
             }
         }
 
@@ -175,7 +173,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                 type = Type.INT_TYPE;
                 storeInstruction = Opcodes.ISTORE;
                 IntExprCodegen intCodegen = new IntExprCodegen(
-                        ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                        ctx.expr(), symbolTable, functionGenerationContext, className, packageName);
                 intCodegen.doCodegen();
                 break;
 
@@ -187,14 +185,14 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                 type = Type.BOOLEAN_TYPE;
                 storeInstruction = Opcodes.ISTORE;
                 BooleanExprCodegen boolCodegen = new BooleanExprCodegen(
-                        null, symbolTable, functionCodegen, className, packageName);
+                        null, symbolTable, functionGenerationContext, className, packageName);
                 boolCodegen.doSpecialCodegen(ctx.expr());
                 break;
 
             case STRING:
                 type = Type.getType(String.class);
                 StringExprCodegen stringExprCodegen = new StringExprCodegen(
-                        ctx.expr(), symbolTable, functionCodegen, className, packageName);
+                        ctx.expr(), symbolTable, functionGenerationContext, className, packageName);
                 stringExprCodegen.doCodegen();
                 break;
 
@@ -207,12 +205,12 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
             // we're talking about a global variable
             // (a static field of the class during generation)
             assert type != null;
-            functionCodegen.getMv().visitFieldInsn(
+            functionGenerationContext.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC, className, idName, type.getDescriptor()
             );
         } else {
-            Integer localVarIndex = functionCodegen.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
-            functionCodegen.getMv().visitVarInsn(storeInstruction, localVarIndex);
+            Integer localVarIndex = functionGenerationContext.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
+            functionGenerationContext.getMv().visitVarInsn(storeInstruction, localVarIndex);
         }
         return super.visitExprAssign(ctx);
     }
@@ -221,7 +219,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
         WhileStmtCodegen whileStmtCodegen = new WhileStmtCodegen(
                 parentCodegen,
-                functionCodegen,
+                functionGenerationContext,
                 symbolTable,
                 className,
                 packageName

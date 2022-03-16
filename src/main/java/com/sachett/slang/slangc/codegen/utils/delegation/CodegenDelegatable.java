@@ -10,6 +10,7 @@ public abstract class CodegenDelegatable extends CodeGenerator {
     HashSet<CodegenDelegatedMethod> delegatedMethods = new HashSet<>();
     CodegenDelegationManager codeGenDelegationManager;
     private boolean beingDelegated = false;
+    private boolean wasBeingDelegated = false;
 
     public CodegenDelegatable(
             HashSet<CodegenDelegatedMethod> delegatedMethods,
@@ -39,11 +40,14 @@ public abstract class CodegenDelegatable extends CodeGenerator {
 
     // Needs to be public so that delegated CodegenCommons can access the parent's method of startDelegatingTo
     public void startDelegatingTo(CodegenDelegatable delegatable) {
+        wasBeingDelegated = isBeingDelegated();
+        setBeingDelegated(false);
         codeGenDelegationManager.setCurrentDelegated(delegatable);
         codeGenDelegationManager.setCurrentDelegator(this);
     }
 
     public void finishDelegating() {
+        setBeingDelegated(wasBeingDelegated);
         codeGenDelegationManager.setCurrentDelegated(null);
         codeGenDelegationManager.setCurrentDelegator(this);
     }

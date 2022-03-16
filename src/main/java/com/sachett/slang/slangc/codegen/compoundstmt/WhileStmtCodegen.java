@@ -1,9 +1,8 @@
 package com.sachett.slang.slangc.codegen.compoundstmt;
 
 import com.sachett.slang.parser.SlangParser;
-import com.sachett.slang.slangc.codegen.CodeGenerator;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
-import com.sachett.slang.slangc.codegen.function.FunctionCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatedMethod;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
@@ -14,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class WhileStmtCodegen extends CodegenDelegatable {
-    private FunctionCodegen functionCodegen;
+    private FunctionGenerationContext functionGenerationContext;
 
     private boolean generatingWhileBlock = false;
     private Label whileLoopStartLabel = null;
@@ -75,13 +74,13 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         this.delegatedParentCodegen = delegatedParentCodegen;
     }
 
-    public void setFunctionCodegen(FunctionCodegen functionCodegen) {
-        this.functionCodegen = functionCodegen;
+    public void setFunctionCodegen(FunctionGenerationContext functionGenerationContext) {
+        this.functionGenerationContext = functionGenerationContext;
     }
 
     public WhileStmtCodegen(
             CodegenDelegatable delegatedParentCodegen,
-            FunctionCodegen functionCodegen,
+            FunctionGenerationContext functionGenerationContext,
             SymbolTable symbolTable,
             String className,
             String packageName
@@ -97,7 +96,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         ));
         this.registerDelegatedMethods(delegatedMethodHashSet);
 
-        this.functionCodegen = functionCodegen;
+        this.functionGenerationContext = functionGenerationContext;
         this.delegatedParentCodegen = delegatedParentCodegen;
         this.className = className;
         this.packageName = packageName;
@@ -107,7 +106,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
     @Override
     public Void visitBreakControlStmt(SlangParser.BreakControlStmtContext ctx) {
         if (generatingWhileBlock && whileLoopExitLabel != null && whileLoopStartLabel != null) {
-            functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopExitLabel);
+            functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopExitLabel);
         }
         return null;
     }
@@ -115,7 +114,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
     @Override
     public Void visitContinueControlStmt(SlangParser.ContinueControlStmtContext ctx) {
         if (generatingWhileBlock && whileLoopExitLabel != null && whileLoopStartLabel != null) {
-            functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopStartLabel);
+            functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopStartLabel);
         }
         return null;
     }
@@ -126,10 +125,10 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         this.whileLoopStartLabel = loopLabel;
         this.whileLoopExitLabel = exitLoopLabel;
 
-        var currentStackFrame = functionCodegen.getCurrentFrameStackInfo();
+        var currentStackFrame = functionGenerationContext.getCurrentFrameStackInfo();
 
-        functionCodegen.getMv().visitLabel(loopLabel);
-        functionCodegen.getMv().visitFrame(Opcodes.F_NEW,
+        functionGenerationContext.getMv().visitLabel(loopLabel);
+        functionGenerationContext.getMv().visitFrame(Opcodes.F_NEW,
                 currentStackFrame.numLocals, currentStackFrame.locals,
                 currentStackFrame.numStack, currentStackFrame.stack
         );
@@ -138,15 +137,15 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                 ctx.booleanExpr(),
                 symbolTable,
-                functionCodegen,
+                functionGenerationContext,
                 className,
                 packageName
         );
         booleanExprCodegen.doCodegen();
 
         // if condition is false, exit loop
-        currentStackFrame = functionCodegen.getCurrentFrameStackInfo();
-        functionCodegen.getMv().visitJumpInsn(Opcodes.IFEQ, exitLoopLabel);
+        currentStackFrame = functionGenerationContext.getCurrentFrameStackInfo();
+        functionGenerationContext.getMv().visitJumpInsn(Opcodes.IFEQ, exitLoopLabel);
 
         this.generatingWhileBlock = true;
 
@@ -157,9 +156,9 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         this.whileLoopExitLabel = null;
 
         // start next iteration
-        functionCodegen.getMv().visitJumpInsn(Opcodes.GOTO, loopLabel);
-        functionCodegen.getMv().visitLabel(exitLoopLabel);
-        functionCodegen.getMv().visitFrame(Opcodes.F_NEW,
+        functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, loopLabel);
+        functionGenerationContext.getMv().visitLabel(exitLoopLabel);
+        functionGenerationContext.getMv().visitFrame(Opcodes.F_NEW,
                 currentStackFrame.numLocals, currentStackFrame.locals,
                 currentStackFrame.numStack, currentStackFrame.stack
         );
