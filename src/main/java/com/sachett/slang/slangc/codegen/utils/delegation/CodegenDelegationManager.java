@@ -28,6 +28,20 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
         this.currentCodeGenDelegated = childDelegated;
     }
 
+    private Void delegateVisitTo(CodegenDelegatable delegatable, ParseTree tree) {
+        delegatable.setBeingDelegated(true);
+        var voidPlaceholder = delegatable.visit(tree);
+        delegatable.setBeingDelegated(false);
+        return voidPlaceholder;
+    }
+
+    private Void delegateChildrenVisitTo(CodegenDelegatable delegatable, RuleNode node) {
+        delegatable.setBeingDelegated(true);
+        var voidPlaceholder = delegatable.visitChildren(node);
+        delegatable.setBeingDelegated(false);
+        return voidPlaceholder;
+    }
+
     @Override
     public Void visit(ParseTree parseTree) {
         CodegenDelegatedMethod method = CodegenMethodMap.getMethodFromClass(parseTree.getClass());
@@ -37,10 +51,7 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
         }
 
         if (method == null) {
-            currentCodeGenDelegator.setBeingDelegated(true);
-            var voidPlaceholder = currentCodeGenDelegator.visit(parseTree);
-            currentCodeGenDelegator.setBeingDelegated(false);
-            return voidPlaceholder;
+            return delegateVisitTo(currentCodeGenDelegator, parseTree);
         }
 
         if (currentCodeGenDelegated == null) {
@@ -48,25 +59,21 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
                 return null;
             }
             else {
-                currentCodeGenDelegator.setBeingDelegated(true);
-                var voidPlaceholder = currentCodeGenDelegator.visit(parseTree);
-                currentCodeGenDelegator.setBeingDelegated(false);
-                return voidPlaceholder;
+                return delegateVisitTo(currentCodeGenDelegator, parseTree);
             }
         }
 
         if (currentCodeGenDelegated.isMethodDelegated(method)) {
-            currentCodeGenDelegated.setBeingDelegated(true);
-            var voidPlaceholder = currentCodeGenDelegated.visit(parseTree);
-            currentCodeGenDelegated.setBeingDelegated(false);
-            return voidPlaceholder;
+            return delegateVisitTo(currentCodeGenDelegated, parseTree);
         }
         else {
             if (currentCodeGenDelegator == null) {
                 return null;
             }
+            else {
+                return delegateVisitTo(currentCodeGenDelegator, parseTree);
+            }
         }
-        return null;
     }
 
     @Override
@@ -78,10 +85,7 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
         }
 
         if (method == null) {
-            currentCodeGenDelegator.setBeingDelegated(true);
-            var voidPlaceholder = currentCodeGenDelegator.visitChildren(node);
-            currentCodeGenDelegator.setBeingDelegated(false);
-            return voidPlaceholder;
+            return delegateChildrenVisitTo(currentCodeGenDelegator, node);
         }
 
         if (currentCodeGenDelegated == null) {
@@ -89,24 +93,19 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
                 return null;
             }
             else {
-                currentCodeGenDelegator.setBeingDelegated(true);
-                var voidPlaceholder = currentCodeGenDelegator.visit(node);
-                currentCodeGenDelegator.setBeingDelegated(false);
-                return voidPlaceholder;
+                return delegateChildrenVisitTo(currentCodeGenDelegator, node);
             }
         }
 
         if (currentCodeGenDelegated.isMethodDelegated(method)) {
-            currentCodeGenDelegated.setBeingDelegated(true);
-            var voidPlaceholder = currentCodeGenDelegated.visit(node);
-            currentCodeGenDelegated.setBeingDelegated(false);
-            return voidPlaceholder;
+            return delegateChildrenVisitTo(currentCodeGenDelegated, node);
         }
         else {
             if (currentCodeGenDelegator == null) {
                 return null;
+            } else {
+                return delegateChildrenVisitTo(currentCodeGenDelegator, node);
             }
         }
-        return null;
     }
 }
