@@ -154,6 +154,8 @@ public class FunctionCodegen extends CodegenDelegatable {
                 }
             }
         }
+
+        undelegateSelf();
         return null;
     }
 
@@ -167,6 +169,7 @@ public class FunctionCodegen extends CodegenDelegatable {
         booleanExprCodegen.doCodegen();
         functionGenerationContext.getMv().visitInsn(Opcodes.IRETURN);
 
+        undelegateSelf();
         return null;
     }
 
@@ -201,6 +204,7 @@ public class FunctionCodegen extends CodegenDelegatable {
             }
         }
 
+        undelegateSelf();
         return null;
     }
 
@@ -222,6 +226,7 @@ public class FunctionCodegen extends CodegenDelegatable {
         booleanExprCodegen.doCodegen();
         functionGenerationContext.getMv().visitVarInsn(Opcodes.ISTORE, functionGenerationContext.getLocalVarIndex(symbol.getAugmentedName()));
 
+        undelegateSelf();
         return null;
     }
 
@@ -261,6 +266,7 @@ public class FunctionCodegen extends CodegenDelegatable {
             }
         }
 
+        undelegateSelf();
         return null;
     }
 
@@ -306,6 +312,7 @@ public class FunctionCodegen extends CodegenDelegatable {
             }
         }
 
+        undelegateSelf();
         return null;
     }
 
@@ -327,6 +334,7 @@ public class FunctionCodegen extends CodegenDelegatable {
         booleanExprCodegen.doCodegen();
         functionGenerationContext.getMv().visitVarInsn(Opcodes.ISTORE, functionGenerationContext.getLocalVarIndex(symbol.getAugmentedName()));
 
+        undelegateSelf();
         return null;
     }
 

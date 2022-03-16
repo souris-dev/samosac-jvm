@@ -56,6 +56,11 @@ public abstract class CodegenDelegatable extends CodeGenerator {
         this.beingDelegated = beingDelegated;
     }
 
+    public void undelegateSelf() {
+        wasBeingDelegated = beingDelegated;
+        setBeingDelegated(false);
+    }
+
     public boolean isBeingDelegated() {
         return beingDelegated;
     }
