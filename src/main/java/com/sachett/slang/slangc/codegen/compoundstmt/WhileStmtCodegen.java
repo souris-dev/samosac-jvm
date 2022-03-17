@@ -108,6 +108,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         if (generatingWhileBlock && whileLoopExitLabel != null && whileLoopStartLabel != null) {
             functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopExitLabel);
         }
+        undelegateSelf();
         return null;
     }
 
@@ -116,6 +117,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         if (generatingWhileBlock && whileLoopExitLabel != null && whileLoopStartLabel != null) {
             functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, whileLoopStartLabel);
         }
+        undelegateSelf();
         return null;
     }
 
@@ -148,7 +150,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         functionGenerationContext.getMv().visitJumpInsn(Opcodes.IFEQ, exitLoopLabel);
 
         this.generatingWhileBlock = true;
-
+        undelegateSelf();
         visit(ctx.block());
 
         this.generatingWhileBlock = false;

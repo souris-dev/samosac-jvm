@@ -75,6 +75,7 @@ public abstract class CodegenDelegatable extends CodeGenerator {
 
     @Override
     public Void visit(ParseTree parseTree) {
+        System.out.println("Visiting ParseTree \t(type) " + parseTree.getClass().toString() + " \t\t(through) " + this.toString());
         if (isBeingDelegated()) {
             return super.visit(parseTree);
         }
@@ -85,6 +86,7 @@ public abstract class CodegenDelegatable extends CodeGenerator {
 
     @Override
     public Void visitChildren(RuleNode node) {
+        System.out.println("Visiting RuleNode \t(type) " + node.getClass().toString() + " \t\t(through) " + this.toString());
         if (isBeingDelegated()) {
             return super.visitChildren(node);
         }
