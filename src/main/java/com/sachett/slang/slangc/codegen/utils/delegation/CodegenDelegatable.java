@@ -42,6 +42,7 @@ public abstract class CodegenDelegatable extends CodeGenerator {
     public void startDelegatingTo(CodegenDelegatable delegatable) {
         wasBeingDelegated = isBeingDelegated();
         setBeingDelegated(false);
+        delegatable.setBeingDelegated(true);
         codeGenDelegationManager.setCurrentDelegated(delegatable);
         codeGenDelegationManager.setCurrentDelegator(this);
     }

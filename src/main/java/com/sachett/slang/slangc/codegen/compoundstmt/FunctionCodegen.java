@@ -96,7 +96,11 @@ public class FunctionCodegen extends CodegenDelegatable {
 
     @Override
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
-        return delegatedParentCodegen.visitWhileStmt(ctx);
+        CodegenDelegatable previousParentCodegen = codegenCommons.getParentCodegen();
+        codegenCommons.setParentCodegen(this);
+        codegenCommons.visitWhileStmt(ctx);
+        codegenCommons.setParentCodegen(previousParentCodegen);
+        return null;
     }
 
     @Override

@@ -35,7 +35,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     protected final ArrayDeque<WhileStmtCodegen> whileStmtCodegens = new ArrayDeque<>();
 
     protected CodegenDelegatable parentCodegen; // parent codegen class instance
-    public CodeGenerator getParentCodegen() {
+    public CodegenDelegatable getParentCodegen() {
         return parentCodegen;
     }
 

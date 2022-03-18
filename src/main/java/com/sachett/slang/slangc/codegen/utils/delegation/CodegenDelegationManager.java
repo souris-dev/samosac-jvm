@@ -73,7 +73,9 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
             }
         }
 
-        if (currentCodeGenDelegated.isMethodDelegated(method)) {
+        if (currentCodeGenDelegated.isMethodDelegated(method)
+                || (!currentCodeGenDelegated.isMethodDelegated(method)
+                && !currentCodeGenDelegated.isMethodDelegated(method))) {
             undelegate(currentCodeGenDelegated);
             var _void = delegateVisitTo(currentCodeGenDelegated, parseTree);
             restoreDelegate(currentCodeGenDelegated);
@@ -97,7 +99,13 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
             System.out.println("Delegating NormalDeclAssign"); //debug
         }
 
-        if (method == null) {
+        if (method == null && currentCodeGenDelegated != null) {
+            undelegate(currentCodeGenDelegator);
+            var _void = delegateChildrenVisitTo(currentCodeGenDelegated, node);
+            restoreDelegate(currentCodeGenDelegator);
+            return _void;
+        }
+        else if (method == null) {
             return delegateChildrenVisitTo(currentCodeGenDelegator, node);
         }
 
@@ -110,7 +118,9 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
             }
         }
 
-        if (currentCodeGenDelegated.isMethodDelegated(method)) {
+        if (currentCodeGenDelegated.isMethodDelegated(method)
+                || (!currentCodeGenDelegated.isMethodDelegated(method)
+                    && !currentCodeGenDelegated.isMethodDelegated(method))) {
             undelegate(currentCodeGenDelegator);
             var _void = delegateChildrenVisitTo(currentCodeGenDelegated, node);
             restoreDelegate(currentCodeGenDelegator);

@@ -124,7 +124,8 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
             intExprCodegen.doCodegen();
         }
 
-        Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
+        Label labelToJump = new Label();
+        nextLabel = new Label();
         // save current stack map
         var currentFrameStack = functionGenerationContext.getCurrentFrameStackInfo();
 
@@ -234,7 +235,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
                 if (this.jumpLabelsHaveBlocks) {
                     int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
-                    Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
+                    Label labelToJump = new Label(); // have to regenerate thiss
                     functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
                 } else {
                     functionGenerationContext.getMv().visitInsn(Opcodes.LCMP);
@@ -244,7 +245,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
             if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
                 if (this.jumpLabelsHaveBlocks) {
                     int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPEQ : Opcodes.IF_ICMPNE;
-                    Label labelToJump = this.jumpToFalseLabel ? this.falseLabel : this.trueLabel;
+                    Label labelToJump = new Label(); // have to regenerate this
                     functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
                 } else {
                     functionGenerationContext.getMv().visitInsn(Opcodes.LCMP);
