@@ -68,9 +68,10 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     @Override
     public Void visitBlock(SlangParser.BlockContext ctx) {
         // keep track of scopes in the symbol table
-        symbolTable.incrementScopeOverrideScopeCreation(false);
+        Pair<Integer, Integer> blockStart = new Pair<>(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+        symbolTable.goToBlock(blockStart);
         parentCodegen.visitChildren(ctx);
-        symbolTable.decrementScope(false);
+        symbolTable.restoreLastCoordinates();
         return null;
     }
 

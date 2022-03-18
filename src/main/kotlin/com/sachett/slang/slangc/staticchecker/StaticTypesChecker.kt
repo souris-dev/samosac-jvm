@@ -101,6 +101,10 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         println("Visiting block...")
         symbolTable.incrementScope()
         val blockVisit = super.visitBlock(ctx)
+
+        val blockStart = Pair(ctx!!.start.line, ctx.start.charPositionInLine)
+        symbolTable.registerBlockInCurrentCoordinates(blockStart)
+
         symbolTable.decrementScope()
         return blockVisit
     }

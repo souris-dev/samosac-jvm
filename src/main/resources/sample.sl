@@ -65,6 +65,7 @@ let mana (var1: int, var2: string): int {
     /* Loop */
     while ((var1 < 4) and (var1 > 10 + 4)) {
         sum = sum + 1.
+        bro, g: int = 19.
 
         if (sum > 10) {
             breakout.

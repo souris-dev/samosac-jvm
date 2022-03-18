@@ -121,6 +121,11 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         return null;
     }
 
+    @Override
+    public Void visitExprAssign(SlangParser.ExprAssignContext ctx) {
+        return delegatedParentCodegen.visitExprAssign(ctx);
+    }
+
     public void generateWhileStmt(SlangParser.WhileStmtContext ctx) {
         Label loopLabel = new Label();
         Label exitLoopLabel = new Label();
