@@ -241,6 +241,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
      * Returns null if the stack does not contain a WhileStmtCodegen.
      */
     private WhileStmtCodegen getMostRecentWhileStmtCodegen() {
+        // The loop below iterates of things getting popped off from the stack represented by the deque
+        // (but does not actually pop anything)
         for (var elem : controlNodeCodegens) {
             if (elem.getControlNodeCodegenType() == ControlNodeCodegenType.WHILE) {
                 return (WhileStmtCodegen) elem;
