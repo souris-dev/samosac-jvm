@@ -12,7 +12,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class StringExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
-    private final SlangParser.ExprContext exprContext;
+    private SlangParser.ExprContext exprContext;
     private final FunctionGenerationContext functionGenerationContext;
     private final SymbolTable symbolTable;
     private final String qualifiedClassName;
@@ -49,6 +49,10 @@ public class StringExprCodegen extends SlangBaseVisitor<Void> implements IExprCo
         doIdentifierCodegen(idName, symbolTable, Type.getType(String.class),
                 functionGenerationContext, qualifiedClassName, Opcodes.ALOAD);
         return super.visitExprIdentifier(ctx);
+    }
+
+    public void setExprContext(SlangParser.ExprContext exprContext) {
+        this.exprContext = exprContext;
     }
 
     @Override

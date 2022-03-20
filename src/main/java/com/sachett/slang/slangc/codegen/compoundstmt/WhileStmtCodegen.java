@@ -6,13 +6,15 @@ import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatedMethod;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
-public class WhileStmtCodegen extends CodegenDelegatable {
+public class WhileStmtCodegen extends CodegenDelegatable implements IControlNodeCodegen {
     private FunctionGenerationContext functionGenerationContext;
 
     private boolean generatingWhileBlock = false;
@@ -20,6 +22,32 @@ public class WhileStmtCodegen extends CodegenDelegatable {
     private Label whileLoopExitLabel = null;
 
     private CodegenDelegatable delegatedParentCodegen;
+
+    public WhileStmtCodegen(
+            CodegenDelegatable delegatedParentCodegen,
+            FunctionGenerationContext functionGenerationContext,
+            SymbolTable symbolTable,
+            String className,
+            String packageName
+    ) {
+        super(delegatedParentCodegen.getSharedDelegationManager());
+
+        /**
+         * Register the stuff that this generator generates with the shared delegation manager.
+         */
+        HashSet<CodegenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodegenDelegatedMethod.BLOCK,
+                CodegenDelegatedMethod.BREAK,
+                CodegenDelegatedMethod.CONTINUE
+        ));
+        this.registerDelegatedMethods(delegatedMethodHashSet);
+
+        this.functionGenerationContext = functionGenerationContext;
+        this.delegatedParentCodegen = delegatedParentCodegen;
+        this.className = className;
+        this.packageName = packageName;
+        this.symbolTable = symbolTable;
+    }
+
     // Delegate methods:
     @Override
     public Void visitBooleanExprAssign(SlangParser.BooleanExprAssignContext ctx) {
@@ -78,30 +106,7 @@ public class WhileStmtCodegen extends CodegenDelegatable {
         this.functionGenerationContext = functionGenerationContext;
     }
 
-    public WhileStmtCodegen(
-            CodegenDelegatable delegatedParentCodegen,
-            FunctionGenerationContext functionGenerationContext,
-            SymbolTable symbolTable,
-            String className,
-            String packageName
-    ) {
-        super(delegatedParentCodegen.getSharedDelegationManager());
-
-        /**
-         * Register the stuff that this generator generates with the shared delegation manager.
-         */
-        HashSet<CodegenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodegenDelegatedMethod.BLOCK,
-                CodegenDelegatedMethod.BREAK,
-                CodegenDelegatedMethod.CONTINUE
-        ));
-        this.registerDelegatedMethods(delegatedMethodHashSet);
-
-        this.functionGenerationContext = functionGenerationContext;
-        this.delegatedParentCodegen = delegatedParentCodegen;
-        this.className = className;
-        this.packageName = packageName;
-        this.symbolTable = symbolTable;
-    }
+    // Methods handled by this class (not delegated to parent):
 
     @Override
     public Void visitBreakControlStmt(SlangParser.BreakControlStmtContext ctx) {
@@ -169,5 +174,13 @@ public class WhileStmtCodegen extends CodegenDelegatable {
                 currentStackFrame.numLocals, currentStackFrame.locals,
                 currentStackFrame.numStack, currentStackFrame.stack
         );
+    }
+
+    @Override
+    public Void visitTerminal(TerminalNode node) {
+        if (Objects.equals(node.getSymbol().getText(), "}")) {
+            undelegateSelf();
+        }
+        return super.visitTerminal(node);
     }
 }

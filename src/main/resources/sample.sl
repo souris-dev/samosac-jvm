@@ -97,7 +97,7 @@ let mana (var1: int, var2: string): int {
         return 5.
     }
     else {
-        sum = 10.
+        sum = 17.
     }
 
     return sum.

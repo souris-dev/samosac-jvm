@@ -144,7 +144,7 @@ booleanExpr: LOGICALNOT booleanExpr #booleanExprNot
            | booleanExpr LOGICALAND booleanExpr #booleanExprAnd
            | booleanExpr LOGICALXOR booleanExpr #booleanExprXor
            | expr relOp expr #booleanExprRelOp
-           | expr compOp expr #booleanExprCompOp
+           | expr compOp expr #booleanExprCompOp // TODO: add rule booleanExpr compOp booleanExpr
            | LPAREN booleanExpr RPAREN #booleanExprParen
            | IDENTIFIER #booleanExprIdentifier
            | TRUE #booleanTrue

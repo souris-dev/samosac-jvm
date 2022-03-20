@@ -53,6 +53,8 @@ public class FunctionCodegen extends CodegenDelegatable {
                 CodegenDelegatedMethod.NORMAL_DECLASSIGN,
                 CodegenDelegatedMethod.TYPEINF_DECLASSIGN,
                 CodegenDelegatedMethod.TYPEINF_BOOLEAN_DECLASSIGN,
+                CodegenDelegatedMethod.EXPR_ASSIGN,
+                CodegenDelegatedMethod.BOOLEAN_EXPR_ASSIGN,
                 CodegenDelegatedMethod.BREAK,
                 CodegenDelegatedMethod.CONTINUE,
                 CodegenDelegatedMethod.BLOCK,
@@ -92,6 +94,16 @@ public class FunctionCodegen extends CodegenDelegatable {
     @Override
     public Void visitIfStmt(SlangParser.IfStmtContext ctx) {
         return delegatedParentCodegen.visitIfStmt(ctx);
+    }
+
+    @Override
+    public Void visitExprAssign(SlangParser.ExprAssignContext ctx) {
+        return delegatedParentCodegen.visitExprAssign(ctx);
+    }
+
+    @Override
+    public Void visitBooleanExprAssign(SlangParser.BooleanExprAssignContext ctx) {
+        return delegatedParentCodegen.visitBooleanExprAssign(ctx);
     }
 
     @Override

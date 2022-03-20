@@ -11,6 +11,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import static com.sachett.slang.logging.LoggingUtilsKt.err;
+import static com.sachett.slang.logging.LoggingUtilsKt.fmtfatalerr;
 
 public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private SlangParser.BooleanExprContext exprContext;
@@ -39,6 +40,17 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
     private Label trueLabel = new Label();  // to jump to when condition is true
     private Label falseLabel = new Label(); // to jump to when condition is false
     private Label nextLabel = new Label();  // to jump to after the boolean expression is evaluated
+
+    /* Stores the actual label to which the jump is performed on condition true/false (trueLabel or falseLabel) */
+    private Label conditionJumpLabel = new Label();
+
+    public Label getActualJumpLabel() {
+        return conditionJumpLabel;
+    }
+
+    public Label getNextLabel() {
+        return nextLabel;
+    }
 
     public BooleanExprCodegen(
             SlangParser.BooleanExprContext exprContext,
@@ -113,9 +125,10 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         }
 
         var theRelOp = ctx.relOp();
+        var exprType = lhsType.getSecond();
 
         // Since we only have int expressions that can be compared using relops right now
-        if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
+        if (exprType == SymbolType.INT) {
             // evaluate the left and right sides of the relOp expression
             IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(0), symbolTable, functionGenerationContext, className, packageName);
             intExprCodegen.doCodegen();
@@ -125,6 +138,7 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         }
 
         Label labelToJump = new Label();
+        conditionJumpLabel = labelToJump;
         nextLabel = new Label();
         // save current stack map
         var currentFrameStack = functionGenerationContext.getCurrentFrameStackInfo();
@@ -220,39 +234,77 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
             return null;
         }
 
-        var theRelOp = ctx.compOp();
+        var theCompOp = ctx.compOp();
+        var exprType = lhsType.getSecond();
 
-        // Since we only have int expressions that can be compared using relops right now
-        if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-            // evaluate the left and right sides of the relOp expression
-            IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(0), symbolTable, functionGenerationContext, className, packageName);
-            intExprCodegen.doCodegen();
-            intExprCodegen.setExprContext(ctx.expr(1));
-            intExprCodegen.doCodegen();
+        // These are the types for which we support the comp ops for now
+        switch(exprType) {
+            case INT -> {
+                IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(0), symbolTable, functionGenerationContext, className, packageName);
+                intExprCodegen.doCodegen();
+                intExprCodegen.setExprContext(ctx.expr(1));
+                intExprCodegen.doCodegen();
+            }
+            case STRING -> {
+                StringExprCodegen stringExprCodegen = new StringExprCodegen(ctx.expr(0), symbolTable, functionGenerationContext, className, packageName);
+                stringExprCodegen.doCodegen();
+                stringExprCodegen.setExprContext(ctx.expr(1));
+                stringExprCodegen.doCodegen();
+            }
+            case BOOL -> {
+                BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(null, symbolTable, functionGenerationContext, className, packageName);
+                booleanExprCodegen.doSpecialCodegen(ctx.expr(0));
+                booleanExprCodegen.doSpecialCodegen(ctx.expr(1));
+            }
         }
 
-        if (theRelOp.COMP() != null) {
-            if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.jumpLabelsHaveBlocks) {
-                    int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
-                    Label labelToJump = new Label(); // have to regenerate thiss
-                    functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
-                } else {
-                    functionGenerationContext.getMv().visitInsn(Opcodes.LCMP);
-                }
-            }
-        } else if (theRelOp.COMPNOTEQ() != null) {
-            if (lhsType.getSecond() == SymbolType.INT && rhsType.getSecond() == SymbolType.INT) {
-                if (this.jumpLabelsHaveBlocks) {
-                    int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPEQ : Opcodes.IF_ICMPNE;
-                    Label labelToJump = new Label(); // have to regenerate this
-                    functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
-                } else {
-                    functionGenerationContext.getMv().visitInsn(Opcodes.LCMP);
-                }
-            }
+        Label labelToJump = new Label();
+        conditionJumpLabel = labelToJump;
+        nextLabel = new Label();
+        // save current stack map
+        var currentFrameStack = functionGenerationContext.getCurrentFrameStackInfo();
+
+        if (!exprType.getCanBeUsedWithCompOp()) {
+            fmtfatalerr("Cannot compare given types.", ctx.start.getLine());
+            return null;
+        }
+
+        if (theCompOp.COMP() != null) {
+            int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+            functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+        } else if (theCompOp.COMPNOTEQ() != null) {
+            int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPEQ : Opcodes.IF_ICMPNE;
+            functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
         } else {
-            err("[Error] Unknown comparison operator.");
+            err("[Error] Unknown relational operator.");
+        }
+
+        if (!this.jumpLabelsHaveBlocks) {
+            // the argument passed in the next line
+            // is the simplification of: this.jumpToFalseLabel ? true : false
+            functionGenerationContext.getMv().visitLdcInsn(this.jumpToFalseLabel ? 1 : 0);
+
+            functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+            functionGenerationContext.getMv().visitLabel(labelToJump);
+            functionGenerationContext.getMv().visitFrame(
+                    Opcodes.F_NEW,
+                    currentFrameStack.numLocals, currentFrameStack.locals,
+                    currentFrameStack.numStack, currentFrameStack.stack
+            );
+
+            // the argument passed in the next line
+            // is the simplification of: this.jumpToFalseLabel ? false : true
+            functionGenerationContext.getMv().visitLdcInsn(this.jumpToFalseLabel ? 0 : 1);
+            currentFrameStack = functionGenerationContext.getCurrentFrameStackInfo();
+            functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, nextLabel);
+
+            functionGenerationContext.getMv().visitLabel(nextLabel);
+            // see the Javadoc about visitFrame to know what is Opcodes.F_SAME1
+            functionGenerationContext.getMv().visitFrame(
+                    Opcodes.F_NEW,
+                    currentFrameStack.numLocals, currentFrameStack.locals,
+                    currentFrameStack.numStack, currentFrameStack.stack
+            );
         }
 
         return null;

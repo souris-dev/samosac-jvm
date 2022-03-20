@@ -2,6 +2,8 @@ package com.sachett.slang.slangc.codegen;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
+import com.sachett.slang.slangc.codegen.compoundstmt.ControlNodeCodegenType;
+import com.sachett.slang.slangc.codegen.compoundstmt.IControlNodeCodegen;
 import com.sachett.slang.slangc.codegen.compoundstmt.WhileStmtCodegen;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodegen;
@@ -32,7 +34,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
     /**
      * Stack of WhileStmtCodeGens (for nested while statements).
      */
-    protected final ArrayDeque<WhileStmtCodegen> whileStmtCodegens = new ArrayDeque<>();
+    protected final ArrayDeque<IControlNodeCodegen> controlNodeCodegens = new ArrayDeque<>();
 
     protected CodegenDelegatable parentCodegen; // parent codegen class instance
     public CodegenDelegatable getParentCodegen() {
@@ -103,7 +105,8 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
         ArrayList<FunctionGenerationContext.FrameStackMap> frameStackMaps = new ArrayList<>();
 
         // First generate the boolean expressions and if branch statements
-        for (Pair<Label, SlangParser.BooleanExprContext> labelCtx : labels) {
+        for (int i = 0; i < labels.size(); i++) {
+            var labelCtx = labels.get(i);
             if (labelCtx.getSecond() != null) {
                 booleanExprCodegen.setBooleanExprContext(labelCtx.getSecond());
                 if (!(booleanExprContext instanceof SlangParser.BooleanExprRelOpContext)
@@ -118,6 +121,9 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                     booleanExprCodegen.setFalseLabel(labelCtx.getFirst());
                     booleanExprCodegen.setJumpLabelsHaveBlocks(true);
                     booleanExprCodegen.doCodegen();
+
+                    // update the labelCtx with the right jump label
+                    labels.set(i, new Pair<>(booleanExprCodegen.getActualJumpLabel(), labelCtx.getSecond()));
                 }
             } else {
                 // TODO: Generate else block code here
@@ -170,15 +176,14 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
 
         // Do codegen of RHS
         switch (lookupInfo.getFirst().getSymbolType()) {
-            case INT:
+            case INT -> {
                 type = Type.INT_TYPE;
                 storeInstruction = Opcodes.ISTORE;
                 IntExprCodegen intCodegen = new IntExprCodegen(
                         ctx.expr(), symbolTable, functionGenerationContext, className, packageName);
                 intCodegen.doCodegen();
-                break;
-
-            case BOOL:
+            }
+            case BOOL -> {
                 // This is the case when either of these occurs:
                 // aBoolVar = () -> aFunctionReturningBool.
                 // or,
@@ -188,17 +193,14 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                 BooleanExprCodegen boolCodegen = new BooleanExprCodegen(
                         null, symbolTable, functionGenerationContext, className, packageName);
                 boolCodegen.doSpecialCodegen(ctx.expr());
-                break;
-
-            case STRING:
+            }
+            case STRING -> {
                 type = Type.getType(String.class);
                 StringExprCodegen stringExprCodegen = new StringExprCodegen(
                         ctx.expr(), symbolTable, functionGenerationContext, className, packageName);
                 stringExprCodegen.doCodegen();
-                break;
-
-            default:
-                err("[Error] Wrong assignment (bad type on LHS).");
+            }
+            default -> err("[Error] Wrong assignment (bad type on LHS).");
         }
 
         // Store the value generated into the variable
@@ -213,7 +215,7 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
             Integer localVarIndex = functionGenerationContext.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
             functionGenerationContext.getMv().visitVarInsn(storeInstruction, localVarIndex);
         }
-        return super.visitExprAssign(ctx);
+        return null;
     }
 
     @Override
@@ -226,26 +228,43 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
                 packageName
         );
 
-        whileStmtCodegens.push(whileStmtCodegen);
+        controlNodeCodegens.push(whileStmtCodegen);
         parentCodegen.startDelegatingTo(whileStmtCodegen);
         whileStmtCodegen.generateWhileStmt(ctx);
         parentCodegen.finishDelegating();
-        whileStmtCodegens.pop();
+        controlNodeCodegens.pop();
+        return null;
+    }
+
+    /**
+     * Checks if there's a WhileStmtCodegen in the stack (and return one if there's one).
+     * Returns null if the stack does not contain a WhileStmtCodegen.
+     */
+    private WhileStmtCodegen getMostRecentWhileStmtCodegen() {
+        for (var elem : controlNodeCodegens) {
+            if (elem.getControlNodeCodegenType() == ControlNodeCodegenType.WHILE) {
+                return (WhileStmtCodegen) elem;
+            }
+        }
         return null;
     }
 
     @Override
     public Void visitBreakControlStmt(SlangParser.BreakControlStmtContext ctx) {
-        if (whileStmtCodegens.size() > 0) {
-            whileStmtCodegens.peek().visitBreakControlStmt(ctx);
+        WhileStmtCodegen firstWhileStmtCodegenOnStack = getMostRecentWhileStmtCodegen();
+
+        if (firstWhileStmtCodegenOnStack != null) {
+            firstWhileStmtCodegenOnStack.visitBreakControlStmt(ctx);
         }
         return null;
     }
 
     @Override
     public Void visitContinueControlStmt(SlangParser.ContinueControlStmtContext ctx) {
-        if (whileStmtCodegens.size() > 0) {
-            whileStmtCodegens.peek().visitContinueControlStmt(ctx);
+        WhileStmtCodegen firstWhileStmtCodegenOnStack = getMostRecentWhileStmtCodegen();
+
+        if (firstWhileStmtCodegenOnStack != null) {
+            firstWhileStmtCodegenOnStack.visitContinueControlStmt(ctx);
         }
         return null;
     }
