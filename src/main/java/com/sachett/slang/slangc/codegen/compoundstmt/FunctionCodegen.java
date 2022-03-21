@@ -92,11 +92,6 @@ public class FunctionCodegen extends CodegenDelegatable {
     }
 
     @Override
-    public Void visitIfStmt(SlangParser.IfStmtContext ctx) {
-        return delegatedParentCodegen.visitIfStmt(ctx);
-    }
-
-    @Override
     public Void visitExprAssign(SlangParser.ExprAssignContext ctx) {
         return delegatedParentCodegen.visitExprAssign(ctx);
     }
@@ -111,6 +106,15 @@ public class FunctionCodegen extends CodegenDelegatable {
         CodegenDelegatable previousParentCodegen = codegenCommons.getParentCodegen();
         codegenCommons.setParentCodegen(this);
         codegenCommons.visitWhileStmt(ctx);
+        codegenCommons.setParentCodegen(previousParentCodegen);
+        return null;
+    }
+
+    @Override
+    public Void visitIfStmt(SlangParser.IfStmtContext ctx) {
+        CodegenDelegatable previousParentCodegen = codegenCommons.getParentCodegen();
+        codegenCommons.setParentCodegen(this);
+        codegenCommons.visitIfStmt(ctx);
         codegenCommons.setParentCodegen(previousParentCodegen);
         return null;
     }

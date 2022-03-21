@@ -56,6 +56,7 @@ public class IfStmtCodegen extends CodegenDelegatable implements IControlNodeCod
         BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
                 booleanExprContext, symbolTable, functionGenerationContext, className, packageName);
 
+        booleanExprCodegen.setJumpToFalseLabel(false);
         ArrayList<Pair<Label, SlangParser.BooleanExprContext>> labels = new ArrayList<>();
         int nElseIfs = ctx.elseifblocks.size();
 
