@@ -389,4 +389,9 @@ public class FunctionCodegen extends CodegenDelegatable {
         registerArguments();
         visitChildren(ctx);
     }
+
+    public void endFunctionVisit() {
+        functionGenerationContext.getMv().visitMaxs(0, 0);
+        functionGenerationContext.getMv().visitEnd();
+    }
 }

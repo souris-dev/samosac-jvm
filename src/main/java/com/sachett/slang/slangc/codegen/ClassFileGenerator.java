@@ -139,8 +139,6 @@ public class ClassFileGenerator extends CodegenDelegatable {
     public void generateClass() {
         this.visit(this.programContext);
         currentFunctionGenerationContext.getMv().visitInsn(Opcodes.RETURN);
-        currentFunctionGenerationContext.getMv().visitMaxs(0, 0); // any arguments work, will be recalculated
-        currentFunctionGenerationContext.getMv().visitEnd();
         classWriter.visitEnd();
     }
 
@@ -432,6 +430,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
         this.startDelegatingTo(functionCodegen);
         functionCodegen.generateImplicitRetTypeFuncDef(ctx);
+        functionCodegen.endFunctionVisit();
         this.finishDelegating();
 
         // restore previous functionGenerationContext
@@ -447,6 +446,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
         this.startDelegatingTo(functionCodegen);
         functionCodegen.generateExplicitRetTypeFuncDef(ctx);
+        functionCodegen.endFunctionVisit();
         this.finishDelegating();
 
         // restore previous functionGenerationContext
