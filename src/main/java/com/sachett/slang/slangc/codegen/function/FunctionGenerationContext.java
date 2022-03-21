@@ -19,6 +19,12 @@ public class FunctionGenerationContext {
     private final AnalyzerAdapter analyzerAdapter;
     HashMap<String, Integer> localVariableIndex = new HashMap<>();
 
+    /**
+     * Indicates if the function needs a RETURN instruction (with no expression)
+     * at the end of the function visit.
+     */
+    private boolean needsNoExprReturn = false;
+
     public FunctionGenerationContext(
             ClassWriter classWriter,
             int access, String name, String descriptor,
@@ -139,5 +145,13 @@ public class FunctionGenerationContext {
             LoggingUtilsKt.err("Internal error: Invalid local variable demanded.");
             throw new RuntimeException();
         }
+    }
+
+    public void setNeedsNoExprReturn(boolean needsNoExprReturn) {
+        this.needsNoExprReturn = needsNoExprReturn;
+    }
+
+    public boolean getNeedsNoExprReturn() {
+        return this.needsNoExprReturn;
     }
 }

@@ -382,15 +382,22 @@ public class FunctionCodegen extends CodegenDelegatable {
 
     public void generateImplicitRetTypeFuncDef(SlangParser.ImplicitRetTypeFuncDefContext ctx) {
         registerArguments();
+        functionGenerationContext.setNeedsNoExprReturn(true);
         visitChildren(ctx);
     }
 
     public void generateExplicitRetTypeFuncDef(SlangParser.ExplicitRetTypeFuncDefContext ctx) {
         registerArguments();
+        functionGenerationContext.setNeedsNoExprReturn(false);
         visitChildren(ctx);
     }
 
     public void endFunctionVisit() {
+        if (functionGenerationContext.getNeedsNoExprReturn()) {
+            // needs a no-expr RETURN instruction
+            functionGenerationContext.getMv().visitInsn(Opcodes.RETURN);
+        }
+
         functionGenerationContext.getMv().visitMaxs(0, 0);
         functionGenerationContext.getMv().visitEnd();
     }

@@ -17,9 +17,12 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.CheckMethodAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
@@ -138,8 +141,9 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
     public void generateClass() {
         this.visit(this.programContext);
-        currentFunctionGenerationContext.getMv().visitInsn(Opcodes.RETURN);
+        currentFunctionGenerationContext.getMv().visitInsn(Opcodes.RETURN); // end main function
         classWriter.visitEnd();
+        CheckClassAdapter.verify(new ClassReader(delegateClassWriter.toByteArray()), true, new PrintWriter(System.out));
     }
 
     public void writeClass() {
