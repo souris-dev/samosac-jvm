@@ -69,8 +69,8 @@ VOIDTYPE: 'void';
 NULLVALUE: 'null';
 
 IMPORT: 'needs';
-BREAK: 'breakout';
-CONTINUE: 'continue';
+BREAK: 'yamete_kudasai';
+CONTINUE: 'thanku_next';
 
 DECINT: [0-9]+;
 IDENTIFIER: ([_a-zA-Z][_a-zA-Z0-9]+ | [_a-zA-Z]);

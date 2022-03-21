@@ -270,11 +270,27 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
         }
 
         if (theCompOp.COMP() != null) {
-            int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
-            functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+            switch (exprType) {
+                case INT, BOOL -> {
+                    int opcode = Opcodes.IF_ICMPEQ;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+                    functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+                }
+                case STRING -> {
+                    int opcode = Opcodes.IF_ACMPEQ;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+                    functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+                }
+            }
         } else if (theCompOp.COMPNOTEQ() != null) {
-            int opcode = this.jumpToFalseLabel ? Opcodes.IF_ICMPEQ : Opcodes.IF_ICMPNE;
-            functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+            switch (exprType) {
+                case INT, BOOL -> {
+                    int opcode = Opcodes.IF_ICMPNE;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+                    functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+                }
+                case STRING -> {
+                    int opcode = Opcodes.IF_ACMPNE;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+                    functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
+                }
+            }
         } else {
             err("[Error] Unknown relational operator.");
         }

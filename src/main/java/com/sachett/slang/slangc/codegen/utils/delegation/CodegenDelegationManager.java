@@ -49,6 +49,9 @@ public class CodegenDelegationManager extends SlangBaseVisitor<Void> {
     }
 
     private void restoreDelegate(CodegenDelegatable delegatable) {
+        if (delegatable == null) {
+            return;
+        }
         delegatable.setBeingDelegated(beingDelegatedStore);
     }
 

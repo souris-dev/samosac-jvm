@@ -16,6 +16,16 @@ import java.util.Objects;
 
 public class WhileStmtCodegen extends CodegenDelegatable implements IControlNodeCodegen {
     private FunctionGenerationContext functionGenerationContext;
+    private final ControlNodeCodegenType controlNodeCodegenType = ControlNodeCodegenType.WHILE;
+
+    public ControlNodeCodegenType getControlNodeCodegenType() {
+        return controlNodeCodegenType;
+    }
+
+    // TODO: refactor these out to an abstract class or interface
+    private String className;
+    private String packageName;
+    private SymbolTable symbolTable;
 
     private boolean generatingWhileBlock = false;
     private Label whileLoopStartLabel = null;
@@ -35,7 +45,8 @@ public class WhileStmtCodegen extends CodegenDelegatable implements IControlNode
         /**
          * Register the stuff that this generator generates with the shared delegation manager.
          */
-        HashSet<CodegenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(CodegenDelegatedMethod.BLOCK,
+        HashSet<CodegenDelegatedMethod> delegatedMethodHashSet = new HashSet<>(List.of(
+                CodegenDelegatedMethod.BLOCK,
                 CodegenDelegatedMethod.BREAK,
                 CodegenDelegatedMethod.CONTINUE
         ));
@@ -93,10 +104,6 @@ public class WhileStmtCodegen extends CodegenDelegatable implements IControlNode
     public Void visitWhileStmt(SlangParser.WhileStmtContext ctx) {
         return delegatedParentCodegen.visitWhileStmt(ctx);
     }
-
-    private String className;
-    private String packageName;
-    private SymbolTable symbolTable;
 
     public void setDelegatedParentCodegen(CodegenDelegatable delegatedParentCodegen) {
         this.delegatedParentCodegen = delegatedParentCodegen;

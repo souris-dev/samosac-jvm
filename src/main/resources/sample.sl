@@ -44,7 +44,7 @@ else {
 
 while (somethingA < 5) {
     if (relOpValue) {
-        breakout.
+        yamete_kudasai.
     }
 
     somethingA = somethingA + 1.
@@ -68,11 +68,11 @@ let mana (var1: int, var2: string): int {
         bro, g: int = 19.
 
         if (sum > 10) {
-            breakout.
+            yamete_kudasai.
         }
 
         if (sum > 3) {
-            continue.
+            thanku_next.
         }
 
         sum = sum + 1.
