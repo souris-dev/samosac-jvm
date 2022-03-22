@@ -58,6 +58,7 @@ BINNOT: '!';
 RIGHTARROW: '->';
 TILDE: '~';
 COLON: ':';
+DOUBLEDOT: '..';
 STATEMENTEND: '.';
 WHILE: 'while';
 RETURN: 'return';
@@ -172,4 +173,8 @@ callArgList: (callParams+=expr COMMA)* (booleanCallParams+=booleanExpr COMMA)*
                 (callParams+=expr COMMA)* (booleanCallParams+=booleanExpr COMMA)*
                     (callParams+=expr | booleanCallParams+=booleanExpr)?;
 functionCall: LPAREN RPAREN RIGHTARROW IDENTIFIER #functionCallNoArgs
-            | LPAREN callArgList RPAREN RIGHTARROW IDENTIFIER #functionCallWithArgs;
+            | LPAREN callArgList RPAREN RIGHTARROW IDENTIFIER #functionCallWithArgs
+            | LPAREN RPAREN RIGHTARROW qualifiedIdentifier #qualifiedFunctionCallNoArgs
+            | LPAREN callArgList RPAREN RIGHTARROW qualifiedIdentifier #qualifiedFunctionCallWithArgs;
+
+qualifiedIdentifier: idList+=IDENTIFIER (DOUBLEDOT idList+=IDENTIFIER)+;

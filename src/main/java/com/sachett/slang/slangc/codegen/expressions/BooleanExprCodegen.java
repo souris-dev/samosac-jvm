@@ -2,6 +2,7 @@ package com.sachett.slang.slangc.codegen.expressions;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
+import com.sachett.slang.slangc.codegen.function.FunctionCallCodegen;
 import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector;
 import com.sachett.slang.slangc.symbol.SymbolType;
@@ -382,15 +383,19 @@ public class BooleanExprCodegen extends SlangBaseVisitor<Void> implements IExprC
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
-        // TODO: This is a DUMMY, to be implemented
-        functionGenerationContext.getMv().visitLdcInsn(SymbolType.BOOL.getDefaultValue());
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doWithArgFunctionCallCodegen(ctx, false); // do not discard result
         return null;
     }
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
-        // TODO: This is a DUMMY, to be implemented
-        functionGenerationContext.getMv().visitLdcInsn(SymbolType.BOOL.getDefaultValue());
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doNoArgFunctionCallCodegen(ctx, false); // do not discard result
         return null;
     }
 }

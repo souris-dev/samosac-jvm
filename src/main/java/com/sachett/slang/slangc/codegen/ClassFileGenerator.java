@@ -142,6 +142,8 @@ public class ClassFileGenerator extends CodegenDelegatable {
     public void generateClass() {
         this.visit(this.programContext);
         currentFunctionGenerationContext.getMv().visitInsn(Opcodes.RETURN); // end main function
+        currentFunctionGenerationContext.getMv().visitMaxs(0, 0);
+        currentFunctionGenerationContext.getMv().visitEnd();
         classWriter.visitEnd();
         CheckClassAdapter.verify(new ClassReader(delegateClassWriter.toByteArray()), true, new PrintWriter(System.out));
     }

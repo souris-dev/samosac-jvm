@@ -7,7 +7,7 @@ needs {
         Scanner,
         ArrayList
     },
-    java::lang::Parser,
+    java::lang::System,
 }
 
 /* This is a comment */

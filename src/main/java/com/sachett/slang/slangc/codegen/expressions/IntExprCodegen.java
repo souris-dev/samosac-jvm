@@ -2,6 +2,7 @@ package com.sachett.slang.slangc.codegen.expressions;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
+import com.sachett.slang.slangc.codegen.function.FunctionCallCodegen;
 import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
@@ -13,6 +14,8 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
     private final FunctionGenerationContext functionGenerationContext;
     private final SymbolTable symbolTable;
     private final String qualifiedClassName;
+    private final String className;
+    private final String packageName;
 
     public IntExprCodegen(
             SlangParser.ExprContext exprContext,
@@ -25,6 +28,8 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
         this.functionGenerationContext = functionGenerationContext;
         this.symbolTable = symbolTable;
         this.qualifiedClassName = packageName.replace(".", "/") + className;
+        this.className = className;
+        this.packageName = packageName;
     }
 
     @Override
@@ -105,15 +110,19 @@ public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodeg
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
-        // TODO: This is a DUMMY, to be implemented
-        functionGenerationContext.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doWithArgFunctionCallCodegen(ctx, false); // do not discard result
         return null;
     }
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
-        // TODO: This is a DUMMY, to be implemented
-        functionGenerationContext.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doNoArgFunctionCallCodegen(ctx, false); // do not discard result
         return null;
     }
 }

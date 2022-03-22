@@ -9,8 +9,10 @@ import com.sachett.slang.slangc.codegen.compoundstmt.WhileStmtCodegen;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.StringExprCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionCallCodegen;
 import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.codegen.utils.delegation.CodegenDelegatable;
+import com.sachett.slang.slangc.symbol.FunctionSymbol;
 import com.sachett.slang.slangc.symbol.ISymbol;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
@@ -209,11 +211,21 @@ public class CodegenCommons extends SlangBaseVisitor<Void> {
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
+        // This should be called in the case of a function call statement (and not expression)
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doNoArgFunctionCallCodegen(ctx, true); // discard result in case of a statement
         return null;
     }
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
+        // This should be called in the case of a function call statement (and not expression)
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doWithArgFunctionCallCodegen(ctx, true); // discard result in case of a statement
         return null;
     }
 }
