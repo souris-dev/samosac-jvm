@@ -89,10 +89,10 @@ OTHER: .;
 
 program: EOF
         | PROGSTART PROGEND
-        | PROGSTART (useStmt)? statements PROGEND
-        | (useStmt)? statements EOF;
+        | PROGSTART (needsStmt)? statements PROGEND
+        | (needsStmt)? statements EOF;
 
-useStmt: IMPORT LCURLYBR (classToImport+=qualifiedClassIdentifier COMMA)*
+needsStmt: IMPORT LCURLYBR (classToImport+=qualifiedClassIdentifier COMMA)*
             (classToImport+=qualifiedClassIdentifier)? RCURLYBR;
 
 qualifiedClassIdentifier: (IDENTIFIER COLON COLON)*? IDENTIFIER
