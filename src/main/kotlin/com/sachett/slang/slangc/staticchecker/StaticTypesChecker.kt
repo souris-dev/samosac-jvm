@@ -526,10 +526,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
         val existingSymbol = symbolTable.lookup(idName)
+        val isBuiltin = symbolTable.lookupBuiltinFunction(idName, null);
 
         if (existingSymbol != null) {
             fmtfatalerr(
                 "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                definedLineNum
+            )
+        }
+
+        if (isBuiltin != null) {
+            fmtfatalerr(
+                "$idName is a built-in function. You do not have the power to redefine it. Sad.",
                 definedLineNum
             )
         }
@@ -568,10 +576,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
         val existingSymbol = symbolTable.lookup(idName)
+        val isBuiltin = symbolTable.lookupBuiltinFunction(idName, null);
 
         if (existingSymbol != null) {
             fmtfatalerr(
                 "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                definedLineNum
+            )
+        }
+
+        if (isBuiltin != null) {
+            fmtfatalerr(
+                "$idName is a built-in function. You do not have the power to redefine it. Sad.",
                 definedLineNum
             )
         }

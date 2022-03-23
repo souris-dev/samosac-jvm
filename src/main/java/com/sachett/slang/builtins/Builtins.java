@@ -1,11 +1,18 @@
 package com.sachett.slang.builtins;
 
 import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
-import com.sachett.slang.slangc.symbol.SymbolType;
+import com.sachett.slang.slangc.symbol.*;
+import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Provides support for builtin functions and variables.
@@ -25,6 +32,119 @@ public class Builtins {
             void loadArgumentsToStack();
         }
 
+        public static class Utils {
+            /**
+             * Converts a descriptorString to a corresponding FunctionSymbol.
+             * NOTE: DOES NOT HANDLE ARRAYS AND OBJECTS OF ANY OTHER EXCEPT STRING FOR NOW.
+             * @param descriptorString The descriptor string of the method.
+             * @param name             The name of the function symbol to be made.
+             * @param method           The java.lang.reflect.Method instance of the method.
+             * @return FunctionSymbol corresponding to the given descriptor string.
+             */
+            public static FunctionSymbol descriptorToFunctionSymbol(String descriptorString, String name, Method method) {
+                // TODO: DOES NOT PARSE ARRAYS IN DESCRIPTOR STRING FOR NOW!
+                ArrayList<ISymbol> params = new ArrayList<>();
+                SymbolType funcRetType = SymbolType.VOID;
+
+                var paramNamesAnnotation = method.getAnnotationsByType(Functions.SlangBuiltinFuncOverload.class);
+                var paramNames = Arrays.stream(paramNamesAnnotation)
+                        .filter((annotation) -> annotation.descriptorString().equals(descriptorString)).toList().get(0).paramNames();
+                int strPos = 0;
+                int paramNamesCount = 0;
+
+                boolean parsingParams = true;
+
+                while (strPos < descriptorString.length()) {
+                    char thisChar = descriptorString.charAt(strPos);
+
+                    switch (thisChar) {
+                        case '(' -> {
+                            strPos++;
+                        }
+                        case ')' -> {
+                            parsingParams = false;
+                            strPos++;
+                        }
+                        case 'I' -> {
+                            if (!parsingParams) {
+                                funcRetType = SymbolType.INT;
+                                strPos++;
+                                continue;
+                            }
+                            params.add(new IntSymbol(
+                                    paramNames[paramNamesCount],
+                                    -1,
+                                    false,
+                                    (Integer) SymbolType.INT.getDefaultValue(),
+                                    false,
+                                    false,
+                                    new Pair<Integer, Integer>(-1, -1)
+                            ));
+                            strPos++;
+                        }
+                        case 'Z' -> {
+                            if (!parsingParams) {
+                                funcRetType = SymbolType.BOOL;
+                                strPos++;
+                                continue;
+                            }
+                            params.add(new BoolSymbol(
+                                    paramNames[paramNamesCount],
+                                    -1,
+                                    false,
+                                    (Boolean) SymbolType.BOOL.getDefaultValue(),
+                                    false,
+                                    false,
+                                    new Pair<Integer, Integer>(-1, -1)
+                            ));
+                            strPos++;
+                        }
+                        case 'L' -> {
+                            int classNameEndPos = strPos;
+                            while (descriptorString.charAt(classNameEndPos) != ';') {
+                                classNameEndPos++;
+                            }
+                            String className = descriptorString.substring(strPos + 1, classNameEndPos).replace("/", ".");
+                            if (className.equals("java.lang.String")) {
+                                if (!parsingParams) {
+                                    funcRetType = SymbolType.STRING;
+                                    strPos = classNameEndPos + 1;
+                                    continue;
+                                }
+                                params.add(new StringSymbol(
+                                        paramNames[paramNamesCount],
+                                        -1,
+                                        false,
+                                        (String) SymbolType.STRING.getDefaultValue(),
+                                        false,
+                                        false,
+                                        new Pair<Integer, Integer>(-1, -1)
+                                ));
+                            } // TODO: Add support for objects of other class types
+                            strPos = classNameEndPos + 1;
+                        }
+                        case 'V' -> {
+                            if (!parsingParams) {
+                                funcRetType = SymbolType.VOID;
+                                strPos++;
+                                continue;
+                            }
+                        }
+                        default -> strPos++;
+                    }
+                }
+
+                return new FunctionSymbol(
+                        name,
+                        -1,
+                        params,
+                        funcRetType,
+                        false, true, true,
+                        new Pair<Integer, Integer>(-1, -1)
+                );
+            }
+        }
+
         @Retention(RetentionPolicy.RUNTIME)
         public @interface SlangBuiltinFuncOverloads {
             SlangBuiltinFuncOverload[] value();
@@ -34,6 +154,7 @@ public class Builtins {
         @Retention(RetentionPolicy.RUNTIME)
         public @interface SlangBuiltinFuncOverload {
             String descriptorString() default "()V";
+            String[] paramNames() default {};
         }
 
         @Retention(RetentionPolicy.RUNTIME)
@@ -55,9 +176,9 @@ public class Builtins {
          *                              Can take SymbolType.INT, BOOL or STRING for now.
          */
         @SlangBuiltinFuncName(name = "putout")
-        @SlangBuiltinFuncOverload(descriptorString = "(I)V")
-        @SlangBuiltinFuncOverload(descriptorString = "(Z)V")
-        @SlangBuiltinFuncOverload(descriptorString = "(Ljava/lang/String;)V")
+        @SlangBuiltinFuncOverload(descriptorString = "(I)V", paramNames = {"intToPrint"})
+        @SlangBuiltinFuncOverload(descriptorString = "(Z)V", paramNames = {"boolieToPrint"})
+        @SlangBuiltinFuncOverload(descriptorString = "(Ljava/lang/String;)V", paramNames = {"stringToPrint"})
         public static void putout(
                 FunctionArgsLoader argsLoader,
                 FunctionGenerationContext functionGenerationCtx,
@@ -132,7 +253,7 @@ public class Builtins {
          * @param functionGenerationContext The function generation context in which to place the function call to this.
          */
         @SlangBuiltinFuncName(name = "exit")
-        @SlangBuiltinFuncOverload(descriptorString = "(I)V")
+        @SlangBuiltinFuncOverload(descriptorString = "(I)V", paramNames = {"exitCode"})
         public static void exit(FunctionArgsLoader argsLoader, FunctionGenerationContext functionGenerationContext) {
             argsLoader.loadArgumentsToStack();
 
