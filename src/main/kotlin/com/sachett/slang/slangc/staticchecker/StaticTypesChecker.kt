@@ -695,4 +695,9 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val lineNumber = errorNode.symbol.line
         fmtfatalerr("Syntax error at '${errorNode.text}'", lineNumber)
     }
+
+    override fun visitNeedsStmt(ctx: SlangParser.NeedsStmtContext?): Void? {
+        println("[Warning, Line ${ctx!!.start.line}] Needs statement is not yet supported. Will be coming soon!") // warning log
+        return super.visitNeedsStmt(ctx)
+    }
 }

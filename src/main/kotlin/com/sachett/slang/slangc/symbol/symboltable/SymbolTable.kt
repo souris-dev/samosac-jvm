@@ -4,6 +4,7 @@ import com.sachett.slang.builtins.Builtins
 import com.sachett.slang.logging.err
 import com.sachett.slang.slangc.symbol.FunctionSymbol
 import com.sachett.slang.slangc.symbol.ISymbol
+import com.sachett.slang.slangc.symbol.SymbolType
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -20,7 +21,7 @@ class SymbolTable {
      * are represented as a string (in the JVM descriptor format).
      * The map maps the name of the builtin function to its overloads.
      */
-    private val builtinMethods: MutableMap<String, MutableMap<String, Pair<FunctionSymbol?, Method>>> =
+    private val builtinMethods: MutableMap<String, MutableMap<String, Pair<FunctionSymbol, Method>>> =
         mutableMapOf()
 
     /**
@@ -66,7 +67,7 @@ class SymbolTable {
                 )
 
                 if (mtdNameAnnotation.size != 1) {
-                    println(
+                    System.err.println(
                         "Internal warning: Method ${builtinMethod.name} must use @SlangBuiltinFuncName annotation exactly once " +
                                 "if it needs to be registered as a builtin function. Skipping it."
                     )
@@ -78,8 +79,27 @@ class SymbolTable {
 
                 val slangBuiltinName = mtdNameAnnotation[0].name
                 val slangBuiltinFuncOverloads = slangMethodOverloadsAnnotation.map { it.descriptorString }
+
+                // Check that all the descriptors return the same type (all overloads of the function should return the
+                // same type).
+                var returnType: SymbolType? = null;
                 for (overloadDescriptorString in slangBuiltinFuncOverloads) {
-                    registerBuiltinFun(slangBuiltinName, overloadDescriptorString, builtinMethod)
+                    val functionSymbol = Builtins.Functions.Utils.descriptorToFunctionSymbol(
+                        overloadDescriptorString,
+                        slangBuiltinName,
+                        builtinMethod
+                    )
+
+                    if (returnType == null) {
+                        returnType = functionSymbol.returnType
+                    } else {
+                        if (functionSymbol.returnType != returnType) {
+                            err("Internal error: Builtin function $slangBuiltinName has specified different return types" +
+                                    " for different overloads, which is not supported.")
+                        }
+                    }
+
+                    registerBuiltinFun(functionSymbol, overloadDescriptorString, builtinMethod)
                 }
             }
         }
@@ -87,16 +107,15 @@ class SymbolTable {
 
     /**
      * Registers a builtin function (or its overload).
-     * @param name Name of the builtin function.
+     * @param symbol The function symbol representing the builtin.
      * @param descriptorString The descriptorString representation of the builtin (from the user's POV).
      * @param javaMethod The java.lang.reflect.Method instance of the builtin.
      */
-    private fun registerBuiltinFun(name: String, descriptorString: String, javaMethod: Method) {
-        val functionSymbol = Builtins.Functions.Utils.descriptorToFunctionSymbol(descriptorString, name, javaMethod);
-        if (builtinMethods.containsKey(name)) {
-            builtinMethods[name]?.put(descriptorString, Pair(functionSymbol, javaMethod));
+    private fun registerBuiltinFun(symbol: FunctionSymbol, descriptorString: String, javaMethod: Method) {
+        if (builtinMethods.containsKey(symbol.name)) {
+            builtinMethods[symbol.name]?.put(descriptorString, Pair(symbol, javaMethod));
         } else {
-            builtinMethods[name] = mutableMapOf(Pair(descriptorString, Pair(functionSymbol, javaMethod)))
+            builtinMethods[symbol.name] = mutableMapOf(Pair(descriptorString, Pair(symbol, javaMethod)))
         }
     }
 
@@ -296,7 +315,11 @@ class SymbolTable {
     }
 
     /**
-     * Looks up a name for a method in the builtin functions.
+     * Looks up a name for a method in the builtin functions (and returns the overload as given by the descriptor).
+     * The descriptor should be complete (should include return type of the function too).
+     * If you need to retrieve the overload of a function given a partial descriptor string (that does
+     * not contain the return type but only contains the parameter types), see
+     * <code>lookupBuiltinFunctionMatchingOverload</code>.
      * @param   name        The name of the builtin function to look up.
      * @param   descriptorString   The representative descriptorString of the function (as seen from the user's POV).
      * @return  A pair with the corresponding FunctionSymbol and
@@ -304,7 +327,7 @@ class SymbolTable {
      *          descriptorString (signature as seen from user's point of view) if it exists, else returns null.
      *          If descriptorString is kept null, then it returns any overload of the specified method name if found.
      */
-    fun lookupBuiltinFunction(name: String, descriptorString: String?): Pair<FunctionSymbol?, Method>? {
+    fun lookupBuiltinFunction(name: String, descriptorString: String?): Pair<FunctionSymbol, Method>? {
         return if (descriptorString == null) {
             // returns any overload
             builtinMethods.getOrDefault(name, null)?.entries?.first()?.value
@@ -312,5 +335,56 @@ class SymbolTable {
             // returns specified overload.
             builtinMethods.getOrDefault(name, null)?.getOrDefault(descriptorString, null)
         }
+    }
+
+    /**
+     * Looks up a name for a method in the builtin functions (and returns a matching overload as given by
+     * a partial descriptor).
+     * The partial descriptor is supposed to only contain the parameter types and not the return value. E.g: (I)
+     * @param   name        The name of the builtin function to look up.
+     * @param   descriptorString   The representative descriptorString of the function (as seen from the user's POV).
+     *                              Must not be null.
+     * @return  A pair with the corresponding FunctionSymbol and
+     *          java.lang.reflect.Method object, for the given builtin method name and
+     *          descriptorString (signature as seen from user's point of view) if it exists, else returns null.
+     *          If descriptorString is kept null, then it returns any overload of the specified method name if found.
+     */
+    fun lookupBuiltinFunctionMatchingOverload(name: String, descriptorString: String):
+            Pair<FunctionSymbol, Method>? {
+        val matchingOverloads = ArrayList<Pair<FunctionSymbol, Method>>();
+
+        if (!builtinMethods.containsKey(name)) {
+            return null;
+        }
+
+        for (overload in builtinMethods[name]!!) {
+            if (overload.key.startsWith(descriptorString)) {
+                matchingOverloads.add(overload.value)
+            }
+        }
+
+        if (matchingOverloads.size > 1) {
+            err("Internal error: Too many overloads with exact same arguments found for builtin function $name.")
+        }
+
+        if (matchingOverloads.size == 0) {
+            return null
+        }
+
+        return matchingOverloads[0]
+    }
+
+    fun lookupBuiltinFunctionAllOverloads(name: String): ArrayList<Pair<FunctionSymbol, Method>>? {
+        val allOverloads = ArrayList<Pair<FunctionSymbol, Method>>();
+
+        if (!builtinMethods.containsKey(name)) {
+            return null;
+        }
+
+        for (overload in builtinMethods[name]?.entries!!) {
+            allOverloads.add(overload.value)
+        }
+
+        return allOverloads
     }
 }

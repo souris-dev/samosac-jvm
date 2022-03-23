@@ -1,8 +1,13 @@
 package com.sachett.slang.builtins;
 
+import com.sachett.slang.logging.LoggingUtilsKt;
+import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
+import com.sachett.slang.slangc.staticchecker.ExpressionTypeDetector;
 import com.sachett.slang.slangc.symbol.*;
+import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.objectweb.asm.Opcodes;
 
 import java.lang.annotation.Repeatable;
@@ -30,6 +35,9 @@ public class Builtins {
             void loadArgumentsToStack();
         }
 
+        /**
+         * TODO: (Refactor) Move this class somewhere else?
+         */
         public static class Utils {
             /**
              * Converts a descriptorString to a corresponding FunctionSymbol.
@@ -140,6 +148,58 @@ public class Builtins {
                         new Pair<Integer, Integer>(-1, -1)
                 );
             }
+
+            /**
+             * Convert parser context to (partial) descriptor. This descriptor only contains argument types.
+             * @param ctx
+             * @param symbolTable
+             * @return (Partial) descriptor for the required function.
+             */
+            public static String ctxToDescriptor(SlangParser.FunctionCallWithArgsContext ctx, SymbolTable symbolTable) {
+                var ctxCallParamsChildren = ctx.callArgList().children;
+                var normalParams = ctx.callArgList().callParams;
+                var booleanParams = ctx.callArgList().booleanCallParams;
+                StringBuilder descriptor = new StringBuilder("(");
+
+                var normalParamsCounter = 0;
+                var booleanParamsCounter = 0;
+                var paramsCounter = 0;
+
+                ExpressionTypeDetector typeDetector = new ExpressionTypeDetector(symbolTable);
+                for (ParseTree pt : ctxCallParamsChildren) {
+                    var ptClassName = pt.getClass().getName();
+                    // Kind of a hack, but well it does the job
+                    if (ptClassName.contains("Expr") && !ptClassName.contains("Boolean")) {
+                        if (ptClassName.contains("ExprFunctionCall")) {
+
+                        }
+                        // normal expression
+                        var exprCtx = normalParams.get(normalParamsCounter);
+                        Pair<Boolean, SymbolType> typeInfo = typeDetector.getType(exprCtx);
+
+                        if (!typeInfo.getFirst()) {
+                            LoggingUtilsKt.fmtfatalerr("Bad expression passed as argument (incompatible types).", ctx.start.getLine());
+                        }
+
+                        switch (typeInfo.getSecond()) {
+                            case INT -> descriptor.append("I");
+                            case BOOL -> descriptor.append("Z");
+                            case STRING -> descriptor.append("Ljava/lang/String;");
+                        }
+
+                        normalParamsCounter++;
+                        paramsCounter++;
+                    }
+                    else if (ptClassName.contains("Boolean")) {
+                        descriptor.append("Z");
+                        booleanParamsCounter++;
+                        paramsCounter++;
+                    }
+                }
+
+                descriptor.append(")");
+                return descriptor.toString();
+            }
         }
 
         @Retention(RetentionPolicy.RUNTIME)
@@ -159,6 +219,62 @@ public class Builtins {
             String name();
         }
 
+        // ---------------- BUILTINS --------------------------
+
+        @SlangBuiltinFuncName(name = "putout")
+        @SlangBuiltinFuncOverload(descriptorString = "(I)V", paramNames = {"intToPrint"})
+        public static void putoutInt(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationCtx
+        ) {
+            doPutout(functionArgsLoader, functionGenerationCtx, SymbolType.INT);
+        }
+
+        @SlangBuiltinFuncName(name = "putout")
+        @SlangBuiltinFuncOverload(descriptorString = "(Z)V", paramNames = {"boolieToPrint"})
+        public static void putoutBoolie(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationCtx
+        ) {
+            doPutout(functionArgsLoader, functionGenerationCtx, SymbolType.BOOL);
+        }
+
+        @SlangBuiltinFuncName(name = "putout")
+        @SlangBuiltinFuncOverload(descriptorString = "(Ljava/lang/String;)V", paramNames = {"stringToPrint"})
+        public static void putoutString(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationCtx
+        ) {
+            doPutout(functionArgsLoader, functionGenerationCtx, SymbolType.STRING);
+        }
+
+        @SlangBuiltinFuncName(name = "putinInt")
+        @SlangBuiltinFuncOverload(descriptorString = "()I")
+        public static void putinInt(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationCtx
+        ) {
+            doPutin(functionGenerationCtx, SymbolType.INT);
+        }
+
+        @SlangBuiltinFuncName(name = "putinBoolie")
+        @SlangBuiltinFuncOverload(descriptorString = "()Z")
+        public static void putinBoolie(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationCtx
+        ) {
+            doPutin(functionGenerationCtx, SymbolType.BOOL);
+        }
+
+        @SlangBuiltinFuncName(name = "putinString")
+        @SlangBuiltinFuncOverload(descriptorString = "()Ljava/lang/String;")
+        public static void putinString(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationCtx
+        ) {
+            doPutin(functionGenerationCtx, SymbolType.STRING);
+        }
+
         /**
          * Displays text to stdout (or stderr). Also adds an end-line at the end.
          * Function call example: ("hello") -> println.
@@ -172,17 +288,12 @@ public class Builtins {
          * @param symbolTypeToPrint     The symbol type to print to screen.
          *                              Can take SymbolType.INT, BOOL or STRING for now.
          */
-        @SlangBuiltinFuncName(name = "putout")
-        @SlangBuiltinFuncOverload(descriptorString = "(I)V", paramNames = {"intToPrint"})
-        @SlangBuiltinFuncOverload(descriptorString = "(Z)V", paramNames = {"boolieToPrint"})
-        @SlangBuiltinFuncOverload(descriptorString = "(Ljava/lang/String;)V", paramNames = {"stringToPrint"})
-        public static void putout(
+        private static void doPutout(
                 FunctionArgsLoader argsLoader,
                 FunctionGenerationContext functionGenerationCtx,
-                SymbolType symbolTypeToPrint,
-                boolean err
+                SymbolType symbolTypeToPrint
         ) {
-            functionGenerationCtx.getMv().visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", err ? "err" : "out",
+            functionGenerationCtx.getMv().visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out",
                     "Ljava/io/PrintStream;");
             argsLoader.loadArgumentsToStack();
 
@@ -203,11 +314,7 @@ public class Builtins {
          * @param functionGenerationCtx The function generation context in which to place the function call to this.
          * @param symbolTypeToInput     The type of value to be taken as input. Can be INT, BOOL, or STRING.
          */
-        @SlangBuiltinFuncName(name = "putin")
-        @SlangBuiltinFuncOverload(descriptorString = "()I")
-        @SlangBuiltinFuncOverload(descriptorString = "()Z")
-        @SlangBuiltinFuncOverload(descriptorString = "()Ljava/lang/String;")
-        public static void putin(
+        private static void doPutin(
                 FunctionGenerationContext functionGenerationCtx,
                 SymbolType symbolTypeToInput
         ) {

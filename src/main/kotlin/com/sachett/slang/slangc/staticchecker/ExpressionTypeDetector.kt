@@ -17,7 +17,15 @@ import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 class ExpressionTypeDetector(
     private val symbolTable: SymbolTable
 ) : SlangBaseVisitor<Unit>() {
-    private val symbolTypesInExpr: MutableMap<SymbolType, Int> = mutableMapOf(
+    private var symbolTypesInExpr: MutableMap<SymbolType, Int> = mutableMapOf(
+        SymbolType.INT to 0,
+        SymbolType.STRING to 0,
+        SymbolType.BOOL to 0,
+        SymbolType.VOID to 0,
+        SymbolType.FUNCTION to 0
+    )
+
+    private val emptySymbolTypesInExpr: Map<SymbolType, Int> = mapOf(
         SymbolType.INT to 0,
         SymbolType.STRING to 0,
         SymbolType.BOOL to 0,
@@ -35,6 +43,9 @@ class ExpressionTypeDetector(
      */
     fun getType(ctx: SlangParser.ExprContext): Pair<Boolean, SymbolType> {
         println("----- Finding expr type for expr -----") // DEBUG
+
+        // clear the table
+        symbolTypesInExpr = emptySymbolTypesInExpr.toMutableMap()
         visit(ctx)
 
         var maxFreq = 0

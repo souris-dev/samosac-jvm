@@ -1,5 +1,6 @@
 package com.sachett.slang.slangc.codegen.function;
 
+import com.sachett.slang.builtins.Builtins;
 import com.sachett.slang.parser.SlangParser;
 import com.sachett.slang.slangc.codegen.expressions.BooleanExprCodegen;
 import com.sachett.slang.slangc.codegen.expressions.IntExprCodegen;
@@ -13,6 +14,7 @@ import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class FunctionCallCodegen extends CodegenDelegatable {
@@ -46,6 +48,25 @@ public class FunctionCallCodegen extends CodegenDelegatable {
 
         if (functionSymbol == null) {
             // TODO: find in the imported packages
+
+            // builtins:
+            var expectedDescriptor = "()";
+            var theFunc = symbolTable.lookupBuiltinFunctionMatchingOverload(
+                    funcName, expectedDescriptor
+            );
+
+            if (theFunc == null) {
+                return;
+            }
+
+            Method theBuiltin = theFunc.getSecond();
+            Builtins.Functions.FunctionArgsLoader argsLoader = () -> {};
+            try {
+                theBuiltin.invoke(null, argsLoader, functionGenerationContext);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
         else if (functionSymbol instanceof FunctionSymbol) {
             // the function exists in this class
@@ -125,8 +146,31 @@ public class FunctionCallCodegen extends CodegenDelegatable {
         String funcName = ctx.IDENTIFIER().getText();
         ISymbol functionSymbol = symbolTable.lookupInCoordinates(funcName, new Pair<>(0, 0));
 
+        var stackSize = functionGenerationContext.getAnalyzerAdapter().stack.size();
+
         if (functionSymbol == null) {
             // TODO: find in the imported packages
+
+            // builtins:
+            var expectedDescriptor = Builtins.Functions.Utils.ctxToDescriptor(ctx, symbolTable);
+            var theFunc = symbolTable.lookupBuiltinFunctionMatchingOverload(
+                    funcName, expectedDescriptor
+            );
+
+            if (theFunc == null) {
+                return;
+            }
+
+            Method theBuiltin = theFunc.getSecond();
+            Builtins.Functions.FunctionArgsLoader argsLoader = () -> {
+                pushArgumentsToStack(theFunc.getFirst(), ctx);
+            };
+            try {
+                theBuiltin.invoke(null, argsLoader, functionGenerationContext);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
         else if (functionSymbol instanceof FunctionSymbol funcSymbol) {
             // the function exists in this class
@@ -145,8 +189,13 @@ public class FunctionCallCodegen extends CodegenDelegatable {
         }
 
         if (discardResult) {
-            // pop the stack once
-            functionGenerationContext.getMv().visitInsn(Opcodes.POP);
+            // pop the stack once if it has a result
+            var currentStackSize = functionGenerationContext.getAnalyzerAdapter().stack.size();
+            if (currentStackSize - stackSize == 1) {
+                // one result was pushed to stack
+                // need to pop it since we are discarding the result
+                functionGenerationContext.getMv().visitInsn(Opcodes.POP);
+            }
         }
     }
 }

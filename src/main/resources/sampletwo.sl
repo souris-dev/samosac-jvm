@@ -4,14 +4,22 @@ needs {
     java::lang::System
 }
 
-let mana(var1: int, var2: string): int {
-    while (var1 > 1) {
-        var1 = var1 - 1.
-    }
-    return var1.
+let khana(stringArg: string) {
+    (stringArg) -> putout.
 }
 
-bro, result: int = 50 + (2, "hello") -> mana.
-("hi") -> System..out..println.
+let mana(var1: int, var2: string): int {
+    if (var1 == 0) {
+        return 0.
+    }
+    (var1) -> putout.
+    (var2) -> khana.
+    return 0.
+}
 
+bro, num: int = () -> putinInt.
+bro, msg: string = () -> putinString.
+bro, result: int = 50 + (num, msg) -> mana.
+(result) -> putout.
+("Hello world!") -> putout.
 </SLANG>

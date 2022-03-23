@@ -105,6 +105,16 @@ public class WhileStmtCodegen extends CodegenDelegatable implements IControlNode
         return delegatedParentCodegen.visitWhileStmt(ctx);
     }
 
+    @Override
+    public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
+        return delegatedParentCodegen.visitFunctionCallWithArgs(ctx);
+    }
+
+    @Override
+    public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
+        return delegatedParentCodegen.visitFunctionCallNoArgs(ctx);
+    }
+
     public void setDelegatedParentCodegen(CodegenDelegatable delegatedParentCodegen) {
         this.delegatedParentCodegen = delegatedParentCodegen;
     }
