@@ -4,7 +4,6 @@ import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.symbol.*;
 import kotlin.Pair;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -12,7 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * Provides support for builtin functions and variables.
@@ -127,7 +125,6 @@ public class Builtins {
                             if (!parsingParams) {
                                 funcRetType = SymbolType.VOID;
                                 strPos++;
-                                continue;
                             }
                         }
                         default -> strPos++;
