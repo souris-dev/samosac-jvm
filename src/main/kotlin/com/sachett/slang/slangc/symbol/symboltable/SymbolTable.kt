@@ -1,11 +1,25 @@
 package com.sachett.slang.slangc.symbol.symboltable
 
+import com.sachett.slang.builtins.Builtins
+import com.sachett.slang.logging.err
 import com.sachett.slang.slangc.symbol.ISymbol
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 class SymbolTable {
 
     /* Stores the top-level table */
     private val symbolScope: ArrayList<ArrayList<SymbolTableRecordEntry>> = arrayListOf()
+
+    /**
+     * Extended symbol tables for imported stuff and builtins.
+     * builtinMethods stores the name of the builtins and the java.lang.reflect.Method, as
+     * well as its expected arguments and return type as registered by the method.
+     * The expected arguments of the function (as seen from the user's viewpoint) and return type
+     * are represented as a string (in the JVM descriptor format).
+     * The map maps the name of the builtin function to its overloads.
+     */
+    private val builtinMethods: MutableMap<String, MutableMap<String, Method>> = mutableMapOf()
 
     /**
      * Stores a map of blocks with their scope coordinates in the table for quick access.
@@ -32,6 +46,53 @@ class SymbolTable {
         globalEntry.recordEntryCoordinates = Pair(0, 0)
         symbolScope.add(arrayListOf(globalEntry))
         currentSymbolTableRecord = globalEntry
+
+        registerBuiltinFunctions()
+    }
+
+    private fun registerBuiltinFunctions() {
+        // Registers builtin functions
+        // Populates the builtins dynamically
+        val builtinFunctionsClass = Class.forName("com.sachett.slang.builtins.Builtins\$Functions");
+        for (builtinMethod in builtinFunctionsClass.declaredMethods) {
+            // register only public ones
+            if (Modifier.isPublic(builtinMethod.modifiers) && Modifier.isStatic(builtinMethod.modifiers)) {
+                val mtdNameAnnotation = builtinMethod.getAnnotationsByType(Builtins.Functions.SlangBuiltinFuncName::class.java)
+                val slangMethodOverloadsAnnotation = builtinMethod.getAnnotationsByType(
+                    Builtins.Functions.SlangBuiltinFuncOverload::class.java
+                )
+
+                if (mtdNameAnnotation.size != 1) {
+                    println("Internal warning: Method ${builtinMethod.name} must use @SlangBuiltinFuncName annotation exactly once " +
+                            "if it needs to be registered as a builtin function. Skipping it.")
+                    continue
+                }
+                if (slangMethodOverloadsAnnotation.isEmpty()) {
+                    err("Internal error: Builtin function ${builtinMethod.name} must use @SlangBuiltinFuncOverloads annotation at least once.")
+                }
+
+                val slangBuiltinName = mtdNameAnnotation[0].name
+                val slangBuiltinFuncOverloads = slangMethodOverloadsAnnotation.map { it.descriptorString }
+                for (overloadDescriptorString in slangBuiltinFuncOverloads) {
+                    registerBuiltinFun(slangBuiltinName, overloadDescriptorString, builtinMethod)
+                }
+            }
+        }
+    }
+
+    /**
+     * Registers a builtin function (or its overload).
+     * @param name Name of the builtin function.
+     * @param descriptorString The descriptorString representation of the builtin (from the user's POV).
+     * @param javaMethod The java.lang.reflect.Method instance of the builtin.
+     */
+    private fun registerBuiltinFun(name: String, descriptorString: String, javaMethod: Method) {
+        if (builtinMethods.containsKey(name)) {
+            builtinMethods[name]?.put(descriptorString, javaMethod)
+        }
+        else {
+            builtinMethods[name] = mutableMapOf(Pair(descriptorString, javaMethod))
+        }
     }
 
     /* Insert a symbol into the current scope */
@@ -204,7 +265,7 @@ class SymbolTable {
      * Goes to mentioned scope coordinates in the symbol table. Note: Prone to exception if wrong coordinates passed.
      * @param   coordinates The coordinates to go to.
      */
-    fun goToCoordinates(coordinates: Pair<Int, Int>) {
+    private fun goToCoordinates(coordinates: Pair<Int, Int>) {
         lastCoordinates.push(currentScopeCoordinates)
         currentScopeCoordinates = coordinates
         currentSymbolTableRecord = symbolScope[coordinates.first][coordinates.second]
@@ -227,5 +288,23 @@ class SymbolTable {
     fun restoreLastCoordinates() {
         currentScopeCoordinates = lastCoordinates.pop()
         currentSymbolTableRecord = symbolScope[currentScopeCoordinates.first][currentScopeCoordinates.second]
+    }
+
+    /**
+     * Looks up a name for a method in the builtin functions.
+     * @param   name        The name of the builtin function to look up.
+     * @param   descriptorString   The representative descriptorString of the function (as seen from the user's POV).
+     * @return  The java.lang.reflect.Method object for that builtin method name and
+     *          descriptorString (signature as seen from user's point of view) if it exists, else returns null.
+     *          If descriptorString is kept null, then it returns any overload of the specified method name if found.
+     */
+    fun lookupBuiltinFunction(name: String, descriptorString: String?): Method? {
+        return if (descriptorString == null) {
+            // returns any overload
+            builtinMethods.getOrDefault(name, null)?.entries?.first()?.value
+        } else {
+            // returns specified overload.
+            builtinMethods.getOrDefault(name, null)?.getOrDefault(descriptorString, null)
+        }
     }
 }
