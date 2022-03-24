@@ -1,9 +1,9 @@
-# slang
+# samosa
 #### A statically-typed JVM-based language.
 
 Sample program (this is just an arbitrary program):
 ```
-<SLANG>
+<SAMOSA>
 
 \\* This is a comment *\\
 
@@ -53,5 +53,5 @@ bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main.
 \\* Function call statement *\\
 (res, lol) -> main.
 
-</SLANG>
+</SAMOSA>
 ```

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sachett.slang</groupId>
-    <artifactId>slangc</artifactId>
+    <groupId>com.sachett.samosa</groupId>
+    <artifactId>samosac</artifactId>
     <version>1.0</version>
 
     <build>
@@ -84,7 +84,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.sachett.slang.slangc.compiler.CompilerKt</mainClass>
+                            <mainClass>com.sachett.samosa.samosac.compiler.CompilerKt</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -130,8 +130,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>slangc</imageName>
-                            <mainClass>com.sachett.slang.slangc.compiler.CompilerKt</mainClass>
+                            <imageName>samosac</imageName>
+                            <mainClass>com.sachett.samosa.samosac.compiler.CompilerKt</mainClass>
                             <buildArgs>
                                 --no-fallback
                                 --verbose

@@ -1,4 +1,4 @@
-<SLANG>
+<samosa>
 
 needs {
     java::lang::System
@@ -14,7 +14,8 @@ let mana(var1: int, var2: string): int {
     wasCalled = wasCalled + 1.
     if (var1 == 0) {
         ("base case") -> putout.
-        return 4.
+        ("returning wasCalled as: " + (wasCalled) -> itos) -> putout.
+        return wasCalled.
     }
 
     (var2) -> putout.
@@ -26,4 +27,4 @@ bro, result: int = 50 + (num, "gogo") -> mana.
 ("Result: " + (result) -> itos) -> putout.
 ("wasCalled: " + (wasCalled) -> itos + " times") -> putout.
 ("Hello world!") -> putout.
-</SLANG>
+</samosa>

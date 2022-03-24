@@ -1,4 +1,4 @@
-<SLANG>
+<SAMOSA>
 
 needs {
     java::util:: {
@@ -52,4 +52,4 @@ let main(var1: int, var2: string): int {
 bro, res: int = (initCounter + 11 + ((initCounter, ball) -> main), ball) -> main.
 (res, ball) -> main.
 
-</SLANG>
+</SAMOSA>
