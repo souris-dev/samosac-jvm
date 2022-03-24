@@ -67,7 +67,7 @@ Example:
 ```
 
 <h3>Variables</h3>
-Variables are declared with the keyword <code>bro, </code> (yes, the comma is necessary :-)).
+Variables are declared with the keyword <code>bro,</code> &nbsp;(yes, the comma is necessary :-)).
 Currently, variables can be only of three types: <code>int</code> (for integers), <code>string</code> (for strings), or <code>boolie</code> (for boolean values).
 
 Some examples of declaration and initialization:
