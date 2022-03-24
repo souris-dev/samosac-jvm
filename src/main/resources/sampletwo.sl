@@ -17,7 +17,8 @@ let mana(var1: int, var2: string): int {
     return 0.
 }
 
-bro, num: int = () -> putinInt.
+bro, num: int = (() -> putinString) -> stoi.
+((num) -> itos) -> khana.
 bro, msg: string = () -> putinString.
 bro, result: int = 50 + (num, msg) -> mana.
 (result) -> putout.

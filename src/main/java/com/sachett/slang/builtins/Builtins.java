@@ -275,6 +275,30 @@ public class Builtins {
             doPutin(functionGenerationCtx, SymbolType.STRING);
         }
 
+        @SlangBuiltinFuncName(name = "stoi")
+        @SlangBuiltinFuncOverload(descriptorString = "(Ljava/lang/String;)I", paramNames = {"stringToConvert"})
+        public static void stringToInt(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationContext
+        ) {
+            functionArgsLoader.loadArgumentsToStack();
+
+            functionGenerationContext.getMv().visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
+                    "parseInt", "(Ljava/lang/String;)I", false);
+        }
+
+        @SlangBuiltinFuncName(name = "itos")
+        @SlangBuiltinFuncOverload(descriptorString = "(I)Ljava/lang/String;", paramNames = {"stringToConvert"})
+        public static void intToString(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationContext
+        ) {
+            functionArgsLoader.loadArgumentsToStack();
+
+            functionGenerationContext.getMv().visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
+                    "toString", "(I)Ljava/lang/String;", false);
+        }
+
         /**
          * Displays text to stdout (or stderr). Also adds an end-line at the end.
          * Function call example: ("hello") -> println.
