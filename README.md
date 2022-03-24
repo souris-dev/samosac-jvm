@@ -1,6 +1,6 @@
 <h1 align="center">Samosa</h1>
+<p align="center"><i>Welcome, samosa lovers!</i><br><br></p>
 <p align="left">
-  <center><i>Welcome, samosa lovers!</i><br><br></center>
   <b>Samosa is a programming language written in Java and Kotlin, that runs on the JVM.</b>
 <br><br><i>Note: This programming language, "samosa", is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
 <br>
