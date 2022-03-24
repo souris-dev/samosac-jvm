@@ -64,14 +64,14 @@ public class Builtins {
                     char thisChar = descriptorString.charAt(strPos);
 
                     switch (thisChar) {
-                        case '(' -> {
+                        case '(':
                             strPos++;
-                        }
-                        case ')' -> {
+                            break;
+                        case ')':
                             parsingParams = false;
                             strPos++;
-                        }
-                        case 'I' -> {
+                            break;
+                        case 'I':
                             if (!parsingParams) {
                                 funcRetType = SymbolType.INT;
                                 strPos++;
@@ -87,8 +87,8 @@ public class Builtins {
                                     new Pair<Integer, Integer>(-1, -1)
                             ));
                             strPos++;
-                        }
-                        case 'Z' -> {
+                            break;
+                        case 'Z':
                             if (!parsingParams) {
                                 funcRetType = SymbolType.BOOL;
                                 strPos++;
@@ -104,8 +104,8 @@ public class Builtins {
                                     new Pair<Integer, Integer>(-1, -1)
                             ));
                             strPos++;
-                        }
-                        case 'L' -> {
+                            break;
+                        case 'L':
                             int classNameEndPos = strPos;
                             while (descriptorString.charAt(classNameEndPos) != ';') {
                                 classNameEndPos++;
@@ -128,14 +128,15 @@ public class Builtins {
                                 ));
                             } // TODO: Add support for objects of other class types
                             strPos = classNameEndPos + 1;
-                        }
-                        case 'V' -> {
+                            break;
+                        case 'V':
                             if (!parsingParams) {
                                 funcRetType = SymbolType.VOID;
                                 strPos++;
                             }
-                        }
-                        default -> strPos++;
+                            break;
+                        default:
+                            strPos++;
                     }
                 }
 
@@ -182,9 +183,15 @@ public class Builtins {
                         }
 
                         switch (typeInfo.getSecond()) {
-                            case INT -> descriptor.append("I");
-                            case BOOL -> descriptor.append("Z");
-                            case STRING -> descriptor.append("Ljava/lang/String;");
+                            case INT:
+                                descriptor.append("I");
+                                break;
+                            case BOOL:
+                                descriptor.append("Z");
+                                break;
+                            case STRING:
+                                descriptor.append("Ljava/lang/String;");
+                                break;
                         }
 
                         normalParamsCounter++;
@@ -323,9 +330,15 @@ public class Builtins {
 
             String printlnDescriptor = "(Ljava/lang/String;)V";
             switch (symbolTypeToPrint) {
-                case BOOL -> printlnDescriptor = "(Z)V";
-                case INT -> printlnDescriptor = "(I)V";
-                case STRING -> printlnDescriptor = "(Ljava/lang/String;)V";
+                case BOOL:
+                    printlnDescriptor = "(Z)V";
+                    break;
+                case INT:
+                    printlnDescriptor = "(I)V";
+                    break;
+                case STRING:
+                    printlnDescriptor = "(Ljava/lang/String;)V";
+                    break;
             }
 
             functionGenerationCtx.getMv().visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
@@ -360,15 +373,21 @@ public class Builtins {
 
             // scan next required thing
             switch (symbolTypeToInput) {
-                case INT -> functionGenerationCtx.getMv().visitMethodInsn(
+                case INT:
+                    functionGenerationCtx.getMv().visitMethodInsn(
                         Opcodes.INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false
-                );
-                case BOOL -> functionGenerationCtx.getMv().visitMethodInsn(
+                    );
+                    break;
+                case BOOL:
+                    functionGenerationCtx.getMv().visitMethodInsn(
                         Opcodes.INVOKEVIRTUAL, "java/util/Scanner", "nextBoolean", "()Z", false
-                );
-                case STRING -> functionGenerationCtx.getMv().visitMethodInsn(
+                    );
+                    break;
+                case STRING:
+                    functionGenerationCtx.getMv().visitMethodInsn(
                         Opcodes.INVOKEVIRTUAL, "java/util/Scanner", "nextLine", "()Ljava/lang/String;", false
-                );
+                    );
+                    break;
             }
         }
 

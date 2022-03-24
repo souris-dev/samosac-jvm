@@ -406,9 +406,11 @@ public class ClassFileGenerator extends CodegenDelegatable {
             return null;
         }
 
-        if (!(funcSymbol instanceof FunctionSymbol functionSymbol)) {
+        if (!(funcSymbol instanceof FunctionSymbol)) {
             return null;
         }
+
+        var functionSymbol = (FunctionSymbol) funcSymbol;
 
         String funcDescriptor = FunctionGenerationContext.generateDescriptor(functionSymbol);
         FunctionGenerationContext functionGenerationContext = new FunctionGenerationContext(

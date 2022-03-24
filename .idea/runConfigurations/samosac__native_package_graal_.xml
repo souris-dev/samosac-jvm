@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="slangc [native package graal]" type="MavenRunConfiguration" factoryName="Maven">
+  <configuration default="false" name="samosac [native package graal]" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />

@@ -92,7 +92,7 @@ public class FunctionCallCodegen extends CodegenDelegatable {
 
         while (argsPushed < totalArgs) {
             switch (argsList.get(argsPushed).getSymbolType()) {
-                case BOOL -> {
+                case BOOL:
                     // We need to check if the normalPassedParams contains a boolean expr disguised as a normal one
                     // This can happen if it's just a single function call or an identifier with no boolean ops
 
@@ -116,25 +116,25 @@ public class FunctionCallCodegen extends CodegenDelegatable {
                     );
                     booleanExprCodegen.doCodegen();
                     booleanParamCounter++;
-                }
+                    break;
 
-                case INT -> {
+                case INT:
                     SamosaParser.ExprContext intExpr = normalPassedParams.get(normalParamCounter);
                     IntExprCodegen intExprCodegen = new IntExprCodegen(
                             intExpr, symbolTable, functionGenerationContext, className, packageName
                     );
                     intExprCodegen.doCodegen();
                     normalParamCounter++;
-                }
+                    break;
 
-                case STRING -> {
+                case STRING:
                     SamosaParser.ExprContext stringExpr = normalPassedParams.get(normalParamCounter);
                     StringExprCodegen stringExprCodegen = new StringExprCodegen(
                             stringExpr, symbolTable, functionGenerationContext, className, packageName
                     );
                     stringExprCodegen.doCodegen();
                     normalParamCounter++;
-                }
+                    break;
             }
 
             argsPushed++;
@@ -172,10 +172,11 @@ public class FunctionCallCodegen extends CodegenDelegatable {
                 System.exit(-1);
             }
         }
-        else if (functionSymbol instanceof FunctionSymbol funcSymbol) {
+        else if (functionSymbol instanceof FunctionSymbol) {
             // the function exists in this class
             // currently all generated methods are static in this class
 
+            var funcSymbol = (FunctionSymbol) functionSymbol;
             // first push its arguments to the stack
             pushArgumentsToStack(funcSymbol, ctx);
 

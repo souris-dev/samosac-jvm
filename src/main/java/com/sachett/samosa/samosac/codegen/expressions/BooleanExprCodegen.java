@@ -240,23 +240,23 @@ public class BooleanExprCodegen extends SamosaBaseVisitor<Void> implements IExpr
 
         // These are the types for which we support the comp ops for now
         switch(exprType) {
-            case INT -> {
+            case INT:
                 IntExprCodegen intExprCodegen = new IntExprCodegen(ctx.expr(0), symbolTable, functionGenerationContext, className, packageName);
                 intExprCodegen.doCodegen();
                 intExprCodegen.setExprContext(ctx.expr(1));
                 intExprCodegen.doCodegen();
-            }
-            case STRING -> {
+                break;
+            case STRING:
                 StringExprCodegen stringExprCodegen = new StringExprCodegen(ctx.expr(0), symbolTable, functionGenerationContext, className, packageName);
                 stringExprCodegen.doCodegen();
                 stringExprCodegen.setExprContext(ctx.expr(1));
                 stringExprCodegen.doCodegen();
-            }
-            case BOOL -> {
+                break;
+            case BOOL:
                 BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(null, symbolTable, functionGenerationContext, className, packageName);
                 booleanExprCodegen.doSpecialCodegen(ctx.expr(0));
                 booleanExprCodegen.doSpecialCodegen(ctx.expr(1));
-            }
+                break;
         }
 
         Label labelToJump = new Label();
@@ -272,25 +272,27 @@ public class BooleanExprCodegen extends SamosaBaseVisitor<Void> implements IExpr
 
         if (theCompOp.COMP() != null) {
             switch (exprType) {
-                case INT, BOOL -> {
+                case INT:
+                case BOOL:
                     int opcode = Opcodes.IF_ICMPEQ;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
                     functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
-                }
-                case STRING -> {
-                    int opcode = Opcodes.IF_ACMPEQ;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+                    break;
+                case STRING:
+                    opcode = Opcodes.IF_ACMPEQ;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
                     functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
-                }
+                    break;
             }
         } else if (theCompOp.COMPNOTEQ() != null) {
             switch (exprType) {
-                case INT, BOOL -> {
+                case INT:
+                case BOOL:
                     int opcode = Opcodes.IF_ICMPNE;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
                     functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
-                }
-                case STRING -> {
-                    int opcode = Opcodes.IF_ACMPNE;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
+                    break;
+                case STRING:
+                    opcode = Opcodes.IF_ACMPNE;//this.jumpToFalseLabel ? Opcodes.IF_ICMPNE : Opcodes.IF_ICMPEQ;
                     functionGenerationContext.getMv().visitJumpInsn(opcode, labelToJump);
-                }
+                    break;
             }
         } else {
             err("[Error] Unknown relational operator.");

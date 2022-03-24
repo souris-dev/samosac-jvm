@@ -93,14 +93,15 @@ public class CodegenCommons extends SamosaBaseVisitor<Void> {
 
         // Do codegen of RHS
         switch (lookupInfo.getFirst().getSymbolType()) {
-            case INT -> {
+            case INT:
                 type = Type.INT_TYPE;
                 storeInstruction = Opcodes.ISTORE;
                 IntExprCodegen intCodegen = new IntExprCodegen(
                         ctx.expr(), symbolTable, functionGenerationContext, className, packageName);
                 intCodegen.doCodegen();
-            }
-            case BOOL -> {
+                break;
+
+            case BOOL:
                 // This is the case when either of these occurs:
                 // aBoolVar = () -> aFunctionReturningBool.
                 // or,
@@ -110,14 +111,16 @@ public class CodegenCommons extends SamosaBaseVisitor<Void> {
                 BooleanExprCodegen boolCodegen = new BooleanExprCodegen(
                         null, symbolTable, functionGenerationContext, className, packageName);
                 boolCodegen.doSpecialCodegen(ctx.expr());
-            }
-            case STRING -> {
+                break;
+
+            case STRING:
                 type = Type.getType(String.class);
                 StringExprCodegen stringExprCodegen = new StringExprCodegen(
                         ctx.expr(), symbolTable, functionGenerationContext, className, packageName);
                 stringExprCodegen.doCodegen();
-            }
-            default -> err("[Error] Wrong assignment (bad type on LHS).");
+                break;
+            default:
+                err("[Error] Wrong assignment (bad type on LHS).");
         }
 
         // Store the value generated into the variable
