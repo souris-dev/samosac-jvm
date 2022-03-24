@@ -1,4 +1,4 @@
-<SLANG>
+<SAMOSA>
 
 /* Imports these classes */
 
@@ -109,4 +109,4 @@ bro, res: int = (initCounter + 11 + ((initCounter, ball) -> mana), ball) -> mana
 /* Function call statement */
 (res, ball) -> mana.
 
-</SLANG>
+</SAMOSA>
