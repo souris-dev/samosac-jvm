@@ -209,8 +209,9 @@
         </dependency>
     </dependencies>
     <properties>
-        <maven.compiler.source>12</maven.compiler.source>
-        <maven.compiler.target>12</maven.compiler.target>
+        <java.version>12</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <kotlin.version>1.6.10</kotlin.version>
     </properties>
 </project>
