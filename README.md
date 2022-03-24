@@ -56,7 +56,7 @@ For example:
 (Note: in the example above, we are making a function call to `putout`, a built-in function. That line is equivalent to `System.out.println("Hello World!")` in Java.)
 
 <h3>Comments</h3>
-Comments in samosa can span multiple lines. They start with `/*` and end with `*/`.
+Comments in samosa can span multiple lines. They start with <code>&#47;&#42;</code> and end with <code>&#42;/</code>.
 Example:
 
 ```
