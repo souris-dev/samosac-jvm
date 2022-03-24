@@ -3,55 +3,39 @@
 
 Sample program (this is just an arbitrary program):
 ```
-<SAMOSA>
+<samosa>
 
-\\* This is a comment *\\
-
-\\* Variable declarations and definitions: *\\
-bro, initCounter: int = 5.
-bro, lol: string = "Result is: ".
-bro, someBoolVal: boolie = false || true.
-bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).
-
-\\* Function definition *\\
-action main(var1: int, var2: string): int {
-    bro, sum: int = 1 + 3 * 6.
-
-    \\* Loop *\\
-    while ((var1 < 4) and (var1 > 10 + 4)) {
-        sum = sum + 1.
-    }
-
-    if (var2 == "lol") {
-        sum = 0.
-
-        if (var1 > 3) {
-            sum = 3 + 4.
-            return sum.
-        }
-        else if (var1 < 2) {
-            sum = 4 + 0.
-        }
-        else {
-            return sum.
-        }
-    }
-    else if (var2 == "big lol") {
-        sum = 1.
-        return 5.
-    }
-    else {
-        sum = 10.
-    }
-    
-    return sum.
+needs {
+    java::lang::System
 }
 
-\\* Function call expression *\\
-bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main.
+let khana(stringArg: string) {
+    (stringArg) -> putout.
+}
 
-\\* Function call statement *\\
-(res, lol) -> main.
+bro, wasCalled = 0.
 
-</SAMOSA>
+let mana(var1: int, var2: string): int {
+    wasCalled = wasCalled + 1.
+    
+    if (var1 == 0) {
+        ("base case") -> putout.
+        ("returning wasCalled as: " + (wasCalled) -> itos) -> putout.
+        return wasCalled.
+    }
+
+    (var2) -> putout.
+    
+    /* Supports recursion. Yay? */
+    return (var1 - 1, var2) -> mana.
+}
+
+bro, num: int = (() -> putinString) -> stoi.
+bro, result: int = 50 + (num, "gogo") -> mana.
+
+("Result: " + (result) -> itos) -> putout.
+("wasCalled: " + (wasCalled) -> itos + " times") -> putout.
+("Hello world!") -> putout.
+
+</samosa>
 ```
