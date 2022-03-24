@@ -605,6 +605,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         }
 
         val functionSymbol = FunctionSymbol(idName, definedLineNum, paramList, funcRetType)
+        symbolTable.insert(idName, functionSymbol)
         val visitFunctionInside = super.visitExplicitRetTypeFuncDef(ctx)
         val functionReturnsChecker = FunctionReturnsChecker(symbolTable, functionSymbol)
         val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
@@ -625,8 +626,6 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                 definedLineNum
             )
         }
-
-        symbolTable.insert(idName, functionSymbol)
 
         return visitFunctionInside
     }

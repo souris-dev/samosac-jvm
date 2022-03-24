@@ -8,19 +8,22 @@ let khana(stringArg: string) {
     (stringArg) -> putout.
 }
 
+bro, wasCalled = 0.
+
 let mana(var1: int, var2: string): int {
+    wasCalled = wasCalled + 1.
     if (var1 == 0) {
-        return 0.
+        ("base case") -> putout.
+        return 4.
     }
-    (var1) -> putout.
-    (var2) -> khana.
-    return 0.
+
+    (var2) -> putout.
+    return (var1 - 1, var2) -> mana.
 }
 
 bro, num: int = (() -> putinString) -> stoi.
-((num) -> itos) -> khana.
-bro, msg: string = () -> putinString.
-bro, result: int = 50 + (num, msg) -> mana.
-(result) -> putout.
+bro, result: int = 50 + (num, "gogo") -> mana.
+("Result: " + (result) -> itos) -> putout.
+("wasCalled: " + (wasCalled) -> itos + " times") -> putout.
 ("Hello world!") -> putout.
 </SLANG>
