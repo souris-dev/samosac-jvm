@@ -101,6 +101,10 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         println("Visiting block...")
         symbolTable.incrementScope()
         val blockVisit = super.visitBlock(ctx)
+
+        val blockStart = Pair(ctx!!.start.line, ctx.start.charPositionInLine)
+        symbolTable.registerBlockInCurrentCoordinates(blockStart)
+
         symbolTable.decrementScope()
         return blockVisit
     }
@@ -522,10 +526,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
         val existingSymbol = symbolTable.lookup(idName)
+        val isBuiltin = symbolTable.lookupBuiltinFunction(idName, null);
 
         if (existingSymbol != null) {
             fmtfatalerr(
                 "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                definedLineNum
+            )
+        }
+
+        if (isBuiltin != null) {
+            fmtfatalerr(
+                "$idName is a built-in function. You do not have the power to redefine it. Sad.",
                 definedLineNum
             )
         }
@@ -564,10 +576,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val definedLineNum = ctx.IDENTIFIER().symbol.line
 
         val existingSymbol = symbolTable.lookup(idName)
+        val isBuiltin = symbolTable.lookupBuiltinFunction(idName, null);
 
         if (existingSymbol != null) {
             fmtfatalerr(
                 "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                definedLineNum
+            )
+        }
+
+        if (isBuiltin != null) {
+            fmtfatalerr(
+                "$idName is a built-in function. You do not have the power to redefine it. Sad.",
                 definedLineNum
             )
         }
@@ -585,6 +605,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         }
 
         val functionSymbol = FunctionSymbol(idName, definedLineNum, paramList, funcRetType)
+        symbolTable.insert(idName, functionSymbol)
         val visitFunctionInside = super.visitExplicitRetTypeFuncDef(ctx)
         val functionReturnsChecker = FunctionReturnsChecker(symbolTable, functionSymbol)
         val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
@@ -605,8 +626,6 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
                 definedLineNum
             )
         }
-
-        symbolTable.insert(idName, functionSymbol)
 
         return visitFunctionInside
     }
@@ -674,5 +693,10 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SlangBaseVisito
         val errorNode = node as ErrorNodeImpl
         val lineNumber = errorNode.symbol.line
         fmtfatalerr("Syntax error at '${errorNode.text}'", lineNumber)
+    }
+
+    override fun visitNeedsStmt(ctx: SlangParser.NeedsStmtContext?): Void? {
+        println("[Warning, Line ${ctx!!.start.line}] Needs statement is not yet supported. Will be coming soon!") // warning log
+        return super.visitNeedsStmt(ctx)
     }
 }

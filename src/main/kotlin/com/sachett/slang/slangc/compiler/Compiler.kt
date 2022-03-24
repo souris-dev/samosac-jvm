@@ -9,7 +9,7 @@ import com.sachett.slang.slangc.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
-import kotlinx.coroutines.*;
+import kotlinx.coroutines.*
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {

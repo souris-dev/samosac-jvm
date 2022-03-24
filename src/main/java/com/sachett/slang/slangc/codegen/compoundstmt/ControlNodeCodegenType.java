@@ -1,4 +1,5 @@
 package com.sachett.slang.slangc.codegen.compoundstmt;
 
-public class IfStmtCodeGen {
+public enum ControlNodeCodegenType {
+    IF, WHILE
 }

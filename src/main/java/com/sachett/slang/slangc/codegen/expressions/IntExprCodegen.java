@@ -2,33 +2,38 @@ package com.sachett.slang.slangc.codegen.expressions;
 
 import com.sachett.slang.parser.SlangBaseVisitor;
 import com.sachett.slang.parser.SlangParser;
-import com.sachett.slang.slangc.codegen.function.FunctionCodeGen;
+import com.sachett.slang.slangc.codegen.function.FunctionCallCodegen;
+import com.sachett.slang.slangc.codegen.function.FunctionGenerationContext;
 import com.sachett.slang.slangc.symbol.SymbolType;
 import com.sachett.slang.slangc.symbol.symboltable.SymbolTable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeGen {
+public class IntExprCodegen extends SlangBaseVisitor<Void> implements IExprCodegen {
     private SlangParser.ExprContext exprContext;
-    private final FunctionCodeGen functionCodeGen;
+    private final FunctionGenerationContext functionGenerationContext;
     private final SymbolTable symbolTable;
     private final String qualifiedClassName;
+    private final String className;
+    private final String packageName;
 
-    public IntExprCodeGen(
+    public IntExprCodegen(
             SlangParser.ExprContext exprContext,
             SymbolTable symbolTable,
-            FunctionCodeGen functionCodeGen,
+            FunctionGenerationContext functionGenerationContext,
             String className,
             String packageName
     ) {
         this.exprContext = exprContext;
-        this.functionCodeGen = functionCodeGen;
+        this.functionGenerationContext = functionGenerationContext;
         this.symbolTable = symbolTable;
         this.qualifiedClassName = packageName.replace(".", "/") + className;
+        this.className = className;
+        this.packageName = packageName;
     }
 
     @Override
-    public void doCodeGen() {
+    public void doCodegen() {
         visit(exprContext);
     }
 
@@ -39,7 +44,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     @Override
     public Void visitExprDecint(SlangParser.ExprDecintContext ctx) {
         int number = Integer.parseInt(ctx.DECINT().getText());
-        functionCodeGen.getMv().visitLdcInsn(number);
+        functionGenerationContext.getMv().visitLdcInsn(number);
         return null;
     }
 
@@ -53,7 +58,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     public Void visitExprPlus(SlangParser.ExprPlusContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IADD);
+        functionGenerationContext.getMv().visitInsn(Opcodes.IADD);
         return null;
     }
 
@@ -61,7 +66,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     public Void visitExprMinus(SlangParser.ExprMinusContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.ISUB);
+        functionGenerationContext.getMv().visitInsn(Opcodes.ISUB);
         return null;
     }
 
@@ -69,7 +74,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     public Void visitExprMultiply(SlangParser.ExprMultiplyContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IMUL);
+        functionGenerationContext.getMv().visitInsn(Opcodes.IMUL);
         return null;
     }
 
@@ -77,7 +82,7 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     public Void visitExprDivide(SlangParser.ExprDivideContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IDIV);
+        functionGenerationContext.getMv().visitInsn(Opcodes.IDIV);
         return null;
     }
 
@@ -85,35 +90,39 @@ public class IntExprCodeGen extends SlangBaseVisitor<Void> implements IExprCodeG
     public Void visitExprModulo(SlangParser.ExprModuloContext ctx) {
         visit(ctx.expr(0)); // visit left operand
         visit(ctx.expr(1)); // visit right operand
-        functionCodeGen.getMv().visitInsn(Opcodes.IREM);
+        functionGenerationContext.getMv().visitInsn(Opcodes.IREM);
         return null;
     }
 
     @Override
     public Void visitUnaryMinus(SlangParser.UnaryMinusContext ctx) {
         visit(ctx.expr());
-        functionCodeGen.getMv().visitInsn(Opcodes.INEG);
+        functionGenerationContext.getMv().visitInsn(Opcodes.INEG);
         return null;
     }
 
     @Override
     public Void visitExprIdentifier(SlangParser.ExprIdentifierContext ctx) {
         String idName = ctx.IDENTIFIER().getText();
-        doIdentifierCodegen(idName, symbolTable, Type.INT_TYPE, functionCodeGen, qualifiedClassName, Opcodes.ILOAD);
+        doIdentifierCodegen(idName, symbolTable, Type.INT_TYPE, functionGenerationContext, qualifiedClassName, Opcodes.ILOAD);
         return null;
     }
 
     @Override
     public Void visitFunctionCallWithArgs(SlangParser.FunctionCallWithArgsContext ctx) {
-        // TODO: This is a DUMMY, to be implemented
-        functionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doWithArgFunctionCallCodegen(ctx, false); // do not discard result
         return null;
     }
 
     @Override
     public Void visitFunctionCallNoArgs(SlangParser.FunctionCallNoArgsContext ctx) {
-        // TODO: This is a DUMMY, to be implemented
-        functionCodeGen.getMv().visitLdcInsn(SymbolType.INT.getDefaultValue());
+        FunctionCallCodegen functionCallCodegen = new FunctionCallCodegen(
+                symbolTable, className, functionGenerationContext, className, packageName
+        );
+        functionCallCodegen.doNoArgFunctionCallCodegen(ctx, false); // do not discard result
         return null;
     }
 }

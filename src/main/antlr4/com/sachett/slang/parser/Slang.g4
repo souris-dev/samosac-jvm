@@ -58,6 +58,7 @@ BINNOT: '!';
 RIGHTARROW: '->';
 TILDE: '~';
 COLON: ':';
+DOUBLEDOT: '..';
 STATEMENTEND: '.';
 WHILE: 'while';
 RETURN: 'return';
@@ -69,8 +70,8 @@ VOIDTYPE: 'void';
 NULLVALUE: 'null';
 
 IMPORT: 'needs';
-BREAK: 'breakout';
-CONTINUE: 'continue';
+BREAK: 'yamete_kudasai';
+CONTINUE: 'thanku_next';
 
 DECINT: [0-9]+;
 IDENTIFIER: ([_a-zA-Z][_a-zA-Z0-9]+ | [_a-zA-Z]);
@@ -88,10 +89,10 @@ OTHER: .;
 
 program: EOF
         | PROGSTART PROGEND
-        | PROGSTART (useStmt)? statements PROGEND
-        | (useStmt)? statements EOF;
+        | PROGSTART (needsStmt)? statements PROGEND
+        | (needsStmt)? statements EOF;
 
-useStmt: IMPORT LCURLYBR (classToImport+=qualifiedClassIdentifier COMMA)*
+needsStmt: IMPORT LCURLYBR (classToImport+=qualifiedClassIdentifier COMMA)*
             (classToImport+=qualifiedClassIdentifier)? RCURLYBR;
 
 qualifiedClassIdentifier: (IDENTIFIER COLON COLON)*? IDENTIFIER
@@ -144,7 +145,7 @@ booleanExpr: LOGICALNOT booleanExpr #booleanExprNot
            | booleanExpr LOGICALAND booleanExpr #booleanExprAnd
            | booleanExpr LOGICALXOR booleanExpr #booleanExprXor
            | expr relOp expr #booleanExprRelOp
-           | expr compOp expr #booleanExprCompOp
+           | expr compOp expr #booleanExprCompOp // TODO: add rule booleanExpr compOp booleanExpr
            | LPAREN booleanExpr RPAREN #booleanExprParen
            | IDENTIFIER #booleanExprIdentifier
            | TRUE #booleanTrue
@@ -172,4 +173,8 @@ callArgList: (callParams+=expr COMMA)* (booleanCallParams+=booleanExpr COMMA)*
                 (callParams+=expr COMMA)* (booleanCallParams+=booleanExpr COMMA)*
                     (callParams+=expr | booleanCallParams+=booleanExpr)?;
 functionCall: LPAREN RPAREN RIGHTARROW IDENTIFIER #functionCallNoArgs
-            | LPAREN callArgList RPAREN RIGHTARROW IDENTIFIER #functionCallWithArgs;
+            | LPAREN callArgList RPAREN RIGHTARROW IDENTIFIER #functionCallWithArgs
+            | LPAREN RPAREN RIGHTARROW qualifiedIdentifier #qualifiedFunctionCallNoArgs
+            | LPAREN callArgList RPAREN RIGHTARROW qualifiedIdentifier #qualifiedFunctionCallWithArgs;
+
+qualifiedIdentifier: idList+=IDENTIFIER (DOUBLEDOT idList+=IDENTIFIER)+;

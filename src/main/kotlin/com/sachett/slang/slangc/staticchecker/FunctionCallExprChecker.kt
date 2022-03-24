@@ -1,5 +1,6 @@
 package com.sachett.slang.slangc.staticchecker
 
+import com.sachett.slang.builtins.Builtins
 import com.sachett.slang.logging.Severity
 import com.sachett.slang.logging.err
 import com.sachett.slang.logging.fmterror
@@ -27,27 +28,69 @@ class FunctionCallExprChecker {
         ): SymbolType {
             val funcIdName = ctx?.IDENTIFIER()?.text
             val lineNumber = ctx?.IDENTIFIER()?.symbol?.line
-            val symbol = symbolTable.lookup(funcIdName!!) ?:
-                err("[Error, Line ${lineNumber}] Unknown identifier ${funcIdName}.")
+            var symbol = symbolTable.lookup(funcIdName!!)
+            var isBuiltin: Boolean = false
 
-            if (!symbol.isSymbolType(SymbolType.FUNCTION)) {
-                err("[Error, Line ${lineNumber}] Cannot call $funcIdName as a function. " +
-                        "It is not a function but rather an identifier of " +
-                        "type ${symbol.symbolType.asString}.")
+            var builtinFuncSymbolOverloads: List<FunctionSymbol>? = null
+
+            // Check if it is a built-in
+            if (symbol == null) {
+                symbol = symbolTable.lookupBuiltinFunction(funcIdName, null)?.first
+
+                if (symbol == null) {
+                    err("[Error, Line ${lineNumber}] Unknown identifier ${funcIdName}.")
+                }
+                else {
+                    isBuiltin = true
+                    builtinFuncSymbolOverloads = symbolTable
+                        .lookupBuiltinFunctionAllOverloads(funcIdName)
+                        ?.map { it.first }
+                }
             }
 
-            val functionSymbol = symbol as FunctionSymbol
-            val calledParamsOk = isCalledParamListHavingValidTypes(ctx, functionSymbol, symbolTable)
+            if (!isBuiltin) {
+                if (!symbol.isSymbolType(SymbolType.FUNCTION)) {
+                    err("[Error, Line ${lineNumber}] Cannot call $funcIdName as a function. " +
+                            "It is not a function but rather an identifier of " +
+                            "type ${symbol.symbolType.asString}.")
+                }
 
-            if (!calledParamsOk) {
-                // passed arguments did not pass type check
+                val functionSymbol = symbol as FunctionSymbol
+                val calledParamsOk = isCalledParamListHavingValidTypes(ctx, functionSymbol, symbolTable)
 
-                err("[Error, Line ${lineNumber}] Bad arguments passed to function in call to ${funcIdName}. " +
-                        "(There is probably additional detail above this message.)")
+                if (!calledParamsOk) {
+                    // passed arguments did not pass type check
+
+                    err("[Error, Line ${lineNumber}] Bad arguments passed to function in call to ${funcIdName}. " +
+                            "(There is probably additional detail above this message.)")
+                }
+                // if all okay, return the function symbol's return type
+                return functionSymbol.returnType
             }
+            else {
+                // generate the descriptor from the ctx
+                val expectedDescriptor = Builtins.Functions.Utils.ctxToDescriptor(ctx, symbolTable)
+                val functionSymbol = symbolTable.lookupBuiltinFunctionMatchingOverload(funcIdName, expectedDescriptor)
 
-            // if all okay, return the function symbol's return type
-            return functionSymbol.returnType
+                if (functionSymbol == null) {
+                    var expectedArgs = ""
+                    var count = 1
+                    for (overload in builtinFuncSymbolOverloads!!) {
+                        expectedArgs += "$count. ("
+                        overload.paramList.forEach {
+                            expectedArgs += it.symbolType.asString + ", "
+                        }
+                        expectedArgs = expectedArgs.trimEnd(' ', ',')
+                        expectedArgs += ")\n"
+                        count++
+                    }
+
+                    err("[Error, Line ${lineNumber}] Bad arguments passed to function in call to ${funcIdName}. " +
+                            "Use one of the following overloads: \n$expectedArgs")
+                }
+
+                return functionSymbol.first.returnType // as same return type for all overloads
+            }
         }
 
         /**
@@ -64,19 +107,40 @@ class FunctionCallExprChecker {
         ): SymbolType {
             val funcIdName = ctx?.IDENTIFIER()?.text
             val lineNumber = ctx?.IDENTIFIER()?.symbol?.line
-            val symbol = symbolTable.lookup(funcIdName!!) ?:
-                err("[Error, Line ${lineNumber}] Unknown identifier ${funcIdName}.")
+            var symbol = symbolTable.lookup(funcIdName!!)
+            var isBuiltin: Boolean = false
 
-            if (!symbol.isSymbolType(SymbolType.FUNCTION)) {
-                err("[Error, Line ${lineNumber}] Cannot call $funcIdName as a function. " +
-                        "It is not a function but rather an identifier of type " +
-                        "${symbol.symbolType.asString}.")
+            // Check if it is a built-in
+            if (symbol == null) {
+                symbol = symbolTable.lookupBuiltinFunction(funcIdName, null)?.first
+
+                if (symbol == null) {
+                    err("[Error, Line ${lineNumber}] Unknown identifier ${funcIdName}.")
+                }
+                else {
+                    isBuiltin = true
+                }
             }
 
-            val functionSymbol = symbol as FunctionSymbol
+            if (!isBuiltin) {
+                if (!symbol.isSymbolType(SymbolType.FUNCTION)) {
+                    err("[Error, Line ${lineNumber}] Cannot call $funcIdName as a function. " +
+                            "It is not a function but rather an identifier of " +
+                            "type ${symbol.symbolType.asString}.")
+                }
 
-            // if all okay, return the function symbol's return type
-            return functionSymbol.returnType
+                val functionSymbol = symbol as FunctionSymbol
+                return functionSymbol.returnType
+            }
+            else {
+                val expectedDescriptor = "()"
+                val functionSymbol = symbolTable.lookupBuiltinFunctionMatchingOverload(
+                    funcIdName, expectedDescriptor
+                ) ?: err("[Error, Line ${lineNumber}] Bad arguments passed to function in call to ${funcIdName}. " +
+                            "Expected no arguments.")
+
+                return functionSymbol.first.returnType
+            }
         }
 
         /**

@@ -13,33 +13,39 @@ import java.util.HashMap;
 import com.sachett.slang.logging.LoggingUtilsKt;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-public class FunctionCodeGen {
+public class FunctionGenerationContext {
     private final MethodVisitor methodVisitor;
     private final LocalVariablesSorter localVariablesSorter;
     private final AnalyzerAdapter analyzerAdapter;
     HashMap<String, Integer> localVariableIndex = new HashMap<>();
 
-    public FunctionCodeGen(
+    /**
+     * Indicates if the function needs a RETURN instruction (with no expression)
+     * at the end of the function visit.
+     */
+    private boolean needsNoExprReturn = false;
+
+    public FunctionGenerationContext(
             ClassWriter classWriter,
             int access, String name, String descriptor,
             String signature, String[] exceptions
     ) {
         this.methodVisitor = classWriter.visitMethod(access, name, descriptor, signature, exceptions);
         analyzerAdapter = new AnalyzerAdapter(
-                FunctionCodeGen.class.getName(),
+                FunctionGenerationContext.class.getName(),
                 access, name, descriptor, this.methodVisitor
         );
         localVariablesSorter = new LocalVariablesSorter(access, descriptor, analyzerAdapter);
     }
 
-    public FunctionCodeGen(
+    public FunctionGenerationContext(
             TraceClassVisitor classWriter,
             int access, String name, String descriptor,
             String signature, String[] exceptions
     ) {
         this.methodVisitor = classWriter.visitMethod(access, name, descriptor, signature, exceptions);
         analyzerAdapter = new AnalyzerAdapter(
-                FunctionCodeGen.class.getName(),
+                FunctionGenerationContext.class.getName(),
                 access, name, descriptor, this.methodVisitor
         );
         localVariablesSorter = new LocalVariablesSorter(access, descriptor, this.methodVisitor);
@@ -139,5 +145,13 @@ public class FunctionCodeGen {
             LoggingUtilsKt.err("Internal error: Invalid local variable demanded.");
             throw new RuntimeException();
         }
+    }
+
+    public void setNeedsNoExprReturn(boolean needsNoExprReturn) {
+        this.needsNoExprReturn = needsNoExprReturn;
+    }
+
+    public boolean getNeedsNoExprReturn() {
+        return this.needsNoExprReturn;
     }
 }

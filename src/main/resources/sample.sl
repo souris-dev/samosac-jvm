@@ -7,7 +7,7 @@ needs {
         Scanner,
         ArrayList
     },
-    java::lang::Parser,
+    java::lang::System,
 }
 
 /* This is a comment */
@@ -44,7 +44,7 @@ else {
 
 while (somethingA < 5) {
     if (relOpValue) {
-        breakout.
+        yamete_kudasai.
     }
 
     somethingA = somethingA + 1.
@@ -65,13 +65,14 @@ let mana (var1: int, var2: string): int {
     /* Loop */
     while ((var1 < 4) and (var1 > 10 + 4)) {
         sum = sum + 1.
+        bro, g: int = 19.
 
         if (sum > 10) {
-            breakout.
+            yamete_kudasai.
         }
 
         if (sum > 3) {
-            continue.
+            thanku_next.
         }
 
         sum = sum + 1.
@@ -96,7 +97,7 @@ let mana (var1: int, var2: string): int {
         return 5.
     }
     else {
-        sum = 10.
+        sum = 17.
     }
 
     return sum.
