@@ -2,7 +2,7 @@
   <configuration default="false" name="Compiler - no compile" type="JetRunConfigurationType">
     <option name="MAIN_CLASS_NAME" value="com.sachett.samosa.samosac.compiler.CompilerKt" />
     <module name="samosac_java" />
-    <option name="PROGRAM_PARAMETERS" value="./src/main/resources/sample.sl" />
+    <option name="PROGRAM_PARAMETERS" value="./src/main/resources/sample.samo" />
     <shortenClasspath name="NONE" />
     <method v="2" />
   </configuration>
