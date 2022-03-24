@@ -44,8 +44,8 @@ As samosa is still in its first release, it has limited features. More features 
 <br>
 
 <h3>Starting a program</h3>
-Any samosa program must start with `<samosa>` and end with `</samosa>`.
-<br>Note that statements in samosa end with a period (`.`).
+Any samosa program must start with <code>&lt;samosa&gt;</code> and end with <code>&lt;&#47;samosa&gt;</code>.
+<br>Note that statements in samosa end with a period (<code>.</code>).
 For example:
 
 ```
@@ -53,7 +53,7 @@ For example:
 ("Hello World!") -> putout.
 </samosa>
 ```
-(Note: in the example above, we are making a function call to `putout`, a built-in function. That line is equivalent to `System.out.println("Hello World!")` in Java.)
+(Note: in the example above, we are making a function call to <code>putout</code>, a built-in function. That line is equivalent to `System.out.println("Hello World!")` in Java.)
 
 <h3>Comments</h3>
 Comments in samosa can span multiple lines. They start with <code>&#47;&#42;</code> and end with <code>&#42;/</code>.
@@ -67,8 +67,8 @@ Example:
 ```
 
 <h3>Variables</h3>
-Variables are declared with the keyword `bro, ` (yes, the comma is necessary :-)).
-Currently, variables can be only of three types: `int` (for integers), `string` (for strings), or `boolie` (for boolean values).
+Variables are declared with the keyword <code>bro, </code> (yes, the comma is necessary :-)).
+Currently, variables can be only of three types: <code>int</code> (for integers), <code>string</code> (for strings), or <code>boolie</code> (for boolean values).
 
 Some examples of declaration and initialization:
 
@@ -137,7 +137,7 @@ In boolean expressions:
 </ul>
 
 <h3>Conditional statements</h3>
-Samosa supports `if` statements (and if-else if-else ladders). The syntax for `if` statements in samosa is similar to that found in many other languages:
+Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages:
 An example:
 
 ```
@@ -187,7 +187,7 @@ Yep, samosa also supports functions!
 <br><br>
 
 <h4>Defining a function</h4>
-A function in samosa is defined using the keyword `let`.
+A function in samosa is defined using the keyword <code>let</code>.
 A function may declare some formal parameters, and can either return no value or return a value of a supported type (varargs are not yet supported).
 
 Some examples:
