@@ -16,6 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Provides support for builtin functions and variables.
@@ -54,7 +55,8 @@ public class Builtins {
 
                 var paramNamesAnnotation = method.getAnnotationsByType(Functions.SamosaBuiltinFuncOverload.class);
                 var paramNames = Arrays.stream(paramNamesAnnotation)
-                        .filter((annotation) -> annotation.descriptorString().equals(descriptorString)).toList().get(0).paramNames();
+                        .filter((annotation) -> annotation.descriptorString().equals(descriptorString))
+                        .collect(Collectors.toList()).get(0).paramNames();
                 int strPos = 0;
                 int paramNamesCount = 0;
 
