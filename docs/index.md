@@ -8,12 +8,12 @@
 <h2 align="center">Installation</h2>
 There are some alternatives for installing samosa. <i>This section will be updated soon with the other alternatives.</i>
 <h3>Building from source</h3>
-<b>Note: Ensure that you have > JDK 12 installed (the project was developed on JDK 17).</b>
+<b>Note: Ensure that you have >= JDK 11 installed (the project was developed on JDK 17).</b>
 <br><br>For now, you can download the source and build it using maven.
 Easier installation methods will be provided soon.
 
 <h2 align="center">Usage</h2>
-<b>Note: Ensure that you have the JRE installed before starting this section.</b><br>
+<b>Note: Ensure that you have the JRE (minimum java version 11) installed before starting this section.</b><br>
 
 <h3>Compilation</h3>
 Type your samosa program in a file, and name it something (for example samosa.samo).
