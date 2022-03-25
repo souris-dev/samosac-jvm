@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Builtin Functions
+nav_order: 3
 ---
 
 # Builtin Functions
