@@ -126,7 +126,7 @@ In boolean expressions:
 </ul>
 
 <h3>Conditional statements</h3>
-Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages:
+Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages. <br>
 An example:
 
 <br><br><pre><code>&lt;samosa&gt;
