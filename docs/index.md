@@ -1,3 +1,9 @@
+---
+layout: default
+nav_order: 1
+title: Getting Started
+---
+
 # Samosa
 {: .no_toc}
 
