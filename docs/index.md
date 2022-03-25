@@ -12,7 +12,7 @@ _Note: Samosa, the programming language, is named after an Indian snack called "
 {: .no_toc .text-delta }
 
 1. TOC
-   {:toc}
+{:toc}
 
 ---
 
