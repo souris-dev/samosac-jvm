@@ -1,23 +1,33 @@
-## TODO:
+# Feature Ideas
+
+This file lists some feature ideas for the language and the compiler.
+
+### Compiler:
 
 1. Add custom error handling. (Specifically, add an override of visitErrorNode in FunctionControlPathAnalyzer 
 and something similar in StaticChecker).
 2. Improve logging format (something like gcc would be good).
+3. Make installation and usage easier.
 
-## Features that may be added:
+### Upcoming features:
+
+1. Probabilistic execution of statements, and then blocks (`idk` operator with probability).
+2. Compilation of all possible pathways. (`idk` operator with no probability).
+
+### Features that may be added later:
 
 1. An asap operator for functions that will call the function as soon as possible.
 This function can be called again later on too of course.
 For example:
     ```
-    action asap doThis() {
+    let asap doThis() {
         // do something here
     }
     ```
     The above is equivalent to doing this:
     
     ```
-    action doThis() {
+    let doThis() {
         // do something here
     }
     () -> doThis.
