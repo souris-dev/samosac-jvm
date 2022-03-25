@@ -29,7 +29,7 @@ Using the syntax: `?[<int expression>]...` at the end of a statement (after the 
 Higher the value yielded by the expression, more the chances of the statement getting executed.
 
 #### Example
-
+{: .no_toc }
 The probability can be a constant:
 ```
 <samosa>
@@ -53,7 +53,7 @@ You can specify an alternate statement to be executed if a statement does not ge
 The syntax for the same is: `<statement>. ?[<int expression>] <statement>.`
 
 #### Example
-
+{: .no_toc }
 ```
 <samosa>
 ("This line is printed 35% of times.") -> putout. ?[35] 
