@@ -8,9 +8,24 @@
 <h2 align="center">Installation</h2>
 There are some alternatives for installing samosa. <i>This section will be updated soon with the other alternatives.</i>
 <h3>Building from source</h3>
-<b>Note: Ensure that you have >= JDK 11 installed (the project was developed on JDK 17).</b>
-<br><br>For now, you can download the source and build it using maven.
-Easier installation methods will be provided soon.
+<b>Note: Ensure that you have the following installed (and in your PATH) before using the upcoming commands to build from source:</b>
+<ul>
+<li><b>git</b></li>
+<li><b>&ge; JDK 11 (the project was developed on JDK 17, but the code is compatible with java version >= 11.)</b></li>
+<li><b>Apache Maven 3.1 or higher version</b></li>
+</ul>
+<br><br>To download the source and build it using maven, run these in the terminal of your choice:
+
+<br><pre><code>git clone https://github.com/souris-dev/samosac-jvm.git
+cd samosac-jvm
+mvn compile
+</code></pre>
+
+Then, to build the compiler jar, use (from within the project directory):
+<br><pre><code>mvn package</code></pre>
+
+<br>This will create a <code>samosac-1.0-full.jar</code> in the <code>target</code> folder. This is the compiler jar.
+<br><i>Easier installation methods will be provided soon.</i>
 
 <h2 align="center">Usage</h2>
 <b>Note: Ensure that you have the JRE (minimum java version 11) installed before starting this section.</b><br>
@@ -19,10 +34,10 @@ Easier installation methods will be provided soon.
 Type your samosa program in a file, and name it something (for example samosa.samo).
 Then use the .jar file of the compiler to compile it <b>(ensure that you have java in you PATH)</b>:<br>
 <br>
-<pre><code>java -jar samosac-jvm.jar samosa.samo
+<pre><code>java -jar samosac-1.0-full.jar samosa.samo
 </code></pre>
 
-(Replace <code>samosac-jvm.jar</code> with the name of the compiler jar file, and <code>samosa.samo</code> with the name of the file you wrote your program in.)
+(Replace <code>samosac-1.0-full.jar</code> with the full path to the compiler jar file, and <code>samosa.samo</code> with the name of the file you wrote your program in.)
 
 <br><i>This section will be updated.</i>
 
