@@ -8,6 +8,5 @@ description: >
 
 version: 1.0
 
-url: 'https://souris-dev.github.io/samosac-jvm/'
-baseurl:          '/docs'
+url: 'https://souris-dev.github.io/samosac-jvm'
 remote_theme: just-the-docs/just-the-docs
