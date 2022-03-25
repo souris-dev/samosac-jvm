@@ -146,7 +146,8 @@ public class FunctionCallCodegen extends CodegenDelegatable {
         String funcName = ctx.IDENTIFIER().getText();
         ISymbol functionSymbol = symbolTable.lookupInCoordinates(funcName, new Pair<>(0, 0));
 
-        var stackSize = functionGenerationContext.getAnalyzerAdapter().stack.size();
+        var stackSize = functionGenerationContext.getAnalyzerAdapter().stack != null ?
+                functionGenerationContext.getAnalyzerAdapter().stack.size() : 0;
 
         if (functionSymbol == null) {
             // TODO: find in the imported packages
@@ -191,7 +192,8 @@ public class FunctionCallCodegen extends CodegenDelegatable {
 
         if (discardResult) {
             // pop the stack once if it has a result
-            var currentStackSize = functionGenerationContext.getAnalyzerAdapter().stack.size();
+            var currentStackSize = functionGenerationContext.getAnalyzerAdapter().stack != null ?
+                    functionGenerationContext.getAnalyzerAdapter().stack.size() : 0;
             if (currentStackSize - stackSize == 1) {
                 // one result was pushed to stack
                 // need to pop it since we are discarding the result

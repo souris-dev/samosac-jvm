@@ -15,6 +15,7 @@ import com.sachett.samosa.samosac.codegen.utils.delegation.CodegenDelegatable;
 import com.sachett.samosa.samosac.symbol.ISymbol;
 import com.sachett.samosa.samosac.symbol.symboltable.SymbolTable;
 import kotlin.Pair;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -227,5 +228,72 @@ public class CodegenCommons extends SamosaBaseVisitor<Void> {
         );
         functionCallCodegen.doWithArgFunctionCallCodegen(ctx, true); // discard result in case of a statement
         return null;
+    }
+
+    private void generateRandomNumber() {
+        functionGenerationContext.getMv().visitTypeInsn(Opcodes.NEW, "java/util/Random");
+        functionGenerationContext.getMv().visitInsn(Opcodes.DUP);
+        functionGenerationContext.getMv().visitMethodInsn(Opcodes.INVOKESPECIAL, "java/util/Random", "<init>", "()V", false);
+        functionGenerationContext.getMv().visitIntInsn(Opcodes.BIPUSH, 101);
+        functionGenerationContext.getMv().visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/Random", "nextInt", "(I)I", false);
+    }
+
+    @Override
+    public Void visitUncertainStatementSingle(SamosaParser.UncertainStatementSingleContext ctx) {
+        generateRandomNumber();
+        IntExprCodegen intExprCodegen = new IntExprCodegen(
+                ctx.expr(),
+                symbolTable,
+                functionGenerationContext,
+                className,
+                packageName
+        );
+        intExprCodegen.doCodegen();
+
+        // if the generated number is lower than or equal to the probability value given,
+        // we execute the statement, else we skip it (comparison happens at runtime)
+        Label endUncertaintyLabel = new Label();
+        functionGenerationContext.getMv().visitJumpInsn(Opcodes.IF_ICMPGT, endUncertaintyLabel);
+        parentCodegen.visit(ctx.statement());
+        functionGenerationContext.getMv().visitLabel(endUncertaintyLabel);
+
+        return null;
+    }
+
+    @Override
+    public Void visitUncertainStatementMultiple(SamosaParser.UncertainStatementMultipleContext ctx) {
+        generateRandomNumber();
+        IntExprCodegen intExprCodegen = new IntExprCodegen(
+                ctx.expr(),
+                symbolTable,
+                functionGenerationContext,
+                className,
+                packageName
+        );
+        intExprCodegen.doCodegen();
+
+        // if the generated number is lower than or equal to the probability value given,
+        // we execute the statement, else we skip it (comparison happens at runtime)
+        Label secondStmt = new Label();
+        functionGenerationContext.getMv().visitJumpInsn(Opcodes.IF_ICMPGT, secondStmt);
+        parentCodegen.visit(ctx.statement(0));
+        Label endUncertaintyLabel = new Label();
+        functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, endUncertaintyLabel);
+        functionGenerationContext.getMv().visitLabel(secondStmt);
+        parentCodegen.visit(ctx.statement(1));
+        functionGenerationContext.getMv().visitJumpInsn(Opcodes.GOTO, endUncertaintyLabel);
+        functionGenerationContext.getMv().visitLabel(endUncertaintyLabel);
+
+        return null;
+    }
+
+    @Override
+    public Void visitUncertainCompoundStmtSingle(SamosaParser.UncertainCompoundStmtSingleContext ctx) {
+        return super.visitUncertainCompoundStmtSingle(ctx);
+    }
+
+    @Override
+    public Void visitUncertainCompoundStmtMultiple(SamosaParser.UncertainCompoundStmtMultipleContext ctx) {
+        return super.visitUncertainCompoundStmtMultiple(ctx);
     }
 }

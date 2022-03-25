@@ -106,6 +106,26 @@ public class WhileStmtCodegen extends CodegenDelegatable implements IControlNode
     }
 
     @Override
+    public Void visitUncertainCompoundStmtSingle(SamosaParser.UncertainCompoundStmtSingleContext ctx) {
+        return delegatedParentCodegen.visitUncertainCompoundStmtSingle(ctx);
+    }
+
+    @Override
+    public Void visitUncertainCompoundStmtMultiple(SamosaParser.UncertainCompoundStmtMultipleContext ctx) {
+        return delegatedParentCodegen.visitUncertainCompoundStmtMultiple(ctx);
+    }
+
+    @Override
+    public Void visitUncertainStatementSingle(SamosaParser.UncertainStatementSingleContext ctx) {
+        return delegatedParentCodegen.visitUncertainStatementSingle(ctx);
+    }
+
+    @Override
+    public Void visitUncertainStatementMultiple(SamosaParser.UncertainStatementMultipleContext ctx) {
+        return delegatedParentCodegen.visitUncertainStatementMultiple(ctx);
+    }
+
+    @Override
     public Void visitFunctionCallWithArgs(SamosaParser.FunctionCallWithArgsContext ctx) {
         return delegatedParentCodegen.visitFunctionCallWithArgs(ctx);
     }

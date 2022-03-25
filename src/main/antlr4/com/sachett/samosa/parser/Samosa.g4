@@ -69,6 +69,10 @@ BOOLTYPE: 'boolie';
 VOIDTYPE: 'void';
 NULLVALUE: 'null';
 
+TRIPLEDOT: '...';
+IDK: 'idk';
+QUESTIONMARK: '?';
+
 IMPORT: 'needs';
 BREAK: 'yamete_kudasai';
 CONTINUE: 'thanku_next';
@@ -99,9 +103,11 @@ qualifiedClassIdentifier: (IDENTIFIER COLON COLON)*? IDENTIFIER
                         | (IDENTIFIER COLON COLON)+ LCURLYBR
                             (classListInPackage+=IDENTIFIER COMMA)* (classListInPackage+=IDENTIFIER)? RCURLYBR;
 
-statements: (statement | compoundStmt | funcDef | COMMENTSL | COMMENTML)+;
+statements: (statement | compoundStmt | uncertainCompoundStmt | funcDef | COMMENTSL | COMMENTML)+;
 
-statement: (declStmt | assignStmt | declAssignStmt | functionCall | returnStmt | loopcontrolStmt) STATEMENTEND;
+statement: statement QUESTIONMARK LSQBR expr RSQBR statement #uncertainStatementMultiple
+            | statement QUESTIONMARK LSQBR expr RSQBR TRIPLEDOT # uncertainStatementSingle
+            | (declStmt | assignStmt | declAssignStmt | functionCall | returnStmt | loopcontrolStmt) STATEMENTEND #regularStmt;
 
 loopcontrolStmt: BREAK #breakControlStmt
                | CONTINUE #continueControlStmt;
@@ -157,6 +163,9 @@ compOp: (COMP | COMPNOTEQ);
 relOp: (LT | GT | LTEQ | GTEQ);
 
 compoundStmt: (ifStmt | whileStmt);
+
+uncertainCompoundStmt: compoundStmt QUESTIONMARK LSQBR expr RSQBR STATEMENTEND #uncertainCompoundStmtSingle
+                        | compoundStmt QUESTIONMARK LSQBR expr RSQBR compoundStmt STATEMENTEND #uncertainCompoundStmtMultiple;
 
 funcDef: (FUNCDEF IDENTIFIER block
        | FUNCDEF IDENTIFIER LPAREN RPAREN block
