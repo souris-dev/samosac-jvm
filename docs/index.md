@@ -2,27 +2,28 @@
 <p align="center"><i>Welcome, samosa lovers!</i><br><br></p>
 <p align="left">
   <b>Samosa is a programming language written in Java and Kotlin, that runs on the JVM.</b>
-<br><br><i>Note: This programming language, "samosa", is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
+<br><br><i>Note: This programming language, "samosa", is named after an Indian snack called "samosa", and is pronounced as "some-o-saa" (the part "saa" is pronounced like the word "sour", but without the "r").</i>
 <br>
 
 <h2 align="center">Installation</h2>
 There are some alternatives for installing samosa. <i>This section will be updated soon with the other alternatives.</i>
 <h3>Building from source</h3>
 <b>Note: Ensure that you have the following installed (and in your PATH) before using the upcoming commands to build from source:</b>
+<br>
 <ul>
 <li><b>git</b></li>
 <li><b>&ge; JDK 11 (the project was developed on JDK 17, but the code is compatible with java version >= 11.)</b></li>
 <li><b>Apache Maven 3.1 or higher version</b></li>
 </ul>
-<br><br>To download the source and build it using maven, run these in the terminal of your choice:
-
+<br>To download the source and build it using maven, run these in the terminal of your choice:
+<br>
 <br><pre><code>git clone https://github.com/souris-dev/samosac-jvm.git
 cd samosac-jvm
 mvn compile
 </code></pre>
 
 Then, to build the compiler jar, use (from within the project directory):
-<br><pre><code>mvn package</code></pre>
+<br><br><pre><code>mvn package</code></pre>
 
 <br>This will create a <code>samosac-1.0-full.jar</code> in the <code>target</code> folder. This is the compiler jar.
 <br><i>Easier installation methods will be provided soon.</i>
@@ -43,14 +44,13 @@ Then use the .jar file of the compiler to compile it <b>(ensure that you have ja
 
 <h3>Running the program</h3>
 
-As samosa compiles to JVM bytecode, a `.class` is generated, named as per your filename.
-So for the above example, a file named `SamosaSamo.class` would be created in the `./out` directory.
+As samosa compiles to JVM bytecode, a <code>.class</code> is generated, named as per your filename.
+So for the above example, a file named <code>SamosaSamo.class</code> would be created in the <code>.&#47;out</code> directory.
 <br><br>To run it, do this <b>(ensure that you have java in your PATH)</b>:
-
-```
-cd out
-java SamosaSamo
-```
+<br><br>
+<pre><code>cd out
+java SamosaSamo</code>
+</pre>
 
 <h2 align="center">Syntax</h2>
 
@@ -62,23 +62,20 @@ Any samosa program must start with <code>&lt;samosa&gt;</code> and end with <cod
 <br>Note that statements in samosa end with a period (<code>.</code>).
 For example:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 ("Hello World!") -> putout.
-</samosa>
-```
-(Note: in the example above, we are making a function call to <code>putout</code>, a built-in function. That line is equivalent to `System.out.println("Hello World!")` in Java.)
+&lt;&#47;samosa&gt;
+</code></pre>
+(Note: in the example above, we are making a function call to <code>putout</code>, a built-in function. That line is equivalent to <code>System.out.println("Hello World!")</code> in Java.)
 
 <h3>Comments</h3>
 Comments in samosa can span multiple lines. They start with <code>&#47;&#42;</code> and end with <code>&#42;/</code>.
 Example:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 /* This line is a comment and will not be executed. */
 ("This line is executed.") -> putout.
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 <h3>Variables</h3>
 Variables are declared with the keyword <code>bro,</code> &nbsp;(yes, the comma is necessary :-)).
@@ -86,8 +83,7 @@ Currently, variables can be only of three types: <code>int</code> (for integers)
 
 Some examples of declaration and initialization:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 bro, i: int = 0.
 bro, str: string = "hello!".
 bro, aBoolVal: boolie = true.
@@ -96,24 +92,23 @@ bro, aBoolVal: boolie = true.
 bro, j: int.
 bro, str2: string.
 bro, boolieVal: boolie.
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 If a variable is only declared, the variable is assigned the default value for that type:
-1. for `int`, the default value is 57005 (in hex, `0xDEAD`).
-2. for `string`, the default value is `lawl`.
-3. for `boolie`, the default value is `true`.
+<ul>
+<li>for <code>int</code>, the default value is 57005 (in hex, <code>0xDEAD</code>).</li>
+<li>for <code>string</code>, the default value is <code>lawl</code></li>
+<li>for <code>boolie</code>, the default value is <code>true</code>.</li>
+</ul>
 
 If you're initializing a variable at the same time when you are declaring it, you can skip writing its type:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 /* Types will be inferred for these: */
 bro, i = 0.
 bro, str = "string".
 bro, aBoolVal = true.
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 <h3>Expressions</h3>
 
@@ -123,10 +118,9 @@ If your result is a floating point number, it will be converted to an int
 by taking off the part after the decimal point.</p>
 
 <p>String literals start and end with double quotes. You can use the <code>+</code> operator for string concatenation.</p>
-  Some example expressions:
+Some example expressions:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 bro, str = "string" + "literal".
 
 bro, anIntVal = 3 + 4 / 4.
@@ -136,11 +130,10 @@ bro, aBoolVal = true or false.
 bro, anotherBoolVal = anIntVal > 10.
 bro, someBoolVal = anIntVal == 10 and anotherBoolVal.
 bro, boolval = anIntVal != 100.
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
-For boolean expressions, any of `true`/`True`/`yes`/`TRUE` can be used for a truthy value.
-<br>For a falsy value, any of `false`/`False`/`nope`/`FALSE` can be used. 
+For boolean expressions, any of <code>true</code>, <code>True</code>, <code>yes</code>, <code>TRUE</code> can be used for a truthy value.
+<br>For a falsy value, any of <code>false</code>, <code>False</code>, <code>nope</code>, <code>FALSE</code> can be used.
 
 In boolean expressions:
 <ul>
@@ -151,11 +144,10 @@ In boolean expressions:
 </ul>
 
 <h3>Conditional statements</h3>
-Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages:
+Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages. <br />
 An example:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 bro, i = 9.
 
 if (i == 9) {
@@ -170,17 +162,16 @@ else if (i == 11) {
 else {
     ("I dunno, I just like samosa.") -> putout.
 }
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 <b>Disclaimer: The example above is just for demonstration purposes. Please do not use such lame conditional statements. Thanks.</b>
 
 <h3>Loops</h3>
 
-Samosa currently supports only one kind of loops: `while` loops. It works in a similar way as in other languages:
-<br>The following example prints the numbers 3, 2, 1 sequentially on three lines. 
-```
-<samosa>
+Samosa currently supports only one kind of loops: <code>while</code> loops. It works in a similar way as in other languages:
+<br>The following example prints the numbers 3, 2, 1 sequentially on three lines.
+
+<br><br><pre><code>&lt;samosa&gt;
 
 bro, i: int = 3.
 
@@ -189,8 +180,7 @@ while (i > 0) {
     i = i - 1.
 }
 
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 Other kinds of loops will also be added in subsequent releases.
 
@@ -205,9 +195,7 @@ A function in samosa is defined using the keyword <code>let</code>.
 A function may declare some formal parameters, and can either return no value or return a value of a supported type (varargs are not yet supported).
 
 Some examples:
-
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 
 let function1(var1: int, var2: string): void {
     /* do something here */
@@ -222,20 +210,18 @@ let function3(var1: int) {
     /* do something */
 }
 
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 <h4>Calling a function</h4>
 
 A function can be called as a standalone statement or within an expression, like in many languages.
-The syntax for the same is: `(<arguments>) -> <function name>`, where `<function name>` is the name of the function to be called
-and `<arguments>` is the list of passed arguments to the function, separated by commas.<br>
+The syntax for the same is: <code>(&lt;arguments&gt;) -> &lt;function name&gt;</code>, where <code>&lt;function name&gt;</code> is the name of the function to be called
+and <code>&lt;arguments&gt;</code> is the list of passed arguments to the function, separated by commas.<br>
 <br><b>Note: This syntax is will probably be changed as it sometimes causes readability issues.</b>
 <br>
 <br>An extended example of the program above would demonstrate this:
 
-```
-<samosa>
+<br><br><pre><code>&lt;samosa&gt;
 
 let function1(var1: int, var2: string): void {
     /* do something here */
@@ -254,12 +240,11 @@ let function3(var1: int) {
 bro, m = 7.
 bro, i: int = 3 + (5 + m) -> function2.
 
-</samosa>
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 <b>Note: To call a function, it must be defined before the point where it is being called. So, the following program will not work:</b>
 
-```
+<br><br><pre><code>&lt;samosa&gt;
 
 let function1(var1: int, var2: string): void {
     /* do something here */
@@ -281,7 +266,7 @@ let function3(var1: int) {
     /* do something */
 }
 
-```
+&lt;&#47;samosa&gt;</code></pre>
 
 Recursion is supported, but the compiler does not currently perform tail-call optimization (support is planned for later releases).
 Function overloading is not currently supported for user defined functions (but is supported for builtin functions).
@@ -289,53 +274,55 @@ Function overloading is not currently supported for user defined functions (but 
 <h4>Builtin functions</h4>
 
 Samosa has a few builtin functions (more will be added soon, in addition to a small standard library).
-Some builtin functions have overloads.
+Some builtin functions have overloads.<br><br>
 
-1. `putout`
+<ul>
+<li><code>putout(expression)</code>
+<br>
+   This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
+   <br>The argument can be a <code>string</code>, <code>int</code> or a <code>boolie</code> (three overloads).
+   <br>Example:
 
-    This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
-    <br>The argument can be a `string`, `int` or a `boolie` (three overloads).
-    <br>Example:
-    
-    ```
-    <samosa>
-    
-    bro, i: int = 0.
-    bro, str: string = "hello ".
-    bro, boolVal: boolie = "boolieVal".
-    
-    (i) -> putout.
-    (str) -> putout.
-    (boolVal) -> putout.
-    
-    </samosa>
-    ```
+<br><br><pre><code>&lt;samosa&gt;
 
-2. `putinInt`
+bro, i: int = 0.
+bro, str: string = "hello ".
+bro, boolVal: boolie = "boolieVal".
 
-    Takes in an `int` as user input (from stdin). Example: 
-    
-    ```
-    <samosa>
-    bro, i = () -> putinInt.
-    </samosa>
-    ```
+(i) -> putout.
+(str) -> putout.
+(boolVal) -> putout.
 
-3. `putinBoolie`
+&lt;&#47;samosa&gt;</code></pre>
+</li>
+<li><code>putinInt(): int</code>
+<br>
+   Takes in an <code>int</code> as user input (from stdin). Example:
 
-    Similar to `putinInt` but inputs a boolean value.<br><br>
+<br><br><pre><code>&lt;samosa&gt;
+bro, i = () -> putinInt.
+&lt;&#47;samosa&gt;</code></pre>
+</li>
 
-4. `putinString`
+<li><code>putinBoolie(): boolie</code>
+<br>
+   Similar to <code>putinInt</code> but inputs a boolean value.<br><br>
+</li>
 
-    Similar to `putinInt` but inputs a string value.<br><br>
+<li><code>putinString(): string</code>
+<br>
+   Similar to <code>putinInt</code> but inputs a string value.<br><br>
+</li>
+<li><code>stoi(stringexpr): int</code>
+<br>
+   Converts a <code>string</code> to an <code>int</code>. Takes a <code>string</code> as argument. Will throw an exception if the number is of the wrong format.<br><br>
+</li>
+<li><code>itos(intexpr): string</code>
+<br>
+   Converts an <code>int</code> to a <code>string</code>. Takes an <code>int</code> as argument.<br><br>
 
-5. `stoi`
-    
-    Converts a `string` to an `int`. Takes a `string` as argument. Will throw an exception if the number is of the wrong format.<br><br>
-
-6. `itos`
-
-   Converts an `int` to a `string`. Takes an `int` as argument.<br><br>
-
-
+<li><code>exit(intexpr)</code><br>
+    Exits and stops the program. Takes an integer argument as an exit code.
+</li>
+</ul>
 <i>This section will be updated as new builtin functions are added.</i>
