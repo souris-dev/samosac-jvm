@@ -22,7 +22,7 @@ mvn compile
 </code></pre>
 
 Then, to build the compiler jar, use (from within the project directory):
-<br><pre><code>mvn package</code></pre>
+<br><br><pre><code>mvn package</code></pre>
 
 <br>This will create a <code>samosac-1.0-full.jar</code> in the <code>target</code> folder. This is the compiler jar.
 <br><i>Easier installation methods will be provided soon.</i>
