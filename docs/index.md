@@ -16,7 +16,7 @@ There are some alternatives for installing samosa. <i>This section will be updat
 <li><b>Apache Maven 3.1 or higher version</b></li>
 </ul>
 <br>To download the source and build it using maven, run these in the terminal of your choice:
-
+<br>
 <br><pre><code>git clone https://github.com/souris-dev/samosac-jvm.git
 cd samosac-jvm
 mvn compile
