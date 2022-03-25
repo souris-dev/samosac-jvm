@@ -4,7 +4,7 @@ longtitle:        Samosa - The Programming Language
 author:           Souris Ash
 email:            souris.ash@gmail.com
 description: >
-  A statically-types programming language that runs on the JVM.
+  A statically-typed general purpose programming language that runs on the JVM.
 
 version: 1.0
 
