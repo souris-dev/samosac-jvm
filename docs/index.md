@@ -31,8 +31,8 @@ Then use the .jar file of the compiler to compile it <b>(ensure that you have ja
 As samosa compiles to JVM bytecode, a <code>.class</code> is generated, named as per your filename.
 So for the above example, a file named <code>SamosaSamo.class</code> would be created in the <code>.&#47;out</code> directory.
 <br><br>To run it, do this <b>(ensure that you have java in your PATH)</b>:
-
-<br><br><pre><code>cd out
+<br><br>
+<pre><code>cd out
 java SamosaSamo</code>
 </pre>
 
@@ -126,7 +126,7 @@ In boolean expressions:
 </ul>
 
 <h3>Conditional statements</h3>
-Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages. <br>
+Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages. <br />
 An example:
 
 <br><br><pre><code>&lt;samosa&gt;
