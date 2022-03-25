@@ -31,7 +31,11 @@ bro, result: int = 50 + (num, "gorogoro") -> mana.
 ("An uncertain statement") -> putout.       ?[33 + num] ("Alternate.") -> putout.
 ("Another uncertain statement") -> putout.  ?[66] ("Alternate 2.") -> putout.
 
+("nested1a") -> putout. ?[55] ("nested1b") -> putout. ?[70]
+    ("nested2a") -> putout. :] ?[60]
+         ("nested2b") -> putout.
+
 num = num + 100.                            ?[30]...
-("Just uncertain.") -> putout.              ?[50]...
+("Just uncertain.") -> putout.              ?[80]... ?[30]...
 ("Num is: " + (num) -> itos) -> putout.
 </samosa>
