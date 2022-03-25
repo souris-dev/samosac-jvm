@@ -50,7 +50,7 @@ bro, prob: int = () -> putinInt.
 
 You can specify an alternate statement to be executed if a statement does not get executed due to probability factors.
 
-The syntax for the same is: `<statement>. ?[<int expression>] <statement>.`.
+The syntax for the same is: `<statement>. ?[<int expression>] <statement>.`
 
 #### Example
 
@@ -58,7 +58,6 @@ The syntax for the same is: `<statement>. ?[<int expression>] <statement>.`.
 <samosa>
 ("This line is printed 35% of times.") -> putout. ?[35] 
     ("And this line is printed the rest of the time.") -> putout.
-
 </samosa>
 ```
 
