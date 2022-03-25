@@ -18,7 +18,7 @@ Easier installation methods will be provided soon.
 <h3>Compilation</h3>
 Type your samosa program in a file, and name it something (for example samosa.samo).
 Then use the .jar file of the compiler to compile it <b>(ensure that you have java in you PATH)</b>:<br>
-
+<br>
 <pre><code>java -jar samosac-jvm.jar samosa.samo
 </code></pre>
 
