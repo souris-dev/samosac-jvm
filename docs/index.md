@@ -19,7 +19,7 @@ Easier installation methods will be provided soon.
 Type your samosa program in a file, and name it something (for example samosa.samo).
 Then use the .jar file of the compiler to compile it <b>(ensure that you have java in you PATH)</b>:<br>
 
-<pre><code>java -jar samosac-jvm.jar samosa.samo
+<br><pre><code>java -jar samosac-jvm.jar samosa.samo
 </code></pre>
 
 (Replace <code>samosac-jvm.jar</code> with the name of the compiler jar file, and <code>samosa.samo</code> with the name of the file you wrote your program in.)
@@ -32,7 +32,7 @@ As samosa compiles to JVM bytecode, a <code>.class</code> is generated, named as
 So for the above example, a file named <code>SamosaSamo.class</code> would be created in the <code>.&#47;out</code> directory.
 <br><br>To run it, do this <b>(ensure that you have java in your PATH)</b>:
 
-<pre><code>cd out
+<br><pre><code>cd out
 java SamosaSamo</code>
 </pre>
 
@@ -46,7 +46,7 @@ Any samosa program must start with <code>&lt;samosa&gt;</code> and end with <cod
 <br>Note that statements in samosa end with a period (<code>.</code>).
 For example:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 ("Hello World!") -> putout.
 &lt;&#47;samosa&gt;
 </code></pre>
@@ -56,7 +56,7 @@ For example:
 Comments in samosa can span multiple lines. They start with <code>&#47;&#42;</code> and end with <code>&#42;/</code>.
 Example:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 /* This line is a comment and will not be executed. */
 ("This line is executed.") -> putout.
 &lt;&#47;samosa&gt;</code></pre>
@@ -67,7 +67,7 @@ Currently, variables can be only of three types: <code>int</code> (for integers)
 
 Some examples of declaration and initialization:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 bro, i: int = 0.
 bro, str: string = "hello!".
 bro, aBoolVal: boolie = true.
@@ -85,7 +85,7 @@ If a variable is only declared, the variable is assigned the default value for t
 
 If you're initializing a variable at the same time when you are declaring it, you can skip writing its type:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 /* Types will be inferred for these: */
 bro, i = 0.
 bro, str = "string".
@@ -102,7 +102,7 @@ by taking off the part after the decimal point.</p>
 <p>String literals start and end with double quotes. You can use the <code>+</code> operator for string concatenation.</p>
 Some example expressions:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 bro, str = "string" + "literal".
 
 bro, anIntVal = 3 + 4 / 4.
@@ -129,7 +129,7 @@ In boolean expressions:
 Samosa supports <code>if</code> statements (and if-else if-else ladders). The syntax for <code>if</code> statements in samosa is similar to that found in many other languages:
 An example:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 bro, i = 9.
 
 if (i == 9) {
@@ -153,7 +153,7 @@ else {
 Samosa currently supports only one kind of loops: <code>while</code> loops. It works in a similar way as in other languages:
 <br>The following example prints the numbers 3, 2, 1 sequentially on three lines.
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 
 bro, i: int = 3.
 
@@ -177,7 +177,7 @@ A function in samosa is defined using the keyword <code>let</code>.
 A function may declare some formal parameters, and can either return no value or return a value of a supported type (varargs are not yet supported).
 
 Some examples:
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 
 let function1(var1: int, var2: string): void {
     /* do something here */
@@ -203,7 +203,7 @@ and <code>&lt;arguments&gt;</code> is the list of passed arguments to the functi
 <br>
 <br>An extended example of the program above would demonstrate this:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 
 let function1(var1: int, var2: string): void {
     /* do something here */
@@ -226,7 +226,7 @@ bro, i: int = 3 + (5 + m) -> function2.
 
 <b>Note: To call a function, it must be defined before the point where it is being called. So, the following program will not work:</b>
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 
 let function1(var1: int, var2: string): void {
     /* do something here */
@@ -265,7 +265,7 @@ Some builtin functions have overloads.
    <br>The argument can be a <code>string</code>, <code>int</code> or a <code>boolie</code> (three overloads).
    <br>Example:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 
 bro, i: int = 0.
 bro, str: string = "hello ".
@@ -281,7 +281,7 @@ bro, boolVal: boolie = "boolieVal".
 
    Takes in an <code>int</code> as user input (from stdin). Example:
 
-<pre><code>&lt;samosa&gt;
+<br><pre><code>&lt;samosa&gt;
 bro, i = () -> putinInt.
 &lt;&#47;samosa&gt;</code></pre>
 </li>
