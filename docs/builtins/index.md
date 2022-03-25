@@ -5,10 +5,17 @@ nav_order: 3
 ---
 
 # Builtin Functions
+{: .no_toc }
 
 Samosa has a few builtin functions (more will be added soon, in addition to a small standard library). Some builtin functions have overloads.
 
-* `putout(expression)`
+## Table of contents
+{: .no_toc .text-delta }
+
+1. TOC
+{:toc}
+
+### `putout(expression)`
 
 This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
 The argument can be a `string`, `int` or a `boolie` (three overloads).
@@ -28,7 +35,7 @@ bro, boolVal: boolie = "boolieVal".
 </samosa>
 ```
 
-* `putinInt(): int`
+### `putinInt(): int`
 
 Takes in an `int` as user input (from stdin). Example:
 
@@ -38,23 +45,23 @@ bro, i = () -> putinInt.
 </samosa>
 ```
 
-* `putinBoolie(): boolie`
+### `putinBoolie(): boolie`
 
 Similar to `putinInt` but inputs a boolean value.
 
-* `putinString(): string`
+### `putinString(): string`
 
 Similar to `putinInt` but inputs a string value.
 
-* `stoi(stringexpr): int`
+### `stoi(stringexpr): int`
 
 Converts a `string` to an `int`. Takes a `string` as argument. Will throw an exception if the number is of the wrong format.
 
-* `itos(intexpr): string`
+### `itos(intexpr): string`
 
 Converts an `int` to a `string`. Takes an `int` as argument.
 
-* `exit(intexpr)`
+### `exit(intexpr)`
 
 Exits and stops the program. Takes an integer argument as an exit code.
 
