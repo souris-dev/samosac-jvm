@@ -271,7 +271,7 @@ Function overloading is not currently supported for user defined functions (but 
 <h4>Builtin functions</h4>
 
 Samosa has a few builtin functions (more will be added soon, in addition to a small standard library).
-Some builtin functions have overloads.
+Some builtin functions have overloads.<br><br>
 
 <ul>
 <li><code>putout(expression)</code>
@@ -311,7 +311,7 @@ bro, i = () -> putinInt.
    Similar to <code>putinInt</code> but inputs a string value.<br><br>
 </li>
 <li><code>stoi(stringexpr): int</code>
-
+<br>
    Converts a <code>string</code> to an <code>int</code>. Takes a <code>string</code> as argument. Will throw an exception if the number is of the wrong format.<br><br>
 </li>
 <li><code>itos(intexpr): string</code>
