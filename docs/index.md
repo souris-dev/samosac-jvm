@@ -2,7 +2,7 @@
 <p align="center"><i>Welcome, samosa lovers!</i><br><br></p>
 <p align="left">
   <b>Samosa is a programming language written in Java and Kotlin, that runs on the JVM.</b>
-<br><br><i>Note: This programming language, "samosa", is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
+<br><br><i>Note: This programming language, "samosa", is named after an Indian snack called "samosa", and is pronounced as "some-o-saa" (the part "saa" is pronounced like the word "sour", but without the "r").</i>
 <br>
 
 <h2 align="center">Installation</h2>
@@ -19,7 +19,7 @@ Easier installation methods will be provided soon.
 Type your samosa program in a file, and name it something (for example samosa.samo).
 Then use the .jar file of the compiler to compile it <b>(ensure that you have java in you PATH)</b>:<br>
 
-<br><br><pre><code>java -jar samosac-jvm.jar samosa.samo
+<pre><code>java -jar samosac-jvm.jar samosa.samo
 </code></pre>
 
 (Replace <code>samosac-jvm.jar</code> with the name of the compiler jar file, and <code>samosa.samo</code> with the name of the file you wrote your program in.)
