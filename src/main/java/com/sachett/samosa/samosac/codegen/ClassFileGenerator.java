@@ -474,4 +474,24 @@ public class ClassFileGenerator extends CodegenDelegatable {
     public Void visitContinueControlStmt(SamosaParser.ContinueControlStmtContext ctx) {
         return delegateCodegenCommons.visitContinueControlStmt(ctx);
     }
+
+    @Override
+    public Void visitUncertainCompoundStmtSingle(SamosaParser.UncertainCompoundStmtSingleContext ctx) {
+        return delegateCodegenCommons.visitUncertainCompoundStmtSingle(ctx);
+    }
+
+    @Override
+    public Void visitUncertainCompoundStmtMultiple(SamosaParser.UncertainCompoundStmtMultipleContext ctx) {
+        return delegateCodegenCommons.visitUncertainCompoundStmtMultiple(ctx);
+    }
+
+    @Override
+    public Void visitUncertainStatementSingle(SamosaParser.UncertainStatementSingleContext ctx) {
+        return delegateCodegenCommons.visitUncertainStatementSingle(ctx);
+    }
+
+    @Override
+    public Void visitUncertainStatementMultiple(SamosaParser.UncertainStatementMultipleContext ctx) {
+        return delegateCodegenCommons.visitUncertainStatementMultiple(ctx);
+    }
 }

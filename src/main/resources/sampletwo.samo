@@ -13,7 +13,7 @@ bro, wasCalled = 0.
 let mana(var1: int, var2: string): int {
     wasCalled = wasCalled + 1.
     if (var1 == 0) {
-        ("base case") -> putout.
+        ("base case") -> putout. ?[60] ("case base.") -> putout.
         ("returning wasCalled as: " + (wasCalled) -> itos) -> putout.
         return wasCalled.
     }
@@ -23,8 +23,15 @@ let mana(var1: int, var2: string): int {
 }
 
 bro, num: int = (() -> putinString) -> stoi.
-bro, result: int = 50 + (num, "gogo") -> mana.
+bro, result: int = 50 + (num, "gorogoro") -> mana.
 ("Result: " + (result) -> itos) -> putout.
 ("wasCalled: " + (wasCalled) -> itos + " times") -> putout.
 ("Hello world!") -> putout.
+
+("An uncertain statement") -> putout.       ?[33 + num] ("Alternate.") -> putout.
+("Another uncertain statement") -> putout.  ?[66] ("Alternate 2.") -> putout.
+
+num = num + 100.                            ?[30]...
+("Just uncertain.") -> putout.              ?[50]...
+("Num is: " + (num) -> itos) -> putout.
 </samosa>

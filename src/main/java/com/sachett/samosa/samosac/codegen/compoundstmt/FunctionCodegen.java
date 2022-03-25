@@ -102,6 +102,42 @@ public class FunctionCodegen extends CodegenDelegatable {
     }
 
     @Override
+    public Void visitUncertainCompoundStmtSingle(SamosaParser.UncertainCompoundStmtSingleContext ctx) {
+        var savedParentCodegen = codegenCommons.getParentCodegen();
+        codegenCommons.setParentCodegen(this);
+        var _placeholder = codegenCommons.visitUncertainCompoundStmtSingle(ctx);
+        codegenCommons.setParentCodegen(savedParentCodegen);
+        return _placeholder;
+    }
+
+    @Override
+    public Void visitUncertainCompoundStmtMultiple(SamosaParser.UncertainCompoundStmtMultipleContext ctx) {
+        var savedParentCodegen = codegenCommons.getParentCodegen();
+        codegenCommons.setParentCodegen(this);
+        var _placeholder = codegenCommons.visitUncertainCompoundStmtMultiple(ctx);
+        codegenCommons.setParentCodegen(savedParentCodegen);
+        return _placeholder;
+    }
+
+    @Override
+    public Void visitUncertainStatementSingle(SamosaParser.UncertainStatementSingleContext ctx) {
+        var savedParentCodegen = codegenCommons.getParentCodegen();
+        codegenCommons.setParentCodegen(this);
+        var _placeholder = codegenCommons.visitUncertainStatementSingle(ctx);
+        codegenCommons.setParentCodegen(savedParentCodegen);
+        return _placeholder;
+    }
+
+    @Override
+    public Void visitUncertainStatementMultiple(SamosaParser.UncertainStatementMultipleContext ctx) {
+        var savedParentCodegen = codegenCommons.getParentCodegen();
+        codegenCommons.setParentCodegen(this);
+        var _placeholder = codegenCommons.visitUncertainStatementMultiple(ctx);
+        codegenCommons.setParentCodegen(savedParentCodegen);
+        return _placeholder;
+    }
+
+    @Override
     public Void visitWhileStmt(SamosaParser.WhileStmtContext ctx) {
         CodegenDelegatable previousParentCodegen = codegenCommons.getParentCodegen();
         codegenCommons.setParentCodegen(this);

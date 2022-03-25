@@ -12,6 +12,8 @@ import com.sachett.samosa.samosac.symbol.*
 import com.sachett.samosa.samosac.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.tree.ErrorNode
 import org.antlr.v4.runtime.tree.ErrorNodeImpl
+import org.antlr.v4.runtime.tree.ParseTree
+import kotlin.math.exp
 
 class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisitor<Void?>() {
 
@@ -692,11 +694,109 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         // TODO: improve error handling
         val errorNode = node as ErrorNodeImpl
         val lineNumber = errorNode.symbol.line
-        fmtfatalerr("Syntax error at '${errorNode.text}'", lineNumber)
+        fmtfatalerr("Syntax error at '${lineNumber.toString() + ":" + errorNode.symbol.charPositionInLine}'", lineNumber)
     }
 
     override fun visitNeedsStmt(ctx: SamosaParser.NeedsStmtContext?): Void? {
         println("[Warning, Line ${ctx!!.start.line}] Needs statement is not yet supported. Will be coming soon!") // warning log
         return super.visitNeedsStmt(ctx)
+    }
+
+    override fun visitUncertainStatementSingle(ctx: SamosaParser.UncertainStatementSingleContext?): Void? {
+        val statement1 = ctx!!.statement()
+
+        // Declarations or return statements cannot be uncertain as of now.
+        if (statement1.javaClass in arrayOf<Class<out ParseTree>>(
+                SamosaParser.DeclStmtContext::class.java,
+                SamosaParser.DeclAssignStmtContext::class.java,
+                SamosaParser.ReturnStmtContext::class.java
+            )
+        ) {
+            fmtfatalerr("Variable declarations and return statements cannot be uncertain as of now.", ctx.start.line)
+        }
+
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for uncertainty.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Uncertainty must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainStatementSingle(ctx)
+    }
+
+
+    override fun visitUncertainStatementMultiple(ctx: SamosaParser.UncertainStatementMultipleContext?): Void? {
+        val statement1 = ctx!!.statement(0)
+        val statement2 = ctx.statement(1)
+
+        // Declarations or return statements cannot be uncertain as of now.
+        if (statement1.javaClass in arrayOf<Class<out ParseTree>>(
+                SamosaParser.DeclStmtContext::class.java,
+                SamosaParser.DeclAssignStmtContext::class.java,
+                SamosaParser.ReturnStmtContext::class.java
+            )
+        ) {
+            fmtfatalerr("For the first statement in this uncertain statement:" +
+                    " variable declarations and return statements cannot be uncertain as of now.", ctx.start.line)
+        }
+
+        // Declarations or return statements cannot be uncertain as of now.
+        if (statement2.javaClass in arrayOf<Class<out ParseTree>>(
+                SamosaParser.DeclStmtContext::class.java,
+                SamosaParser.DeclAssignStmtContext::class.java,
+                SamosaParser.ReturnStmtContext::class.java
+            )
+        ) {
+            fmtfatalerr("For the second statement in this uncertain statement:" +
+                    " variable declarations and return statements cannot be uncertain as of now.", ctx.start.line)
+        }
+
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for uncertainty.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Uncertainty must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainStatementMultiple(ctx)
+    }
+
+    override fun visitUncertainCompoundStmtSingle(ctx: SamosaParser.UncertainCompoundStmtSingleContext?): Void? {
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx!!.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for uncertainty.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Uncertainty must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainCompoundStmtSingle(ctx)
+    }
+
+    override fun visitUncertainCompoundStmtMultiple(ctx: SamosaParser.UncertainCompoundStmtMultipleContext?): Void? {
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx!!.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for uncertainty.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Uncertainty must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainCompoundStmtMultiple(ctx)
     }
 }
