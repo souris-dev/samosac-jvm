@@ -4,7 +4,7 @@ title: Syntax
 nav_order: 2
 ---
 
-## Syntax
+# Syntax
 {: .no_toc }
 
 As samosa is still in its first release, it has limited features. More features will be added soon in upcoming releases.
@@ -15,7 +15,7 @@ As samosa is still in its first release, it has limited features. More features 
 1. TOC
 {:toc}
 
-### Starting a program
+## Starting a program
 
 Any samosa program must start with `<samosa>` and end with `</samosa>`.
 Note that statements in samosa end with a period (`.`). For example:
@@ -28,7 +28,7 @@ Note that statements in samosa end with a period (`.`). For example:
 
 (Note: in the example above, we are making a function call to `putout`, a built-in function. That line is equivalent to `System.out.println("Hello World!")` in Java.)
 
-### Comments
+## Comments
 
 Comments in samosa can span multiple lines. They start with `/*` and end with `*/`.
 
@@ -41,7 +41,7 @@ Example:
 </samosa>
 ```
 
-### Variables
+## Variables
 
 Variables are declared with the keyword `bro,`  (yes, the comma is necessary :-)). Currently, variables can be only of three types: `int` (for integers), `string` (for strings), or `boolie` (for boolean values). Some examples of declaration and initialization:
 
@@ -79,7 +79,7 @@ bro, aBoolVal = true.
 </samosa>
 ```
 
-### Expressions
+## Expressions
 
 Expressions in samosa work in pretty much the same way as in Java/C++ or many other languages.
 
@@ -113,7 +113,7 @@ For a falsy value, any of `false`, `False`, `nope`, `FALSE` can be used. In bool
 *   `||!` or the keyword`strictor` stands for a **logical XOR**
 *   `!!` or the keyword`not` stands for a **logical NOT**
 
-### Conditional statements
+## Conditional statements
 
 Samosa supports `if` statements (and if-else if-else ladders). The syntax for `if` statements in samosa is similar to that found in many other languages.
 An example:
@@ -140,7 +140,7 @@ else {
 
 **Disclaimer: The example above is just for demonstration purposes. Please do not use such lame conditional statements. Thanks.**
 
-### Loops
+## Loops
 
 Samosa currently supports only one kind of loops: `while` loops. It works in a similar way as in other languages:
 The following example prints the numbers 3, 2, 1 sequentially on three lines.
@@ -160,13 +160,13 @@ while (i > 0) {
 
 Other kinds of loops will also be added in subsequent releases.
 
-### Functions
+## Functions
 
 Yep, samosa also supports functions!
 
 (_Samosa does not yet support first-class functions though, but support for the same is planned._)
 
-#### Defining a function
+### Defining a function
 
 A function in samosa is defined using the keyword `let`. A function may declare some formal parameters, and can either return no value or return a value of a supported type (varargs are not yet supported). Some examples:
 
@@ -189,7 +189,7 @@ let function3(var1: int) {
 </samosa>
 ```
 
-#### Calling a function
+### Calling a function
 
 A function can be called as a standalone statement or within an expression, like in many languages. The syntax for the same is: `(<arguments>) -> <function name>`, where `<function name>` is the name of the function to be called and `<arguments>` is the list of passed arguments to the function, separated by commas.
 
