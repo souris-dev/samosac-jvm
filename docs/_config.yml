@@ -1,2 +1,13 @@
-title: Samosa
-remote_theme: sighingnow/jekyll-gitbook
+# Configurations
+title:            Samosa
+longtitle:        Samosa - The Programming Language
+author:           Souris Ash
+email:            souris.ash@gmail.com
+description: >
+  A statically-types programming language that runs on the JVM.
+
+version: 1.0
+
+url: 'https://souris-dev.github.io/samosac-jvm/'
+baseurl:          '/docs'
+remote_theme: just-the-docs/just-the-docs
