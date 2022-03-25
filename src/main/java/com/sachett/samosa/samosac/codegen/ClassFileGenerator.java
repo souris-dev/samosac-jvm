@@ -46,12 +46,6 @@ public class ClassFileGenerator extends CodegenDelegatable {
     private CodegenDelegationManager sharedCodeGenDelegationManager
             = new CodegenDelegationManager(this, null);
 
-    /**
-     * A hashmap to store the static variables. The entries are of the form:
-     * symbolName: corresponding ISymbol
-     */
-    private final HashMap<String, ISymbol> staticVariables = new HashMap<>();
-
     public ClassFileGenerator(
             SamosaParser.ProgramContext programContext,
             @NotNull String fileName,
