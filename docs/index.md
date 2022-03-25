@@ -95,9 +95,11 @@ bro, boolieVal: boolie.
 &lt;&#47;samosa&gt;</code></pre>
 
 If a variable is only declared, the variable is assigned the default value for that type:
-1. for <code>int</code>, the default value is 57005 (in hex, <code>0xDEAD</code>).
-2. for <code>string</code>, the default value is </code>lawl</code>.
-3. for <code>boolie</code>, the default value is <code>true</code>.
+<ul>
+<li>for <code>int</code>, the default value is 57005 (in hex, <code>0xDEAD</code>).</li>
+<li>for <code>string</code>, the default value is <code>lawl</code></li>
+<li>for <code>boolie</code>, the default value is <code>true</code>.</li>
+</ul>
 
 If you're initializing a variable at the same time when you are declaring it, you can skip writing its type:
 
