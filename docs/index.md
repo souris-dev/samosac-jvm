@@ -9,12 +9,13 @@
 There are some alternatives for installing samosa. <i>This section will be updated soon with the other alternatives.</i>
 <h3>Building from source</h3>
 <b>Note: Ensure that you have the following installed (and in your PATH) before using the upcoming commands to build from source:</b>
+<br>
 <ul>
 <li><b>git</b></li>
 <li><b>&ge; JDK 11 (the project was developed on JDK 17, but the code is compatible with java version >= 11.)</b></li>
 <li><b>Apache Maven 3.1 or higher version</b></li>
 </ul>
-<br><br>To download the source and build it using maven, run these in the terminal of your choice:
+<br>To download the source and build it using maven, run these in the terminal of your choice:
 
 <br><pre><code>git clone https://github.com/souris-dev/samosac-jvm.git
 cd samosac-jvm
