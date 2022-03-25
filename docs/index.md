@@ -259,8 +259,8 @@ Samosa has a few builtin functions (more will be added soon, in addition to a sm
 Some builtin functions have overloads.
 
 <ul>
-<li><code>putout</code>
-
+<li><code>putout(expression)</code>
+<br>
    This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
    <br>The argument can be a <code>string</code>, <code>int</code> or a <code>boolie</code> (three overloads).
    <br>Example:
@@ -277,8 +277,8 @@ bro, boolVal: boolie = "boolieVal".
 
 &lt;&#47;samosa&gt;</code></pre>
 </li>
-<li><code>putinInt</code>
-
+<li><code>putinInt(): int</code>
+<br>
    Takes in an <code>int</code> as user input (from stdin). Example:
 
 <br><br><pre><code>&lt;samosa&gt;
@@ -286,24 +286,24 @@ bro, i = () -> putinInt.
 &lt;&#47;samosa&gt;</code></pre>
 </li>
 
-<li><code>putinBoolie</code>
-
+<li><code>putinBoolie(): boolie</code>
+<br>
    Similar to <code>putinInt</code> but inputs a boolean value.<br><br>
 </li>
 
-<li><code>putinString</code>
-
+<li><code>putinString(): string</code>
+<br>
    Similar to <code>putinInt</code> but inputs a string value.<br><br>
 </li>
-<li><code>stoi</code>
+<li><code>stoi(stringexpr): int</code>
 
    Converts a <code>string</code> to an <code>int</code>. Takes a <code>string</code> as argument. Will throw an exception if the number is of the wrong format.<br><br>
 </li>
-<li><code>itos</code>
-
+<li><code>itos(intexpr): string</code>
+<br>
    Converts an <code>int</code> to a <code>string</code>. Takes an <code>int</code> as argument.<br><br>
 
-<li><code>exit</code><br>
+<li><code>exit(intexpr)</code><br>
     Exits and stops the program. Takes an integer argument as an exit code.
 </li>
 </ul>
