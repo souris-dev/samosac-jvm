@@ -11,7 +11,7 @@ title: Getting Started
 
 _Welcome, samosa lovers!_
 
-**Samosa is a programming language written in Java and Kotlin, that runs on the JVM.**
+**Samosa is a statically-typed general purpose programming language that runs on the JVM.**
 
 _Note: Samosa, the programming language, is named after an Indian snack called "samosa", and is pronounced as "some-o-saa" (the part "saa" is pronounced like the word "sour", but without the "r")._
 
