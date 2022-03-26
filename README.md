@@ -340,4 +340,6 @@ Some builtin functions have overloads.
    Converts an `int` to a `string`. Takes an `int` as argument.<br><br>
 
 
-<i>This section will be updated as new builtin functions are added.</i>
+<i>The above are a subset of the features of the language.</i>
+<br>
+<i>Head over to the <a href="https://souris-dev.github.io/samosac-jvm/">docs</a> for more features of the programming language, like probable statements.</i>
