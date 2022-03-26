@@ -27,17 +27,17 @@ Samosa is the name of the language, and `samosac` is the name of the compiler.
 
 ### Installation
 
-_This section will be updated soon with the other alternatives for installing samosa._
+_This section will be updated soon with other alternatives for installing samosa._
 
 #### Using a pre-built executable jar
 
-You really don't need to install anything if you already have JRE (minimum java version 11) installed. Otherwise, you'll have to install that first.
-
-Head over to [releases](https://github.com/souris-dev/samosac-jvm/releases) to grab the latest version of the compiler (it is an executable JAR file, named in the format: `samosac-<version>-full.jar`)
-
-Or, just click this to download the `1.0-SNAPSHOT` (current alpha release) compiler executable jar:
+Download the `1.0-SNAPSHOT` (current alpha release) compiler executable jar:
 
 [Download](https://github.com/souris-dev/samosac-jvm/releases/download/v1.0.0-alpha/samosac-1.0-SNAPSHOT-full.jar){: .btn .btn-purple }
+
+You really don't need to install anything if you already have JRE (minimum java version 11) installed. Otherwise, you'll have to install that first to use the compiler and to run the programs.
+
+For other releases, head over to [releases](https://github.com/souris-dev/samosac-jvm/releases).
 
 You now have the compiler, yay!
 
