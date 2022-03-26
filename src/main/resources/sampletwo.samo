@@ -35,6 +35,7 @@ bro, result: int = 50 + (num, "gorogoro") -> mana.
     ("nested2a") -> putout. ?[60]
          ("nested2b") -> putout.
 
+putout = 100.
 num = num + 100.                            ?[30]...
 ("Just uncertain.") -> putout.              ?[80]... ?[30]...
 ("Num is: " + (num) -> itos) -> putout.

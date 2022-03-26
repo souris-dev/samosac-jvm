@@ -164,6 +164,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             )
         }
 
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
+                firstAppearedLineNum
+            )
+        }
+
         if (typeNameCtx.BOOLTYPE() != null) {
             // this should not happen here
             // it's here just for the sake of completeness
@@ -234,6 +243,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             )
         }
 
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
+                firstAppearedLineNum
+            )
+        }
+
         val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = false, initializeExpressionPresent = true)
         val boolExprChecker = BoolExpressionChecker(symbolTable)
 
@@ -264,6 +282,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         if (existingSymbol != null) {
             fmtfatalerr(
                 "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
                 firstAppearedLineNum
             )
         }
@@ -361,6 +388,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             )
         }
 
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
+                firstAppearedLineNum
+            )
+        }
+
         val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true, isInitialValueCalculated = false, initializeExpressionPresent = true)
         val boolExprChecker = BoolExpressionChecker(symbolTable)
 
@@ -388,9 +424,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
 
         val existingSymbol = symbolTable.lookup(idName)
             ?: fmtfatalerr(
-                "Assignment to previously undeclared symbol.",
+                "Assignment to previously undeclared symbol. ",
                 lineNum
             )
+
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be assigned to. ",
+                lineNum
+            )
+        }
 
         when (existingSymbol.symbolType) {
             SymbolType.INT -> {
@@ -500,6 +545,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
                 "Unknown identifier $idName.",
                 lineNum
             )
+
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be assigned to. ",
+                lineNum
+            )
+        }
 
         if (existingSymbol.symbolType != SymbolType.BOOL) {
             fmtfatalerr(
