@@ -69,7 +69,7 @@ The above should have made things easier to understand :-)
 
 In case it is still not that clear, here's an attempt at an explanation:
 
-Firstly, the probability `?[60]` is evaluated. Hence, 40% of the time, `("nested1b") -> putout.` is executed.
+First, the probability `?[60]` is evaluated. Hence, 40% of the time, `("nested1b") -> putout.` is executed.
 The rest 60% of the times:
 * The next probability, `?[70]` is evaluated. 30% of times (after the first probability makes this statement run), `("nested2b") -> putout.` gets executed. The rest 70% of the times:
     * The next probability, `?[55]` is evaluated. So, 45% of times (after the previous nested probability statement makes this one run), the statement `("nested3b") -> putout.` is executed, while for 55% of times, the statement `("nested3a") -> putout.` gets executed.
