@@ -27,7 +27,15 @@ Samosa is the name of the language, and `samosac` is the name of the compiler.
 
 ### Installation
 
-There are some alternatives for installing samosa. _This section will be updated soon with the other alternatives._
+_This section will be updated soon with the other alternatives for installing samosa._
+
+#### Using a pre-built executable jar
+
+You really don't need to install anything if you already have JRE (minimum java version 11) installed. Otherwise, you'll have to install that first.
+
+Head over to [releases](https://github.com/souris-dev/samosac-jvm/releases) to grab the latest version of the compiler (it is an executable JAR file, named in the format: `samosac-<version>-full.jar`)
+
+You now have the compiler, yay!
 
 #### Building from source
 
@@ -50,7 +58,7 @@ Then, to build the compiler jar, use (from within the project directory):
 mvn package
 ```
 
-This will create a `samosac-1.0-full.jar` in the `target` folder. This is the compiler jar.
+This will create a `samosac-<version>-full.jar` in the `target` folder. This is the compiler jar.
 
 _Easier installation methods will be provided soon._
 
@@ -63,10 +71,10 @@ _Easier installation methods will be provided soon._
 Type your samosa program in a file, and name it something (for example samosa.samo). Then use the .jar file of the compiler to compile it **(ensure that you have java in you PATH)**:
 
 ```
-java -jar samosac-1.0-full.jar samosa.samo
+java -jar samosac-<version>-full.jar samosa.samo
 ```
 
-(Replace `samosac-1.0-full.jar` with the full path to the compiler jar file, and `samosa.samo` with the name of the file you wrote your program in.)
+(Replace `samosac-<version>-full.jar` with the relative or absolute path to the compiler jar file, and `samosa.samo` with the relative or absolute path of the file you wrote your program in.)
 
 _This section will be updated._
 
