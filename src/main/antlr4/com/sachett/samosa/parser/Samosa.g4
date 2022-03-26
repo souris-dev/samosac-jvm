@@ -72,6 +72,7 @@ NULLVALUE: 'null';
 TRIPLEDOT: '...';
 IDK: 'idk';
 QUESTIONMARK: '?';
+SEMICOLON: ';';
 
 IMPORT: 'needs';
 BREAK: 'yamete_kudasai';
