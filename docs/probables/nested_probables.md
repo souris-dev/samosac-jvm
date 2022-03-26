@@ -33,7 +33,7 @@ Also, as mentioned before, the probabilities specified may not necessarily be co
 
 ### Multiple statements, nested probabilities
 
-Just like the nesting single statements, probable statements with alternatives can also be nested.
+Just like single probable statements, probable statements with alternatives can also be nested.
 
 #### Example
 {: .no_toc }
