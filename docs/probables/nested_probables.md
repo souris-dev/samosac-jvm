@@ -23,11 +23,13 @@ In such cases, probabilities are multiplied, starting from **right to left**.
 
 In the example above, the probability of execution of the probable statement `("Hello world!") -> putout. ?[40]...` (let's call this event _A_) is 80% (as indicated by `?[80]...` beside it.)
 
-And further, the probability of execution of the statement `("Hello world!") -> putout.` (let's called this event B) is 40% provided that the probable statement `("Hello world!") -> putout. ?[40]...` itself executes.
+And further, the probability of execution of the statement `("Hello world!") -> putout.` (let's call this event _B_) is 40% _provided that the probable statement `("Hello world!") -> putout. ?[40]...` itself executes_.
 
-Hence, the effective probability of `("Hello world!") -> putout.` executing can be expressed as **P(B|A)**.
+Hence, the effective probability of `("Hello world!") -> putout.` executing can be expressed as `P(B|A)`.
 
-One can go on nesting probabilities like this. But **remember, probabilities are evaluated from _right to left_.**
+One can go on nesting probabilities like this. But **remember, probabilities are nested from _right to left_.**
+
+Also, as mentioned before, the probabilities specified may not necessarily be constants. They can be expressions that are evaluated to an `int` at compile time.
 
 ### Multiple statements, nested probabilities
 
