@@ -37,6 +37,14 @@ public class Builtins {
         }
 
         /**
+         * Some codegen functions for builtin functions will need some more parameters to
+         * generate the code. This interface serves as a base for them.
+         */
+        public interface IBuiltinFunctionCodegenParams {}
+
+        public static IBuiltinFunctionCodegenParams currentBuiltinFunctionCodegenParams = null;
+
+        /**
          * TODO: (Refactor) Move this class somewhere else?
          */
         public static class Utils {
@@ -209,6 +217,10 @@ public class Builtins {
                 descriptor.append(")");
                 return descriptor.toString();
             }
+
+            public static void setBuiltinFunctionCodegenParams(IBuiltinFunctionCodegenParams params) {
+                currentBuiltinFunctionCodegenParams = params;
+            }
         }
 
         @Retention(RetentionPolicy.RUNTIME)
@@ -227,6 +239,9 @@ public class Builtins {
         public @interface SamosaBuiltinFuncName {
             String name();
         }
+
+        @Retention(RetentionPolicy.RUNTIME)
+        public @interface RequiresCodegenParams {}
 
         // ---------------- BUILTINS --------------------------
 
@@ -306,6 +321,44 @@ public class Builtins {
 
             functionGenerationContext.getMv().visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
                     "toString", "(I)Ljava/lang/String;", false);
+        }
+
+        public static class GotoBeginningParams implements IBuiltinFunctionCodegenParams {
+            String className;
+
+            public GotoBeginningParams(String className) {
+                this.className = className;
+            }
+        }
+
+        @SamosaBuiltinFuncName(name = "main")
+        @SamosaBuiltinFuncOverload(descriptorString = "()V", paramNames = {})
+        @RequiresCodegenParams()
+        // TODO: Not yet implemented fully
+        public static void gotoBeginning(
+                FunctionArgsLoader functionArgsLoader,
+                FunctionGenerationContext functionGenerationContext
+        ) {
+            LoggingUtilsKt.err("[Error] The function call: () -> main to start from the beginning" +
+                    " is currently not supported. ");
+
+            if (!(currentBuiltinFunctionCodegenParams instanceof GotoBeginningParams)) {
+                return;
+            }
+
+            String className = ((GotoBeginningParams) currentBuiltinFunctionCodegenParams).className;
+
+            // TODO: we somehow need to put the cmdline args received back on stack before the next line
+            functionGenerationContext.getMv().visitMethodInsn(
+                    Opcodes.INVOKESTATIC,
+                    className,
+                    "main",
+                    "([Ljava/lang/String;)V",
+                    false
+            );
+
+            // clear this
+            currentBuiltinFunctionCodegenParams = null;
         }
 
         /**
