@@ -65,7 +65,7 @@ where B is:
         ("nested3a") -> putout. ?[55] ("nested3b") -> putout.  
 ```
 
-Hope that made things easier to understand :-)
+The above should have made things easier to understand :-)
 
 In case it is still not that clear, here's an attempt at an explanation:
 
