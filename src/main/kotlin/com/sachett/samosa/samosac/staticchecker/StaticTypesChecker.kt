@@ -12,6 +12,8 @@ import com.sachett.samosa.samosac.symbol.*
 import com.sachett.samosa.samosac.symbol.symboltable.SymbolTable
 import org.antlr.v4.runtime.tree.ErrorNode
 import org.antlr.v4.runtime.tree.ErrorNodeImpl
+import org.antlr.v4.runtime.tree.ParseTree
+import kotlin.math.exp
 
 class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisitor<Void?>() {
 
@@ -162,6 +164,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             )
         }
 
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
+                firstAppearedLineNum
+            )
+        }
+
         if (typeNameCtx.BOOLTYPE() != null) {
             // this should not happen here
             // it's here just for the sake of completeness
@@ -232,6 +243,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             )
         }
 
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
+                firstAppearedLineNum
+            )
+        }
+
         val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, isInitialValueCalculated = false, initializeExpressionPresent = true)
         val boolExprChecker = BoolExpressionChecker(symbolTable)
 
@@ -262,6 +282,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         if (existingSymbol != null) {
             fmtfatalerr(
                 "Identifier $idName was declared before on line ${existingSymbol.firstAppearedLine}.",
+                firstAppearedLineNum
+            )
+        }
+
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
                 firstAppearedLineNum
             )
         }
@@ -359,6 +388,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             )
         }
 
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be redefined. ",
+                firstAppearedLineNum
+            )
+        }
+
         val boolSymbol = BoolSymbol(idName, firstAppearedLineNum, true, isInitialValueCalculated = false, initializeExpressionPresent = true)
         val boolExprChecker = BoolExpressionChecker(symbolTable)
 
@@ -386,9 +424,18 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
 
         val existingSymbol = symbolTable.lookup(idName)
             ?: fmtfatalerr(
-                "Assignment to previously undeclared symbol.",
+                "Assignment to previously undeclared symbol. ",
                 lineNum
             )
+
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be assigned to. ",
+                lineNum
+            )
+        }
 
         when (existingSymbol.symbolType) {
             SymbolType.INT -> {
@@ -498,6 +545,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
                 "Unknown identifier $idName.",
                 lineNum
             )
+
+        val existingSymbolBuiltins = symbolTable.lookupBuiltinFunctionAllOverloads(idName)
+
+        if ((existingSymbolBuiltins != null) && (existingSymbolBuiltins.size > 0)) {
+            fmtfatalerr(
+                "Identifier $idName is a builtin function, so it cannot be assigned to. ",
+                lineNum
+            )
+        }
 
         if (existingSymbol.symbolType != SymbolType.BOOL) {
             fmtfatalerr(
@@ -692,11 +748,103 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         // TODO: improve error handling
         val errorNode = node as ErrorNodeImpl
         val lineNumber = errorNode.symbol.line
-        fmtfatalerr("Syntax error at '${errorNode.text}'", lineNumber)
+        fmtfatalerr("Syntax error at '${lineNumber.toString() + ":" + errorNode.symbol.charPositionInLine}'", lineNumber)
     }
 
     override fun visitNeedsStmt(ctx: SamosaParser.NeedsStmtContext?): Void? {
         println("[Warning, Line ${ctx!!.start.line}] Needs statement is not yet supported. Will be coming soon!") // warning log
         return super.visitNeedsStmt(ctx)
+    }
+
+    override fun visitUncertainStatementSingle(ctx: SamosaParser.UncertainStatementSingleContext?): Void? {
+        val statement1 = ctx!!.statement()
+
+        // Declarations or return statements cannot be uncertain as of now.
+        // This is kind of a hack, but it works well enough. Gotta love java reflection!
+        if (statement1 is SamosaParser.RegularStmtContext &&
+            statement1.children[0].javaClass.name.contains(Regex("(.*Decl.*)|(.*Return.*)"))
+        ) {
+            fmtfatalerr("Variable declarations and return statements cannot be probable as of now.", ctx.start.line)
+        }
+
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for probability.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Probability must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainStatementSingle(ctx)
+    }
+
+
+    override fun visitUncertainStatementMultiple(ctx: SamosaParser.UncertainStatementMultipleContext?): Void? {
+        val statement1 = ctx!!.statement(0)
+        val statement2 = ctx.statement(1)
+
+        // Declarations or return statements cannot be uncertain as of now.
+        if (statement1 is SamosaParser.RegularStmtContext &&
+            statement1.children[0].javaClass.name.contains(Regex("(.*Decl.*)|(.*Return.*)"))
+        ) {
+            fmtfatalerr("Infeasible probable statement: variable declarations and return statements cannot be probable as of now.", ctx.start.line)
+        }
+
+        // Declarations or return statements cannot be uncertain as of now.
+        if (statement2 is SamosaParser.RegularStmtContext &&
+            statement1.children[0].javaClass.name.contains(Regex("(.*Decl.*)|(.*Return.*)"))
+        ) {
+            fmtfatalerr("Infeasible alternate statement: variable declarations and return statements cannot be probable as of now.", ctx.start.line)
+        }
+
+        if (statement1.javaClass.name.contains(Regex(".*[uU]ncertain.*"))) {
+            println("[Warning, Line ${ctx.start.line}] Nested probable statements with alternates is an untested feature. ")
+        }
+
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for probability.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Probability must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainStatementMultiple(ctx)
+    }
+
+    override fun visitUncertainCompoundStmtSingle(ctx: SamosaParser.UncertainCompoundStmtSingleContext?): Void? {
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx!!.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for uncertainty.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Uncertainty must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainCompoundStmtSingle(ctx)
+    }
+
+    override fun visitUncertainCompoundStmtMultiple(ctx: SamosaParser.UncertainCompoundStmtMultipleContext?): Void? {
+        val expressionTypeDetector = ExpressionTypeDetector(symbolTable)
+        val exprType = expressionTypeDetector.getType(ctx!!.expr())
+
+        if (!exprType.first) {
+            fmtfatalerr("Expression has mixed types. Expected an int expression for uncertainty.", ctx.start.line)
+        }
+
+        if (exprType.second != SymbolType.INT) {
+            fmtfatalerr("Uncertainty must be provided as an expression that evaluates to int.", ctx.start.line)
+        }
+
+        return super.visitUncertainCompoundStmtMultiple(ctx)
     }
 }

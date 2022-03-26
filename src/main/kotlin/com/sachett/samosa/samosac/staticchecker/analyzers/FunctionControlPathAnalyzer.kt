@@ -103,6 +103,12 @@ class FunctionControlPathAnalyzer(
         }
     }
 
+    override fun enterReturnStmtWithBooleanExpr(ctx: SamosaParser.ReturnStmtWithBooleanExprContext?) {
+        if (!currentStrayBlock.doesReturnProperly) {
+            currentStrayBlock.doesReturnProperly = fnSymbol.returnType == SymbolType.BOOL
+        }
+    }
+
     override fun enterIfStmt(ctx: SamosaParser.IfStmtContext?) {
         val ifControlNode = IfControlNode(fnSymbol, currentStrayBlock.parent!!, ctx!!)
         addControlNode(ifControlNode)

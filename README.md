@@ -8,7 +8,16 @@
 <br>
 
 <h2 align="center">Installation</h2>
-There are some alternatives for installing samosa. <i>This section will be updated soon with the other alternatives.</i>
+<i>This section will be updated soon with the other alternatives for installing samosa.</i>
+
+<h3>Using a pre-built executable jar</h3>
+
+You really don't need to install anything if you already have JRE (minimum java version 11) installed. Otherwise, you'll have to install that first.
+
+Head over to <a href="https://github.com/souris-dev/samosac-jvm/releases">releases</a> to grab the latest version of the compiler (it is an executable JAR file, named in the format: `samosac-<version>-full.jar`)
+
+You now have the compiler, yay!
+
 <h3>Building from source</h3>
 <b>Note: Ensure that you have the following installed (and in your PATH) before using the upcoming commands to build from source:</b>
 <ul>
@@ -26,8 +35,7 @@ mvn compile
 Then, to build the compiler jar, use (from within the project directory):
 <br><pre><code>mvn package</code></pre>
 
-<br>This will create a <code>samosac-1.0-full.jar</code> in the <code>target</code> folder. This is the compiler jar.
-<br><i>Easier installation methods will be provided soon.</i>
+<br>This will create a <code>samosac-&lt;version&gt;-full.jar</code> file in the <code>target</code> folder. This is the compiler jar.
 
 <h2 align="center">Usage</h2>
 <b>Note: Ensure that you have the JRE (minimum java version 11) installed before starting this section.</b><br>
@@ -36,10 +44,10 @@ Then, to build the compiler jar, use (from within the project directory):
 Type your samosa program in a file, and name it something (for example samosa.samo).
 Then use the .jar file of the compiler to compile it <b>(ensure that you have java in you PATH)</b>:<br>
 <br>
-<pre><code>java -jar samosac-1.0-full.jar samosa.samo
+<pre><code>java -jar samosac-&lt;version&gt;-full.jar samosa.samo
 </code></pre>
 
-(Replace <code>samosac-1.0-full.jar</code> with the full path to the compiler jar file, and <code>samosa.samo</code> with the name of the file you wrote your program in.)
+(Replace <code>samosac-&lt;version&gt;-full.jar</code> with the relative path to the compiler jar file, and <code>samosa.samo</code> with the relative path to the file you wrote your program in.)
 
 <br><i>This section will be updated.</i>
 

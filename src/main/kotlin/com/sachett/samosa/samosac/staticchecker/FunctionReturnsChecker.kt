@@ -1,6 +1,7 @@
 package com.sachett.samosa.samosac.staticchecker
 
 import com.sachett.samosa.logging.fmterror
+import com.sachett.samosa.logging.fmtfatalerr
 import com.sachett.samosa.parser.SamosaBaseListener
 import com.sachett.samosa.parser.SamosaParser
 import com.sachett.samosa.samosac.symbol.FunctionSymbol
@@ -14,7 +15,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker
  * 2. Whether the function returns a value if it should be returning a value
  * 3. Whether there is a nested function inside.
  *
- * TODO: Add error for "not all control paths return a value"
  * Use the checkReturnStmts() function with the appropriate overload.
  */
 class FunctionReturnsChecker(
@@ -103,6 +103,14 @@ class FunctionReturnsChecker(
             )
             allOk = false
         }
+    }
+
+    override fun enterReturnStmtWithBooleanExpr(ctx: SamosaParser.ReturnStmtWithBooleanExprContext?) {
+        if (fnSymbol.returnType != SymbolType.BOOL) {
+            fmtfatalerr("Attempted to return ${SymbolType.BOOL.asString}, but function is expected to " +
+                    "return a value of type ${fnSymbol.returnType.asString}", ctx!!.start.line);
+        }
+        foundReturn = true
     }
 
     override fun enterBlock(ctx: SamosaParser.BlockContext?) {

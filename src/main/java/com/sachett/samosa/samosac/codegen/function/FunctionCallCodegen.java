@@ -1,6 +1,7 @@
 package com.sachett.samosa.samosac.codegen.function;
 
 import com.sachett.samosa.builtins.Builtins;
+import com.sachett.samosa.logging.LoggingUtilsKt;
 import com.sachett.samosa.parser.SamosaParser;
 import com.sachett.samosa.samosac.codegen.expressions.BooleanExprCodegen;
 import com.sachett.samosa.samosac.codegen.expressions.IntExprCodegen;
@@ -62,6 +63,7 @@ public class FunctionCallCodegen extends CodegenDelegatable {
             Method theBuiltin = theFunc.getSecond();
             Builtins.Functions.FunctionArgsLoader argsLoader = () -> {};
             try {
+                setBuiltinCodegenParams(theBuiltin);
                 theBuiltin.invoke(null, argsLoader, functionGenerationContext);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -141,12 +143,33 @@ public class FunctionCallCodegen extends CodegenDelegatable {
         }
     }
 
+    private void setBuiltinCodegenParams(Method theBuiltin) {
+        if (theBuiltin.isAnnotationPresent(Builtins.Functions.RequiresCodegenParams.class)) {
+            if (!theBuiltin.isAnnotationPresent(Builtins.Functions.SamosaBuiltinFuncName.class)) {
+                LoggingUtilsKt.err("Internal error: Builtin function " + theBuiltin.getName()
+                        + " does not have an associated samosa builtin name.");
+                return;
+            }
+            String samosaFuncName = theBuiltin.getAnnotationsByType(
+                    Builtins.Functions.SamosaBuiltinFuncName.class
+            )[0].name();
+            // Extend this as required.
+            switch (samosaFuncName) {
+                case "main":
+                    Builtins.Functions.Utils.setBuiltinFunctionCodegenParams(
+                            new Builtins.Functions.GotoBeginningParams(className)
+                    );
+            }
+        }
+    }
+
     public void doWithArgFunctionCallCodegen(SamosaParser.FunctionCallWithArgsContext ctx, boolean discardResult) {
         // first try to find the function within this class
         String funcName = ctx.IDENTIFIER().getText();
         ISymbol functionSymbol = symbolTable.lookupInCoordinates(funcName, new Pair<>(0, 0));
 
-        var stackSize = functionGenerationContext.getAnalyzerAdapter().stack.size();
+        var stackSize = functionGenerationContext.getAnalyzerAdapter().stack != null ?
+                functionGenerationContext.getAnalyzerAdapter().stack.size() : 0;
 
         if (functionSymbol == null) {
             // TODO: find in the imported packages
@@ -166,6 +189,7 @@ public class FunctionCallCodegen extends CodegenDelegatable {
                 pushArgumentsToStack(theFunc.getFirst(), ctx);
             };
             try {
+                setBuiltinCodegenParams(theBuiltin);
                 theBuiltin.invoke(null, argsLoader, functionGenerationContext);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -191,7 +215,8 @@ public class FunctionCallCodegen extends CodegenDelegatable {
 
         if (discardResult) {
             // pop the stack once if it has a result
-            var currentStackSize = functionGenerationContext.getAnalyzerAdapter().stack.size();
+            var currentStackSize = functionGenerationContext.getAnalyzerAdapter().stack != null ?
+                    functionGenerationContext.getAnalyzerAdapter().stack.size() : 0;
             if (currentStackSize - stackSize == 1) {
                 // one result was pushed to stack
                 // need to pop it since we are discarding the result
