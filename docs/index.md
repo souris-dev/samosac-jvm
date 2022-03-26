@@ -35,6 +35,10 @@ You really don't need to install anything if you already have JRE (minimum java 
 
 Head over to [releases](https://github.com/souris-dev/samosac-jvm/releases) to grab the latest version of the compiler (it is an executable JAR file, named in the format: `samosac-<version>-full.jar`)
 
+Or, just click this to download the `1.0-SNAPSHOT` (current alpha release) compiler executable jar:
+
+[Download](https://github.com/souris-dev/samosac-jvm/releases/download/v1.0.0-alpha/samosac-1.0-SNAPSHOT-full.jar){: .btn .btn-purple }
+
 You now have the compiler, yay!
 
 #### Building from source
