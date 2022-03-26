@@ -48,7 +48,7 @@ Just like single probable statements, probable statements with alternatives can 
 </samosa>
 ```
 
-Again, evaluate probabilities from the right to left.
+Again, probabilities are nested from the _right to left_.
 
 The above example will be easier to understand, if seen this way:
 (**the snippet below is not actual code, just a pseudocode to make things easy to understand**)
