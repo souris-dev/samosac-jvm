@@ -1,10 +1,10 @@
 <h1 align="center">Samosa</h1>
+<h3 align="center">The Programming Language</h3><br>
 <p align="center"><a href="https://lgtm.com/projects/g/souris-dev/samosac-jvm/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18"/></a>
 <a href="https://lgtm.com/projects/g/souris-dev/samosac-jvm/context:java"><img alt="Language grade: Java" src="https://img.shields.io/lgtm/grade/java/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18"/></a></p>
 <p align="center"><i>Welcome, samosa lovers!</i><br><br></p>
-<p align="left">
-  <b>Samosa is a programming language written in Java and Kotlin, that runs on the JVM.</b>
-<br><br><i>Note: This programming language, "samosa", is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
+<b>Samosa is a statically-typed general purpose programming language that runs on the JVM.</b>
+<br><br><i>Note: Samosa - the programming language, is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
 <br>
 
 <h2 align="center">Installation</h2>
