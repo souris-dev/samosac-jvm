@@ -76,4 +76,4 @@ The rest 60% of the times:
 
 Hopefully that served as a good explanation.
 
-Mathematically, the probability of `("nested3a") -> putout.` getting executed can be calculated by evaluating `P(exec(C)|exec(B)|~exec(A))` (where `exec(B)` and so on depict the event of that statement executing, and `~exec(A)` depict the probability of that statement not executing.)
+Mathematically, the probability of `("nested3a") -> putout.` getting executed can be calculated by evaluating `P(exec(C)|exec(B)|~exec(A))` (where `exec(B)` and so on denote the event of that statement executing, and `~exec(A)` denotes the probability of that statement not executing.)
