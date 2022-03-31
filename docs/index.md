@@ -16,6 +16,8 @@ _Welcome, samosa lovers!_
 _Note: Samosa, the programming language, is named after an Indian snack called "samosa", and is pronounced as "some-o-saa" (the part "saa" is pronounced like the word "sour", but without the "r")._
 
 Samosa is the name of the language, and `samosac` is the name of the compiler.
+
+_A samosa playground is currently being developed to allow testing the language from the browser. Stay hooked!_
 ## Table of contents
 {: .no_toc .text-delta }
 

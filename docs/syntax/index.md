@@ -79,6 +79,32 @@ bro, aBoolVal = true.
 </samosa>
 ```
 
+### Scope of variables
+
+The rules of scope in samosa are similar to most other programming languages.
+Any variable defined outside a function is in the global scope, and can be accessed from anywhere in the program.
+Variables declared inside a block are accessible only inside it.
+
+Note that when you try to use a variable (or an identifier), the variable closest in scope will be used.
+
+For example, in the following case:
+
+```
+<samosa>
+bro, i: int = 4.
+
+let sample() {
+    bro, i: int = 9.
+    (i) -> putout.
+}
+
+() -> sample.
+
+</samosa>
+```
+
+the output would be `9` and not `4`.
+
 ## Expressions
 
 Expressions in samosa work in pretty much the same way as in Java/C++ or many other languages.
@@ -155,6 +181,27 @@ while (i > 0) {
     i = i - 1.
 }
 
+</samosa>
+```
+
+The equivalent of the `break` keyword in other programming languages (that exits from the innermost loop it is found in) in samosa is `yamete_kudasai`.
+
+And the equivalent of the `continue` keyword is `thanku_next`.
+
+For example:
+
+```
+<samosa>
+bro, i: int = 3.
+
+while (i > 0) {
+    (i) -> putout.
+    bro, j: int = () -> putinInt.
+    
+    if (j == 9) {
+        yamete_kudasai.
+    }
+}
 </samosa>
 ```
 
