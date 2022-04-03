@@ -8,8 +8,6 @@ description: >
 
 version: 1.0
 
-logo: "/images/samosa-logo-small.png"
-
 url: 'https://souris-dev.github.io'
 baseurl: '/samosac-jvm'
 remote_theme: just-the-docs/just-the-docs
