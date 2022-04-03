@@ -7,6 +7,7 @@ description: >
   A statically-typed general purpose programming language that runs on the JVM.
 
 version: 1.0
+logo: "images/samosa-logo-small.png"
 
 url: 'https://souris-dev.github.io'
 baseurl: '/samosac-jvm'
@@ -59,7 +60,7 @@ nav_sort: case_sensitive # Capital letters sorted before lowercase
 back_to_top: true
 back_to_top_text: "Back to top"
 
-footer_content: "Copyright &copy; 2022 Souris Ash. Distributed by an <a href=\"https://github.com/just-the-docs/just-the-docs/tree/main/LICENSE.txt\">MIT license.</a>"
+footer_content: "Copyright &copy; 2022 Souris Ash. Distributed by an <a href=\"https://github.com/souris-dev/samosac-jvm/tree/main/LICENSE.txt\">Apache License 2.0.</a>"
 
 # Footer "Edit this page on GitHub" link text
 gh_edit_link: true # show or hide edit this page link

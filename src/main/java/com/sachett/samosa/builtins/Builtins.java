@@ -401,7 +401,7 @@ public class Builtins {
         }
 
         /**
-         * Inputs a value from stdin. The value taken as input is present on the stack on top after this function finishes.
+         * Inputs a value from stdin using Scanner. The value taken as input is present on the stack on top after this function finishes.
          *
          * @param functionGenerationCtx The function generation context in which to place the function call to this.
          * @param symbolTypeToInput     The type of value to be taken as input. Can be INT, BOOL, or STRING.
