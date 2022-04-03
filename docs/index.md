@@ -4,7 +4,7 @@ nav_order: 1
 title: Getting Started
 ---
 
-<img src="images/samosa-logo@0-5.png" height="100" />
+<img src="images/samosa-logo@0-5.png" height="64" />
 
 # Samosa
 {: .no_toc}
