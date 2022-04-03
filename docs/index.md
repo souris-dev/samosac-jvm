@@ -4,7 +4,9 @@ nav_order: 1
 title: Getting Started
 ---
 
-# ![Logo](/images/samosa-logo-small.png) Samosa
+![Logo](images/samosa-logo@0-5.png)
+
+# Samosa
 {: .no_toc}
 
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/souris-dev/samosac-jvm/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/souris-dev/samosac-jvm/context:java)
