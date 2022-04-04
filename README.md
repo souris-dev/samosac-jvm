@@ -1,6 +1,4 @@
-<p align="center"><img src="docs/images/samosa-logo.png" /></p>
-<h1 align="center">Samosa</h1>
-<h3 align="center">The Programming Language</h3><br>
+<p align="center"><img src="docs/images/samosa-lang-banner.png" /></p>
 <p align="center"><a href="https://lgtm.com/projects/g/souris-dev/samosac-jvm/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18"/></a>
 <a href="https://lgtm.com/projects/g/souris-dev/samosac-jvm/context:java"><img alt="Language grade: Java" src="https://img.shields.io/lgtm/grade/java/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18"/></a></p>
 <p align="center"><i>Welcome, samosa lovers!</i><br><br></p>

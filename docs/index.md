@@ -19,7 +19,9 @@ _Note: Samosa, the programming language, is named after an Indian snack called "
 
 Samosa is the name of the language, and `samosac` is the name of the compiler.
 
-_A samosa playground is currently being developed to allow testing the language from the browser. Stay tuned!_
+[Playground](http://playground.samosa-lang.org){: .btn .btn-purple }
+[View on GitHub](https://github.com/souris-dev/samosac-jvm){: .btn .btn-purple }
+
 ## Table of contents
 {: .no_toc .text-delta }
 
