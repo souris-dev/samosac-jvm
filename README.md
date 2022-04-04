@@ -1,12 +1,11 @@
-<p align="center"><img src="docs/images/samosa-logo.png" /></p>
-<h1 align="center">Samosa</h1>
-<h3 align="center">The Programming Language</h3><br>
+<p align="center"><img src="docs/images/samosa-lang-banner.png" /></p>
 <p align="center"><a href="https://lgtm.com/projects/g/souris-dev/samosac-jvm/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18"/></a>
 <a href="https://lgtm.com/projects/g/souris-dev/samosac-jvm/context:java"><img alt="Language grade: Java" src="https://img.shields.io/lgtm/grade/java/g/souris-dev/samosac-jvm.svg?logo=lgtm&logoWidth=18"/></a></p>
 <p align="center"><i>Welcome, samosa lovers!</i><br><br></p>
 <b>Samosa is a statically-typed general purpose programming language that runs on the JVM.</b>
 <br><br><i>Note: Samosa - the programming language, is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
-<br>
+<br><br>
+<a href="http://playground.samosa-lang.org">Try it out</a> or <a href="https://souris-dev.github.io/samosac-jvm">read the docs.</a>
 
 <h2 align="center">Installation</h2>
 <i>This section will be updated soon with the other alternatives for installing samosa.</i>

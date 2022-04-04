@@ -4,7 +4,7 @@ nav_order: 1
 title: Getting Started
 ---
 
-![Logo](images/samosa-logo@0-5.png)
+<img src="images/samosa-logo@0-5.png" height="64" />
 
 # Samosa
 {: .no_toc}
@@ -19,7 +19,9 @@ _Note: Samosa, the programming language, is named after an Indian snack called "
 
 Samosa is the name of the language, and `samosac` is the name of the compiler.
 
-_A samosa playground is currently being developed to allow testing the language from the browser. Stay tuned!_
+[Try it out](http://playground.samosa-lang.org){: .btn .btn-purple }
+[View on GitHub](https://github.com/souris-dev/samosac-jvm){: .btn }
+
 ## Table of contents
 {: .no_toc .text-delta }
 
