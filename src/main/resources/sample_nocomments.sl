@@ -1,23 +1,25 @@
-# slang
-#### A statically-typed JVM-based language.
-
-Sample program (this is just an arbitrary program):
-```
 <SLANG>
 
-\\* This is a comment *\\
+needs {
+    java::util:: {
+        Scanner,
+        ArrayList
+    },
+    java::lang::Parser,
+}
 
-\\* Variable declarations and definitions: *\\
-bro, initCounter: int = 5.
-bro, lol: string = "Result is: ".
+bro, initCounter: int = 10 / 2.
+bro, nextCounter: int = initCounter + 3.
+bro, stringVar: string = "hi".
+bro, ball: string = "heh" + stringVar.
+
 bro, someBoolVal: boolie = false || true.
 bro, anotherBoolVal: boolie = someBoolVal and false || (true strictor someBoolVal).
 
-\\* Function definition *\\
-action main(var1: int, var2: string): int {
-    bro, sum: int = 1 + 3 * 6.
+let main(var1: int, var2: string): int {
+    bro, sum: int = (1 + 3) * 6.
 
-    \\* Loop *\\
+    /* Loop */
     while ((var1 < 4) and (var1 > 10 + 4)) {
         sum = sum + 1.
     }
@@ -43,15 +45,11 @@ action main(var1: int, var2: string): int {
     else {
         sum = 10.
     }
-    
+
     return sum.
 }
 
-\\* Function call expression *\\
-bro, res: int = (initCounter + 3 + ((initCounter, lol) -> main), lol) -> main.
-
-\\* Function call statement *\\
-(res, lol) -> main.
+bro, res: int = (initCounter + 11 + ((initCounter, ball) -> main), ball) -> main.
+(res, ball) -> main.
 
 </SLANG>
-```

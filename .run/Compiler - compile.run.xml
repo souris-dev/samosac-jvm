@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Compiler - compile" type="JetRunConfigurationType">
-    <option name="MAIN_CLASS_NAME" value="com.sachett.samosa.samosac.compiler.CompilerKt" />
-    <module name="samosac_java" />
-    <option name="PROGRAM_PARAMETERS" value="./src/main/resources/sampletwo.samo" />
+    <option name="MAIN_CLASS_NAME" value="com.sachett.slang.slangc.compiler.CompilerKt" />
+    <module name="slangc" />
+    <option name="PROGRAM_PARAMETERS" value="./src/main/resources/sampletwo.sl" />
     <shortenClasspath name="NONE" />
     <method v="2">
       <option name="Make" enabled="true" />

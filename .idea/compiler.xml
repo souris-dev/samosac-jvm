@@ -7,8 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="slangc_java" />
-        <module name="samosac_java" />
-        <module name="samosac" />
+        <module name="slangc" />
       </profile>
     </annotationProcessing>
   </component>

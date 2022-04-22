@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sachett.samosa</groupId>
-    <artifactId>samosac</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>com.sachett.slang</groupId>
+    <artifactId>slangc</artifactId>
+    <version>1.0</version>
 
     <build>
         <plugins>
@@ -33,54 +33,43 @@
                 <executions>
                     <execution>
                         <id>compile</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                         <configuration>
                             <sourceDirs>
-                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
-                                <sourceDir>${project.basedir}/target/generated-sources/antlr4</sourceDir>
+                                <source>src/main/kotlin</source>
+                                <source>src/main/java</source>
+                                <source>target/generated-sources/antlr4</source>
                             </sourceDirs>
                         </configuration>
                     </execution>
                     <execution>
                         <id>test-compile</id>
-                        <goals> <goal>test-compile</goal> </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/test/java</sourceDir>
-                                <sourceDir>${project.basedir}/target/generated-sources/antlr4</sourceDir>
-                            </sourceDirs>
-                        </configuration>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
                 <executions>
-                    <!-- Replacing default-compile as it is treated specially by maven -->
                     <execution>
-                        <id>default-compile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <!-- Replacing default-testCompile as it is treated specially by maven -->
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>java-compile</id>
+                        <id>compile</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>java-test-compile</id>
+                        <id>testCompile</id>
                         <phase>test-compile</phase>
                         <goals>
                             <goal>testCompile</goal>
@@ -95,14 +84,12 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.sachett.samosa.samosac.compiler.CompilerKt</mainClass>
+                            <mainClass>com.sachett.slang.slangc.compiler.CompilerKt</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <finalName>samosac-${project.version}-full</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
@@ -143,8 +130,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>samosac</imageName>
-                            <mainClass>com.sachett.samosa.samosac.compiler.CompilerKt</mainClass>
+                            <imageName>slangc</imageName>
+                            <mainClass>com.sachett.slang.slangc.compiler.CompilerKt</mainClass>
                             <buildArgs>
                                 --no-fallback
                                 --verbose
@@ -222,8 +209,8 @@
         </dependency>
     </dependencies>
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <kotlin.version>1.6.10</kotlin.version>
     </properties>
 </project>
