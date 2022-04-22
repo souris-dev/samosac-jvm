@@ -602,6 +602,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         val functionSymbol = FunctionSymbol(idName, definedLineNum, paramList, SymbolType.VOID)
 
         val functionReturnsChecker = FunctionReturnsChecker(symbolTable, functionSymbol)
+        symbolTable.insert(idName, functionSymbol)
         val visitFunctionInside = super.visitImplicitRetTypeFuncDef(ctx)
         val functionReturnsOk = functionReturnsChecker.checkReturnStmts(ctx)
 
@@ -617,12 +618,11 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
 
         if (!functionReturnsOk) {
             fmtfatalerr(
-                "Function body contains errors. (There might be additional information above.)",
+                "Function body contains errors. (There may be additional information above.)",
                 definedLineNum
             )
         }
 
-        symbolTable.insert(idName, functionSymbol)
         return visitFunctionInside
     }
 
