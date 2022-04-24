@@ -1,9 +1,5 @@
 <samosa>
 
-needs {
-    java::lang::System
-}
-
 let khana(stringArg: string) {
     (stringArg) -> putout.
 }
