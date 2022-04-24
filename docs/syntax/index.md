@@ -7,7 +7,7 @@ nav_order: 2
 # Syntax
 {: .no_toc }
 
-As samosa is still in its first release, it has limited features. More features will be added soon in upcoming releases.
+As samosa is still in its first alpha release, it has limited features. More features will be added soon in upcoming releases.
 
 ## Table of contents
 {: .no_toc .text-delta }
@@ -18,7 +18,8 @@ As samosa is still in its first release, it has limited features. More features 
 ## Starting a program
 
 Any samosa program must start with `<samosa>` and end with `</samosa>`.
-Note that statements in samosa end with a period (`.`). For example:
+
+Statements in samosa end with a period (`.`). For example:
 
 ```
 <samosa>
