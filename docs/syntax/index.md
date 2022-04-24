@@ -301,7 +301,7 @@ Recursion is supported, but the compiler does not currently perform tail-call op
 
 Some useful built-in functions to get you started are these:
 
-### `(expression) -> putout`
+#### `(expression) -> putout`
 
 This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
 The argument can be a `string`, `int` or a `boolie` (three overloads).
@@ -321,7 +321,7 @@ bro, boolVal: boolie = "boolieVal".
 </samosa>
 ```
 
-### `() -> putinInt: int`
+#### `() -> putinInt: int`
 
 Takes in an `int` as user input (from stdin). Example:
 
@@ -335,7 +335,7 @@ bro, anInt: int = () -> putinInt.
 </samosa>
 ```
 
-### `() -> putinBoolie: boolie`
+#### `() -> putinBoolie: boolie`
 
 Similar to `putinInt` but inputs a boolean value.
 
@@ -349,7 +349,7 @@ bro, aBoolie: boolie = () -> putinBoolie.
 </samosa>
 ```
 
-### `() -> putinString: string`
+#### `() -> putinString: string`
 
 Similar to `putinInt` but inputs a string value.
 
@@ -363,8 +363,8 @@ bro, aString: string = () -> putinString.
 </samosa>
 ```
 
-For other built-in functions, see [Built-in Functions](docs/bultins/index.md).
+For other built-in functions, see [Built-in Functions](builtins).
 
 ## Probable Statements
 
-See [Probable Statements](docs/probables/index.html).
+See [Probable Statements](probables).
