@@ -296,3 +296,75 @@ let function3(var1: int) {
 ```
 
 Recursion is supported, but the compiler does not currently perform tail-call optimization (support is planned for later releases). Function overloading is not currently supported for user defined functions (but is supported for builtin functions).
+
+### Built-in Functions
+
+Some useful built-in functions to get you started are these:
+
+### `(expression) -> putout`
+
+This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
+The argument can be a `string`, `int` or a `boolie` (three overloads).
+Example:
+
+```
+<samosa>
+
+bro, i: int = 0.
+bro, str: string = "hello ".
+bro, boolVal: boolie = "boolieVal".
+
+(i) -> putout.
+(str) -> putout.
+(boolVal) -> putout.
+
+</samosa>
+```
+
+### `() -> putinInt: int`
+
+Takes in an `int` as user input (from stdin). Example:
+
+```
+<samosa>
+bro, anInt = () -> putinInt.
+
+/* or: */
+
+bro, anInt: int = () -> putinInt.
+</samosa>
+```
+
+### `() -> putinBoolie: boolie`
+
+Similar to `putinInt` but inputs a boolean value.
+
+```
+<samosa>
+bro, aBoolie = () -> putinBoolie.
+
+/* or: */
+
+bro, aBoolie: boolie = () -> putinBoolie.
+</samosa>
+```
+
+### `() -> putinString: string`
+
+Similar to `putinInt` but inputs a string value.
+
+```
+<samosa>
+bro, aString = () -> putinString.
+
+/* or: */
+
+bro, aString: string = () -> putinString.
+</samosa>
+```
+
+For other built-in functions, see [Built-in Functions](docs/bultins/index.md).
+
+## Probable Statements
+
+See [Probable Statements](docs/probables/index.html).

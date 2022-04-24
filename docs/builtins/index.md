@@ -15,7 +15,7 @@ Samosa has a few builtin functions (more will be added soon, in addition to a sm
 1. TOC
 {:toc}
 
-### `putout(expression)`
+### `(expression) -> putout`
 
 This function takes a single argument and prints it to stdout, and prints a newline after it. It returns nothing.
 The argument can be a `string`, `int` or a `boolie` (three overloads).
@@ -35,33 +35,57 @@ bro, boolVal: boolie = "boolieVal".
 </samosa>
 ```
 
-### `putinInt(): int`
+### `() -> putinInt: int`
 
 Takes in an `int` as user input (from stdin). Example:
 
 ```
 <samosa>
-bro, i = () -> putinInt.
+bro, anInt = () -> putinInt.
+
+/* or: */
+
+bro, anInt: int = () -> putinInt.
 </samosa>
 ```
 
-### `putinBoolie(): boolie`
+### `() -> putinBoolie: boolie`
 
 Similar to `putinInt` but inputs a boolean value.
 
-### `putinString(): string`
+```
+<samosa>
+bro, aBoolie = () -> putinBoolie.
+
+/* or: */
+
+bro, aBoolie: boolie = () -> putinBoolie.
+</samosa>
+```
+
+### `() -> putinString: string`
 
 Similar to `putinInt` but inputs a string value.
 
-### `stoi(stringexpr): int`
+```
+<samosa>
+bro, aString = () -> putinString.
+
+/* or: */
+
+bro, aString: string = () -> putinString.
+</samosa>
+```
+
+### `(stringexpr) -> stoi: int`
 
 Converts a `string` to an `int`. Takes a `string` as argument. Will throw an exception if the number is of the wrong format.
 
-### `itos(intexpr): string`
+### `(intexpr) -> itos: string`
 
 Converts an `int` to a `string`. Takes an `int` as argument.
 
-### `exit(intexpr)`
+### `(intexpr) -> exit`
 
 Exits and stops the program. Takes an integer argument as an exit code.
 
