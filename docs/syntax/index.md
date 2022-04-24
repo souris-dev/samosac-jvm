@@ -363,7 +363,7 @@ bro, aString: string = () -> putinString.
 </samosa>
 ```
 
-For other built-in functions, see [Built-in Functions](builtins).
+For other built-in functions, take a look at [Built-in Functions](builtins).
 
 ## Probable Statements
 
