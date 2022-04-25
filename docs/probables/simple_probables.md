@@ -10,7 +10,7 @@ The following sections explain the basics of how statements can be made to execu
 
 ## Specifying the probability
 
-The `?[<int expression>]` at the end of the statement is used to specify the probability of the execution of the statement.
+The `?[<int expression>]` at the end of the statement can be used to specify the probability of the execution of the statement.
 
 The `<int expression>` is an expression (evaluated at runtime) that evaluates to an int between 0 and 100. It can technically have values more than 100 or less than 0 too, but a value of more than 100 is equivalent to 100 and a value less than 0 is equivalent to 0.
 
