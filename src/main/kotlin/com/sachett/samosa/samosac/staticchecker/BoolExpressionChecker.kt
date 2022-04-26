@@ -225,4 +225,8 @@ class BoolExpressionChecker(symbolTable: SymbolTable) : ExpressionChecker(symbol
 
         return true
     }
+
+    override fun visitBooleanFunctionCall(ctx: SamosaParser.BooleanFunctionCallContext?): Boolean {
+        return visitChildren(ctx);
+    }
 }
