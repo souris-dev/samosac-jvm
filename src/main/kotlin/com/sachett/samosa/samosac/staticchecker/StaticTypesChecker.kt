@@ -69,6 +69,11 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
     ): ArrayList<ISymbol> {
         val paramList: ArrayList<ISymbol> = arrayListOf()
 
+        // if the function takes no arguments return empty ArrayList
+        if (ctx.funcArgList() == null) {
+            return arrayListOf()
+        }
+
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
         }
@@ -84,6 +89,11 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         ctx: SamosaParser.ImplicitRetTypeFuncDefContext
     ): ArrayList<ISymbol> {
         val paramList: ArrayList<ISymbol> = arrayListOf()
+
+        // if the function takes no arguments return empty ArrayList
+        if (ctx.funcArgList() == null) {
+            return arrayListOf()
+        }
 
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
