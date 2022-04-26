@@ -98,18 +98,20 @@ public class FunctionCallCodegen extends CodegenDelegatable {
                     // We need to check if the normalPassedParams contains a boolean expr disguised as a normal one
                     // This can happen if it's just a single function call or an identifier with no boolean ops
 
-                    ExpressionTypeDetector typeDetector = new ExpressionTypeDetector(symbolTable);
-                    var typeDetectionResult = typeDetector.getType(
-                            normalPassedParams.get(normalParamCounter)
-                    );
-                    if (typeDetectionResult.getSecond() == SymbolType.BOOL) {
-                        // we've got a boolean expression disguised as a normal expression here
-                        BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
-                                null, symbolTable, functionGenerationContext, className, packageName
+                    if (normalPassedParams.size() > 0) {
+                        ExpressionTypeDetector typeDetector = new ExpressionTypeDetector(symbolTable);
+                        var typeDetectionResult = typeDetector.getType(
+                                normalPassedParams.get(normalParamCounter)
                         );
-                        booleanExprCodegen.doSpecialCodegen(normalPassedParams.get(normalParamCounter));
-                        normalParamCounter++;
-                        break;
+                        if (typeDetectionResult.getSecond() == SymbolType.BOOL) {
+                            // we've got a boolean expression disguised as a normal expression here
+                            BooleanExprCodegen booleanExprCodegen = new BooleanExprCodegen(
+                                    null, symbolTable, functionGenerationContext, className, packageName
+                            );
+                            booleanExprCodegen.doSpecialCodegen(normalPassedParams.get(normalParamCounter));
+                            normalParamCounter++;
+                            break;
+                        }
                     }
 
                     SamosaParser.BooleanExprContext boolExpr = booleanPassedParams.get(booleanParamCounter);
