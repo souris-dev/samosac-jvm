@@ -74,9 +74,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             return arrayListOf()
         }
 
+        // create a new scope for the function
+        symbolTable.createNewScopeEntryOnIncrement = true
+
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
         }
+
+        // after this we'll enter the function body, but we don't want a new scope for that
+        symbolTable.createNewScopeEntryOnIncrement = false
 
         return paramList
     }
@@ -95,9 +101,15 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
             return arrayListOf()
         }
 
+        // create a new scope for the function
+        symbolTable.createNewScopeEntryOnIncrement = true
+
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
         }
+
+        // after this we'll enter the function body, but we don't want a new scope for that
+        symbolTable.createNewScopeEntryOnIncrement = false
 
         return paramList
     }

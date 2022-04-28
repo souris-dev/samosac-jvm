@@ -39,7 +39,7 @@ class SymbolTable {
     private var currentSymbolTableRecord: SymbolTableRecordEntry
 
     /* On next scope increment, should a new scope be created? */
-    private var createNewScopeEntryOnIncrement: Boolean = true
+    var createNewScopeEntryOnIncrement: Boolean = true
 
     /* When coordinates are changed manually, this stack keeps track of the coordinates */
     private var lastCoordinates: java.util.ArrayDeque<Pair<Int, Int>> = java.util.ArrayDeque()
@@ -136,7 +136,7 @@ class SymbolTable {
             scopeIndex = currentScopeCoordinates.first + 1
         )
         if (currentScopeCoordinates.first == (symbolScope.size - 1)) {
-            currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, currentScopeCoordinates.second)
+            currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, 0)
             newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeCoordinates.first, 0)
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
             currentSymbolTableRecord = newSymbolTableRecordEntry
@@ -145,17 +145,21 @@ class SymbolTable {
 
             if (createNewScopeEntryOnIncrement) {
                 // create a new scope entry when increasing the scope
-                currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, currentScopeCoordinates.second)
+                currentScopeCoordinates = Pair(
+                    currentScopeCoordinates.first + 1, symbolScope[currentScopeCoordinates.first + 1].size
+                )
                 // since this is being appended, coordinates
                 // = (currentScopeIndex, <size of this symbolScope - 1 (for 0-based indexing)>)
                 newSymbolTableRecordEntry.recordEntryCoordinates = Pair(
-                    currentScopeCoordinates.first, symbolScope[currentScopeCoordinates.first].size
+                    currentScopeCoordinates.first, currentScopeCoordinates.second
                 )
                 symbolScope[currentScopeCoordinates.first].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
             } else {
                 // get the last scope entry in the next scope
-                currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, currentScopeCoordinates.second)
+                currentScopeCoordinates = Pair(
+                    currentScopeCoordinates.first + 1, symbolScope[currentScopeCoordinates.first + 1].size - 1
+                )
                 currentSymbolTableRecord = symbolScope[currentScopeCoordinates.first].last()
                 createNewScopeEntryOnIncrement = true // reset this flag
             }
@@ -174,7 +178,7 @@ class SymbolTable {
             scopeIndex = currentScopeCoordinates.first + 1
         )
         if (currentScopeCoordinates.first == (symbolScope.size - 1)) {
-            currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, currentScopeCoordinates.second)
+            currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, 0)
             newSymbolTableRecordEntry.recordEntryCoordinates = Pair(currentScopeCoordinates.first, 0)
             symbolScope.add(arrayListOf(newSymbolTableRecordEntry))
             currentSymbolTableRecord = newSymbolTableRecordEntry
@@ -182,17 +186,21 @@ class SymbolTable {
             // implies that scope level was decreased previously
             if (createNewScopeEntry) {
                 // create a new scope entry when increasing the scope
-                currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, currentScopeCoordinates.second)
+                currentScopeCoordinates = Pair(
+                    currentScopeCoordinates.first + 1, symbolScope[currentScopeCoordinates.first + 1].size
+                )
                 // since this is being appended, coordinates
                 // = (currentScopeIndex, <size of this symbolScope - 1 (for 0-based indexing)>)
                 newSymbolTableRecordEntry.recordEntryCoordinates = Pair(
-                    currentScopeCoordinates.first, symbolScope[currentScopeCoordinates.first].size
+                    currentScopeCoordinates.first, currentScopeCoordinates.second
                 )
                 symbolScope[currentScopeCoordinates.first].add(newSymbolTableRecordEntry)
                 currentSymbolTableRecord = newSymbolTableRecordEntry
             } else {
                 // get the last scope entry in the next scope
-                currentScopeCoordinates = Pair(currentScopeCoordinates.first + 1, currentScopeCoordinates.second)
+                currentScopeCoordinates = Pair(
+                    currentScopeCoordinates.first + 1, symbolScope[currentScopeCoordinates.first + 1].size - 1
+                )
                 currentSymbolTableRecord = symbolScope[currentScopeCoordinates.first].last()
                 createNewScopeEntryOnIncrement = true // reset this flag
             }
