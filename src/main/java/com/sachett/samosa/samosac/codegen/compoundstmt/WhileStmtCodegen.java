@@ -1,6 +1,7 @@
 package com.sachett.samosa.samosac.codegen.compoundstmt;
 
 import com.sachett.samosa.parser.SamosaParser;
+import com.sachett.samosa.samosac.codegen.ClassFileGenerator;
 import com.sachett.samosa.samosac.codegen.expressions.BooleanExprCodegen;
 import com.sachett.samosa.samosac.codegen.function.FunctionGenerationContext;
 import com.sachett.samosa.samosac.codegen.utils.delegation.CodegenDelegatable;
@@ -57,6 +58,10 @@ public class WhileStmtCodegen extends CodegenDelegatable implements IControlNode
         this.className = className;
         this.packageName = packageName;
         this.symbolTable = symbolTable;
+    }
+
+    private boolean isGlobalBlock() {
+        return delegatedParentCodegen instanceof ClassFileGenerator;
     }
 
     // Delegate methods:

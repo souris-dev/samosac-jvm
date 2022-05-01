@@ -1,7 +1,9 @@
 package com.sachett.samosa.samosac.codegen.function;
 
+import com.sachett.samosa.samosac.codegen.ClassFileGenerator;
 import com.sachett.samosa.samosac.symbol.FunctionSymbol;
 import com.sachett.samosa.samosac.symbol.ISymbol;
+import org.apache.bcel.util.ClassPath;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -17,7 +19,8 @@ public class FunctionGenerationContext {
     private final MethodVisitor methodVisitor;
     private final LocalVariablesSorter localVariablesSorter;
     private final AnalyzerAdapter analyzerAdapter;
-    HashMap<String, Integer> localVariableIndex = new HashMap<>();
+    private final HashMap<String, Integer> localVariableIndex = new HashMap<>();
+    private ClassFileGenerator parentClassGenerator = null;
 
     /**
      * Indicates if the function needs a RETURN instruction (with no expression)
@@ -61,6 +64,14 @@ public class FunctionGenerationContext {
 
     public AnalyzerAdapter getAnalyzerAdapter() {
         return analyzerAdapter;
+    }
+
+    public void setParentClassGenerator(ClassFileGenerator classFileGenerator) {
+        this.parentClassGenerator = classFileGenerator;
+    }
+
+    public ClassFileGenerator getParentClassGenerator() {
+        return this.parentClassGenerator;
     }
 
     public static class FrameStackMap {

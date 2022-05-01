@@ -446,7 +446,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
 
         val existingSymbol = symbolTable.lookup(idName)
             ?: fmtfatalerr(
-                "Assignment to previously undeclared symbol. ",
+                "Cannot assign to unknown identifier $idName.",
                 lineNum
             )
 
