@@ -1,0 +1,17 @@
+<samosa>
+bro, i = 9.
+
+if (i == 9) {
+    ("i is 9") -> putout.
+}
+else if (i == 10) {
+    ("i is 10") -> putout.
+}
+else if (i == 11) {
+    ("i is 11") -> putout.
+}
+else {
+    ("I dunno, I just like samosa.") -> putout.
+}
+
+</samosa>
