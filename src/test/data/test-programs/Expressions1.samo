@@ -1,0 +1,15 @@
+<samosa>
+
+/* String concatenation: */
+bro, str = "string" + "literal".
+
+/* An integer value will be stored in anIntVal. */
+bro, anIntVal = 3 + 4 / 4.
+
+/* Boolean expressions: */
+bro, aBoolVal = true or false.
+bro, anotherBoolVal = anIntVal > 10.
+bro, someBoolVal = anIntVal == 10 and anotherBoolVal.
+bro, boolval = anIntVal != 100.
+
+</samosa>

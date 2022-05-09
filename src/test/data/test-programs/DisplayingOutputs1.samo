@@ -1,0 +1,10 @@
+<samosa>
+
+/* Displaying values */
+
+/* You can pass any type to putout. */
+("Hello") -> putout.
+(5) -> putout.
+(true) -> putout.
+
+</samosa>

@@ -424,7 +424,7 @@ public class FunctionCodegen extends CodegenDelegatable {
 
     public void generateExplicitRetTypeFuncDef(SamosaParser.ExplicitRetTypeFuncDefContext ctx) {
         registerArguments();
-        functionGenerationContext.setNeedsNoExprReturn(false);
+        functionGenerationContext.setNeedsNoExprReturn(functionSymbol.getReturnType() == SymbolType.VOID);
         visitChildren(ctx);
     }
 

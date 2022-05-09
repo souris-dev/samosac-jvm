@@ -1,5 +1,6 @@
 package com.sachett.samosa.samosac.codegen.expressions;
 
+import com.sachett.samosa.samosac.codegen.ClassFileGenerator;
 import com.sachett.samosa.samosac.codegen.function.FunctionGenerationContext;
 import com.sachett.samosa.samosac.symbol.ISymbol;
 import com.sachett.samosa.samosac.symbol.symboltable.SymbolTable;
@@ -26,11 +27,26 @@ public interface IExprCodegen {
 
         if (lookupInfo.getSecond() == 0) {
             // we're talking about a global variable
+            // that should be looked up in the symbol table without the augmented name
             // (a static field of the class during generation)
             functionGenerationContext.getMv().visitFieldInsn(
                     Opcodes.GETSTATIC, qualifiedClassName, idName, type.getDescriptor()
             );
-        } else {
+        }
+        else if (lookupInfo.getSecond() != 0 && functionGenerationContext
+                                                .getParentClassGenerator()
+                                                .getStaticVarsAugmentedNames()
+                                                .containsKey(
+                                                        lookupInfo
+                                                                .getFirst()
+                                                                .getAugmentedName()))
+        {
+            // static variable but stored in symbol table with augmented name
+            functionGenerationContext.getMv().visitFieldInsn(
+                    Opcodes.GETSTATIC, qualifiedClassName, lookupInfo.getFirst().getAugmentedName(), type.getDescriptor()
+            );
+        }
+        else {
             Integer localVarIndex = functionGenerationContext.getLocalVarIndex(lookupInfo.getFirst().getAugmentedName());
             functionGenerationContext.getMv().visitVarInsn(loadInstruction, localVarIndex);
         }

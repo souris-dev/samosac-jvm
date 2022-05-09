@@ -1,5 +1,6 @@
 package com.sachett.samosa.samosac.codegen;
 
+import com.sachett.samosa.logging.LoggingUtilsKt;
 import com.sachett.samosa.samosac.codegen.compoundstmt.FunctionCodegen;
 import com.sachett.samosa.samosac.codegen.expressions.BooleanExprCodegen;
 import com.sachett.samosa.samosac.codegen.expressions.IntExprCodegen;
@@ -34,11 +35,22 @@ public class ClassFileGenerator extends CodegenDelegatable {
     private final ClassWriter delegateClassWriter;
     private final SamosaParser.ProgramContext programContext;
     private String fileName;
+    private File outputDir;
     private String className;
     private final ArrayDeque<FunctionGenerationContext> functionGenerationContextStack = new ArrayDeque<>();
     private FunctionGenerationContext currentFunctionGenerationContext;
     private final CodegenCommons delegateCodegenCommons;
     private final SymbolTable symbolTable;
+
+    /**
+     * Stores the variables that are supposed to be static when code gets generated.
+     * Each entry is of the form: (augmented_symbol_name, ISymbol)
+     */
+    private final HashMap<String, ISymbol> staticVars = new HashMap<>();
+
+    public HashMap<String, ISymbol> getStaticVarsAugmentedNames() {
+        return this.staticVars;
+    }
 
     /**
      * The CodegenDelegationManager helps manage the delegation of the partial code generators.
@@ -48,11 +60,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
     public ClassFileGenerator(
             SamosaParser.ProgramContext programContext,
-            @NotNull String fileName,
+            @NotNull File sourceFile,
+            @NotNull File outputDir,
             @NotNull SymbolTable symbolTable
     ) {
         super();
 
+        this.fileName = sourceFile.getName();
+        this.outputDir = outputDir;
         /**
          * Register the stuff that this generator generates with the shared delegation manager.
          */
@@ -105,7 +120,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
             genClassNameBuilder.append(modFileNamePart);
         }
 
-        this.className = genClassNameBuilder.toString();
+        // if the class name has a number, then put it to the end of Samo
+        // remove all other than numbers:
+        var tempClassNameNumbers = genClassNameBuilder
+                .toString().replaceAll("[^\\d]", "");
+        var tempClassNameNoNumbers = genClassNameBuilder.toString().replaceAll("[\\d]", "");
+
+        // in the last step, replace any other non-alphanumeric symbols in the name
+        this.className = (tempClassNameNoNumbers + tempClassNameNumbers).replaceAll("[^0-9a-zA-Z]", "");
 
         // Generate a default class
         // TODO: Make this COMPUTE_MAXS and compute frames properly in jumps
@@ -124,6 +146,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 null,
                 null
         );
+        currentFunctionGenerationContext.setParentClassGenerator(this);
         currentFunctionGenerationContext.getMv().visitCode();
         delegateCodegenCommons = new CodegenCommons(this,
                 currentFunctionGenerationContext,
@@ -144,7 +167,9 @@ public class ClassFileGenerator extends CodegenDelegatable {
     public void writeClass() {
         byte[] classBytes = delegateClassWriter.toByteArray();
         try (FileOutputStream stream
-                     = FileUtils.openOutputStream(new File("./out/" + this.className + ".class"))) {
+                     = FileUtils.openOutputStream(new File(
+                             outputDir.getAbsolutePath() + File.separator + this.className + ".class"
+        ))) {
             stream.write(classBytes);
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,11 +183,33 @@ public class ClassFileGenerator extends CodegenDelegatable {
             return null;
         }
 
+        // Put it in staticVars
+        if (symbol.getSymbolCoordinates() == null) {
+            LoggingUtilsKt.err("Internal error: Invalid symbol coordinates for symbol " + symbol.getName());
+        }
+
+        // For global variables, we store them as static variables
+        // without augmenting their name with scope coordinates
+        // Variables that are not in a function but in some local scope,
+        // are stored as static variables with their augmented name.
+
+        String symbolName = "";
+        if (symbol.getSymbolCoordinates().getFirst() == 0) {
+            // global variable => static variable with same name
+            staticVars.put(symbol.getName(), symbol);
+            symbolName = symbol.getName();
+        }
+        else {
+            // global variable inside a scope => static variable with augmented name
+            staticVars.put(symbol.getAugmentedName(), symbol);
+            symbolName = symbol.getAugmentedName();
+        }
+
         SymbolType symbolType = symbol.getSymbolType();
         if (symbolType == SymbolType.INT) {
             classWriter.visitField(
                     Opcodes.ACC_STATIC + Opcodes.ACC_PRIVATE,
-                    symbol.getName(),
+                    symbolName,
                     Type.INT_TYPE.getDescriptor(),
                     null,
                     ((IntSymbol) symbol).getValue()
@@ -170,7 +217,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
         } else if (symbolType == SymbolType.BOOL) {
             classWriter.visitField(
                     Opcodes.ACC_STATIC + Opcodes.ACC_PRIVATE,
-                    symbol.getName(),
+                    symbolName,
                     Type.BOOLEAN_TYPE.getDescriptor(),
                     null,
                     ((BoolSymbol) symbol).getValue()
@@ -178,7 +225,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
         } else if (symbolType == SymbolType.STRING) {
             classWriter.visitField(
                     Opcodes.ACC_STATIC + Opcodes.ACC_PUBLIC,
-                    symbol.getName(),
+                    symbolName,
                     Type.getType(String.class).getDescriptor(),
                     null,
                     ((StringSymbol) symbol).getValue()
@@ -189,6 +236,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
     }
 
     private void initializeField(ISymbol symbol, @Nullable SamosaParser.ExprContext initExpr) {
+        if (symbol.getSymbolCoordinates() == null) {
+            LoggingUtilsKt.err("Internal error: Invalid symbol coordinates for symbol " + symbol.getName());
+        }
+
+        // get the name of the symbol
+        String symbolName = symbol.getSymbolCoordinates().getFirst() == 0 ?
+                symbol.getName() : symbol.getAugmentedName();
+
         switch (symbol.getSymbolType()) {
             case INT:
                 if (!symbol.isInitialValueCalculated()) {
@@ -209,7 +264,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
                     currentFunctionGenerationContext.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,
-                            symbol.getName(),
+                            symbolName,
                             Type.INT_TYPE.getDescriptor()
                     );
                 }
@@ -240,7 +295,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
                     currentFunctionGenerationContext.getMv().visitFieldInsn(
                             Opcodes.PUTSTATIC,
                             className,
-                            symbol.getName(),
+                            symbolName,
                             Type.getType(String.class).getDescriptor()
                     );
                 }
@@ -249,6 +304,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
     }
 
     private void initializeBooleanField(ISymbol symbol, SamosaParser.BooleanExprContext initExpr) {
+        if (symbol.getSymbolCoordinates() == null) {
+            LoggingUtilsKt.err("Internal error: Invalid symbol coordinates for symbol " + symbol.getName());
+        }
+
+        // get the name of the symbol
+        String symbolName = symbol.getSymbolCoordinates().getFirst() == 0 ?
+                symbol.getName() : symbol.getAugmentedName();
+
         if (symbol.getSymbolType() != SymbolType.BOOL) {
             return;
         }
@@ -265,7 +328,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
             currentFunctionGenerationContext.getMv().visitFieldInsn(
                     Opcodes.PUTSTATIC,
                     className,
-                    symbol.getName(),
+                    symbolName,
                     Type.BOOLEAN_TYPE.getDescriptor()
             );
         }
@@ -386,6 +449,10 @@ public class ClassFileGenerator extends CodegenDelegatable {
         delegateCodegenCommons.setFunctionCodegen(currentFunctionGenerationContext); // TODO: refactor this redundancy
     }
 
+    public FunctionGenerationContext getCurrentFunctionGenerationContext() {
+        return currentFunctionGenerationContext;
+    }
+
     private void restoreLastFunctionCodegen() {
         currentFunctionGenerationContext = functionGenerationContextStack.pop();
 
@@ -414,6 +481,8 @@ public class ClassFileGenerator extends CodegenDelegatable {
                 funcDescriptor,
                 null, null
         );
+
+        functionGenerationContext.setParentClassGenerator(this);
 
         setCurrentFunctionCodegen(functionGenerationContext);
 

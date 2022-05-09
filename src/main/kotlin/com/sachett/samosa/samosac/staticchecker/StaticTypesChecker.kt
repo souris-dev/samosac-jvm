@@ -69,9 +69,20 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
     ): ArrayList<ISymbol> {
         val paramList: ArrayList<ISymbol> = arrayListOf()
 
+        // if the function takes no arguments return empty ArrayList
+        if (ctx.funcArgList() == null) {
+            return arrayListOf()
+        }
+
+        // create a new scope for the function
+        symbolTable.createNewScopeEntryOnIncrement = true
+
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
         }
+
+        // after this we'll enter the function body, but we don't want a new scope for that
+        symbolTable.createNewScopeEntryOnIncrement = false
 
         return paramList
     }
@@ -85,9 +96,20 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
     ): ArrayList<ISymbol> {
         val paramList: ArrayList<ISymbol> = arrayListOf()
 
+        // if the function takes no arguments return empty ArrayList
+        if (ctx.funcArgList() == null) {
+            return arrayListOf()
+        }
+
+        // create a new scope for the function
+        symbolTable.createNewScopeEntryOnIncrement = true
+
         ctx.funcArgList().args.forEach {
             paramList.add(processArgList(it))
         }
+
+        // after this we'll enter the function body, but we don't want a new scope for that
+        symbolTable.createNewScopeEntryOnIncrement = false
 
         return paramList
     }
@@ -424,7 +446,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
 
         val existingSymbol = symbolTable.lookup(idName)
             ?: fmtfatalerr(
-                "Assignment to previously undeclared symbol. ",
+                "Cannot assign to unknown identifier $idName.",
                 lineNum
             )
 
