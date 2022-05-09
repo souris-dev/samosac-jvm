@@ -35,6 +35,7 @@ public class ClassFileGenerator extends CodegenDelegatable {
     private final ClassWriter delegateClassWriter;
     private final SamosaParser.ProgramContext programContext;
     private String fileName;
+    private File outputDir;
     private String className;
     private final ArrayDeque<FunctionGenerationContext> functionGenerationContextStack = new ArrayDeque<>();
     private FunctionGenerationContext currentFunctionGenerationContext;
@@ -59,11 +60,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
 
     public ClassFileGenerator(
             SamosaParser.ProgramContext programContext,
-            @NotNull String fileName,
+            @NotNull File sourceFile,
+            @NotNull File outputDir,
             @NotNull SymbolTable symbolTable
     ) {
         super();
 
+        this.fileName = sourceFile.getName();
+        this.outputDir = outputDir;
         /**
          * Register the stuff that this generator generates with the shared delegation manager.
          */
@@ -116,7 +120,14 @@ public class ClassFileGenerator extends CodegenDelegatable {
             genClassNameBuilder.append(modFileNamePart);
         }
 
-        this.className = genClassNameBuilder.toString();
+        // if the class name has a number, then put it to the end of Samo
+        // remove all other than numbers:
+        var tempClassNameNumbers = genClassNameBuilder
+                .toString().replaceAll("[^\\d]", "");
+        var tempClassNameNoNumbers = genClassNameBuilder.toString().replaceAll("[\\d]", "");
+
+        // in the last step, replace any other non-alphanumeric symbols in the name
+        this.className = (tempClassNameNoNumbers + tempClassNameNumbers).replaceAll("[^0-9a-zA-Z]", "");
 
         // Generate a default class
         // TODO: Make this COMPUTE_MAXS and compute frames properly in jumps
@@ -156,7 +167,9 @@ public class ClassFileGenerator extends CodegenDelegatable {
     public void writeClass() {
         byte[] classBytes = delegateClassWriter.toByteArray();
         try (FileOutputStream stream
-                     = FileUtils.openOutputStream(new File("./out/" + this.className + ".class"))) {
+                     = FileUtils.openOutputStream(new File(
+                             outputDir.getAbsolutePath() + File.separator + this.className + ".class"
+        ))) {
             stream.write(classBytes);
         } catch (Exception e) {
             e.printStackTrace();
