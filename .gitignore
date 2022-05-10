@@ -5,6 +5,13 @@ src/test/positive-compile-run/test-programs-comp-errors
 src/test/positive-compile-run/test-programs-comp-outputs
 src/test/positive-compile-run/test-programs-run-outputs
 src/test/positive-compile-run/test-programs-run-errors
+
+src/test/simulated-input-run/out
+src/test/simulated-input-run/test-programs-comp-errors
+src/test/simulated-input-run/test-programs-comp-outputs
+src/test/simulated-input-run/test-programs-run-outputs
+src/test/simulated-input-run/test-programs-run-errors
+
 src/test/negative-compile/test-programs-comp-errors
 src/test/negative-compile/test-programs-comp-outputs
 src/test/negative-compile/out

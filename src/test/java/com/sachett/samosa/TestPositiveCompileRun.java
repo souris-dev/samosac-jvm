@@ -141,7 +141,7 @@ public class TestPositiveCompileRun {
 
     // --------------  Utils  ------------------
 
-    private String getClassFileNameFromFileName(String fileName) {
+    public static String getClassFileNameFromFileName(String fileName) {
         String[] fileNameParts = fileName.split("\\.");
         StringBuilder genClassNameBuilder = new StringBuilder();
 
