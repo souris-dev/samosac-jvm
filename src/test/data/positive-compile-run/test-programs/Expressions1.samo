@@ -10,9 +10,9 @@ bro, anIntVal = 3 + 4 / 4.
 bro, aBoolVal = true or false.
 bro, anotherBoolVal = anIntVal > 10.
 bro, someBoolVal = anIntVal == 10 and anotherBoolVal.
-bro, boolval = anIntVal != 100.
+bro, boolVal = anIntVal != 100.
 
-aBoolVal = someBoolVal and boolval.
+aBoolVal = someBoolVal and boolVal.
 anIntVal = 5.
 str = "bye!".
 
