@@ -95,7 +95,6 @@ public class ClassFileGenerator extends CodegenDelegatable {
          */
 
         this.programContext = programContext;
-        this.fileName = fileName;
         this.symbolTable = symbolTable;
 
         // ensure that the symbol table's currentScopeIndex is reset
