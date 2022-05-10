@@ -1,0 +1,30 @@
+<samosa>
+
+/* Defining functions */
+
+/* Specifying void is not necessary below: */
+let function1(): void {
+    ("Hello from function1!") -> putout.
+}
+
+/* This function takes an int as an argument and returns an int */
+let function2(var1: int): int {
+    return var1 + 3.
+}
+
+/* This function returns void (nothing) */
+let function3(var1: int, name: string) {
+    ("Hello " + name + " from function3!") -> putout.
+    (var1) -> putout.
+}
+
+/* Calling functions */
+/* Note that a function must be defined before it is called. */
+
+() -> function1.
+(10, "human") -> function3.
+
+bro, m = 7.
+bro, i: int = 3 + (5 + m) -> function2.
+
+</samosa>

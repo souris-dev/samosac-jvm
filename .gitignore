@@ -5,4 +5,5 @@ src/test/test-programs-comp-errors
 src/test/test-programs-comp-outputs
 src/test/test-programs-run-outputs
 src/test/test-programs-run-errors
+src/test/coverage
 .exe
