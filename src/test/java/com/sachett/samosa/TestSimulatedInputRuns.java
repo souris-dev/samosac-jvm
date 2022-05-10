@@ -14,7 +14,10 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestSimulatedInputs {
+/**
+ * Tests for programs that take user input (from stdin).
+ */
+public class TestSimulatedInputRuns {
     static final File programsDir = new File("src/test/data/simulated-input-run/test-programs");
     static final File programsCompOutputDir = new File("src/test/data/simulated-input-run/test-programs-comp-outputs");
     static final File programsCompErrorDir = new File("src/test/data/simulated-input-run/test-programs-comp-errors");

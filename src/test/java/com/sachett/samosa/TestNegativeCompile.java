@@ -15,6 +15,9 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Tests for programs that are not supposed to compile successfully.
+ */
 public class TestNegativeCompile {
     static final File programsDir = new File("src/test/data/negative-compile/test-programs");
     static final File programsCompOutputDir = new File("src/test/data/negative-compile/test-programs-comp-outputs");
