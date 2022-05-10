@@ -12,4 +12,8 @@ bro, anotherBoolVal = anIntVal > 10.
 bro, someBoolVal = anIntVal == 10 and anotherBoolVal.
 bro, boolval = anIntVal != 100.
 
+aBoolVal = someBoolVal and boolval.
+anIntVal = 5.
+str = "bye!".
+
 </samosa>
