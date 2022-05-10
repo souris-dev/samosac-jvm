@@ -1,0 +1,12 @@
+<samosa>
+
+/* Convert string to integer. */
+bro, i: int = ("5") -> stoi.
+
+/* Convert integer to a string. */
+bro, str: string = (5) -> itos.
+
+/* You can do something like this: */
+("Hello! This is the number " + (10) -> itos) -> putout.
+
+</samosa>
