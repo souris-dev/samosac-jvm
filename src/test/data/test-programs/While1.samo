@@ -1,0 +1,13 @@
+<samosa>
+bro, i: int = 3.
+
+while (i > 0) {
+    (i) -> putout.
+    i = i + 1.
+    bro, j: int = i + 2.
+
+    if (j == 9) {
+        yamete_kudasai.
+    }
+}
+</samosa>
