@@ -1,0 +1,19 @@
+<samosa>
+
+bro, i: int = 0.
+bro, str: string = "hello!".
+bro, aBoolVal: boolie = true.
+
+/* Variables can also just be declared. */
+bro, j: int.
+bro, str2: string.
+bro, boolieVal: boolie.
+
+/* Types will be inferred for these: */
+bro, iInferred = 0.
+bro, strInferred = "string".
+bro, aBoolValInferred = true.
+
+unknownId = !!aBoolValInferred.
+
+</samosa>

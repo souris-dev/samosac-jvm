@@ -1,0 +1,12 @@
+<samosa>
+
+bro, i: int = 3.
+
+if (i > 0) {
+    (i) -> putout.
+    bro, j: int = i + 2.
+}
+
+(j) -> putout.
+
+</samosa>

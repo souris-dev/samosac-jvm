@@ -16,17 +16,20 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestProgramRunOutputs {
+/**
+ * This class has tests for programs that are supposed to compile and run successfully.
+ */
+public class TestPositiveCompileRun {
 
-    static final File programsDir = new File("src/test/data/test-programs");
-    static final File programsCompOutputDir = new File("src/test/data/test-programs-comp-outputs");
-    static final File programsCompErrorDir = new File("src/test/data/test-programs-comp-errors");
-    static final File programsRunOutputDir = new File("src/test/data/test-programs-run-outputs");
-    static final File programsRunErrorDir = new File("src/test/data/test-programs-run-errors");
+    static final File programsDir = new File("src/test/data/positive-compile-run/test-programs");
+    static final File programsCompOutputDir = new File("src/test/data/positive-compile-run/test-programs-comp-outputs");
+    static final File programsCompErrorDir = new File("src/test/data/positive-compile-run/test-programs-comp-errors");
+    static final File programsRunOutputDir = new File("src/test/data/positive-compile-run/test-programs-run-outputs");
+    static final File programsRunErrorDir = new File("src/test/data/positive-compile-run/test-programs-run-errors");
 
-    static final File expectedRunOutputDir = new File("src/test/data/expected-run-outputs");
-    static final File expectedRunErrorDir = new File("src/test/data/expected-run-errors");
-    static final File classFileOutDir = new File("src/test/data/out");
+    static final File expectedRunOutputDir = new File("src/test/data/positive-compile-run/expected-run-outputs");
+    static final File expectedRunErrorDir = new File("src/test/data/positive-compile-run/expected-run-errors");
+    static final File classFileOutDir = new File("src/test/data/positive-compile-run/out");
 
     @BeforeAll
     static void createDirs() {
@@ -128,7 +131,8 @@ public class TestProgramRunOutputs {
                    assertTrue(
                            FileUtils.contentEqualsIgnoreEOL(runOutputFile, expectedRunOutputFile, null),
                            "Unexpected output for test source file: \n\t" + file.getAbsolutePath()
-                           + "." + "\n" + "See " + runOutputFile.getAbsolutePath() + " for details."
+                           + "." + "\n" + "Expected output is in file: \n\t" + expectedRunOutputFile.getAbsolutePath()
+                           + "\n" + "Output received is written to file: \n\t" + runOutputFile.getAbsolutePath()
                    );
                }
            })

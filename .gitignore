@@ -1,9 +1,12 @@
 target/
 out/
-src/test/out
-src/test/test-programs-comp-errors
-src/test/test-programs-comp-outputs
-src/test/test-programs-run-outputs
-src/test/test-programs-run-errors
+src/test/positive-compile-run/out
+src/test/positive-compile-run/test-programs-comp-errors
+src/test/positive-compile-run/test-programs-comp-outputs
+src/test/positive-compile-run/test-programs-run-outputs
+src/test/positive-compile-run/test-programs-run-errors
+src/test/negative-compile/test-programs-comp-errors
+src/test/negative-compile/test-programs-comp-outputs
+src/test/negative-compile/out
 src/test/coverage
 .exe
