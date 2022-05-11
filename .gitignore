@@ -16,4 +16,8 @@ src/test/negative-compile/test-programs-comp-errors
 src/test/negative-compile/test-programs-comp-outputs
 src/test/negative-compile/out
 src/test/coverage
+
+.err
+.compile.log
+.run.log
 .exe
