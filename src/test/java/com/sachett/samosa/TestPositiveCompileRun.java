@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -74,15 +75,18 @@ public class TestPositiveCompileRun {
                    System.setErr(redirectedErr);
 
                    // Do compilation
-                   CompilerKt.main(new String[]{ file.getAbsolutePath(), "-o" + classFileOutDir.getAbsolutePath() });
+                   int compileStatusCode = catchSystemExit(() -> {
+                       CompilerKt.main(new String[]{ file.getAbsolutePath(), "-o" + classFileOutDir.getAbsolutePath() });
+                       System.exit(0); // test will fail otherwise
+                   });
 
                    // Restore streams
                    System.setErr(prevErr);
                    System.setOut(prevOut);
 
                    // Check if there was any compilation error
-                   assertEquals("",
-                           FileUtils.readFileToString(compilationErrorFile, StandardCharsets.UTF_8).strip(),
+                   assertTrue(FileUtils.readFileToString(compilationErrorFile, StandardCharsets.UTF_8).strip().equals("")
+                                && (compileStatusCode != -1),
                            "Compilation failed for test source file: \n\t" + file.getAbsolutePath()
                                    + "." + "\n" + "See " + compilationErrorFile.getAbsolutePath() + " for details."
                    );
