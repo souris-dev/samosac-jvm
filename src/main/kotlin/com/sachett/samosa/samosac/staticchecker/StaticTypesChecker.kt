@@ -177,7 +177,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
         val typeNameCtx = ctx.typeName()
 
-        val existingSymbol = symbolTable.lookup(idName)
+        val existingSymbol = symbolTable.lookupInCurrentScopeOnly(idName)
 
         if (existingSymbol != null) {
             fmtfatalerr(
@@ -256,7 +256,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
 
-        val existingSymbol = symbolTable.lookup(idName)
+        val existingSymbol = symbolTable.lookupInCurrentScopeOnly(idName)
 
         if (existingSymbol != null) {
             fmtfatalerr(
@@ -299,7 +299,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
 
-        val existingSymbol = symbolTable.lookup(idName)
+        val existingSymbol = symbolTable.lookupInCurrentScopeOnly(idName)
 
         if (existingSymbol != null) {
             fmtfatalerr(
@@ -401,7 +401,7 @@ class StaticTypesChecker(private val symbolTable: SymbolTable) : SamosaBaseVisit
         val idName = ctx!!.IDENTIFIER().symbol.text
         val firstAppearedLineNum = ctx.IDENTIFIER().symbol.line
 
-        val existingSymbol = symbolTable.lookup(idName)
+        val existingSymbol = symbolTable.lookupInCurrentScopeOnly(idName)
 
         if (existingSymbol != null) {
             fmtfatalerr(
