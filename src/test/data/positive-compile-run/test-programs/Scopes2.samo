@@ -1,0 +1,11 @@
+<samosa>
+bro, i: int = 4.
+
+let sample() {
+    bro, i: int = 9.
+    (i) -> putout.
+}
+
+() -> sample.
+
+</samosa>
