@@ -1,0 +1,17 @@
+<samosa>
+
+bro, i: int = 9.
+
+let sample() {
+    bro, i: int = 8.
+    if (i > 7 and i < 9) {
+        bro, i = 4.
+        (i) -> putout.
+    }
+    (i) -> putout.
+}
+
+() -> sample.
+(i) -> putout.
+
+</samosa>
