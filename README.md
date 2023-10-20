@@ -5,6 +5,9 @@
 <b>Samosa is a statically-typed general purpose programming language that runs on the JVM.</b>
 <br><br><i>Note: Samosa - the programming language, is named after an Indian snack called "samosa", and is pronounced as "some-o-saah" (the part "saah" is pronounced like the word "sour", but without the "r").</i>
 <br><br>
+
+**NOTE: The online playground linked below is currently stopped due to budget constraints. It will be up soon. Meanwhile, feel free to download the compiler and give it a try!**
+
 <a href="http://playground.samosa-lang.org">Try it out</a> or <a href="https://souris-dev.github.io/samosac-jvm">read the docs.</a>
 
 <h2 align="center">Installation</h2>
